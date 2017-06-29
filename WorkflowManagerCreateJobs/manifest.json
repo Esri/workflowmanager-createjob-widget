@@ -1,0 +1,10 @@
+{
+  "name": "WorkflowManagerCreateJobs",
+  "platform": "HTML",
+  "version": "2.4",
+  "wabVersion": "2.4",
+  "author": "ArcGIS Workflow Manager",
+  "description": "Sample Workflow Manager Create Job widget",
+  "copyright": "Copyright 2017 Esri",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0"
+}

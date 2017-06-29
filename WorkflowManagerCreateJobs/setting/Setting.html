@@ -1,0 +1,40 @@
+<div style="width:100%;height:100%;">
+  <div class="settings-section" data-dojo-attach-point="searchesSection">
+    <table class="setting-table input-table" cellspacing="0">
+      <tbody>
+		    <tr>
+          <td class="first">${nls.wmxserviceurl}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
+            data-dojo-attach-point="wmxserviceurl" data-dojo-attach-event="Blur:_onWMXURLBlur" placeHolder="WMX URL"
+            data-dojo-props='style:{width:"100%"}'/>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.selectableLayer}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
+            data-dojo-attach-point="selectableLayer" data-dojo-attach-event="Blur:_onSelectLayerBlur" placeHolder=""
+            data-dojo-props='style:{width:"100%"}'/>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.wmxcomments}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
+            data-dojo-attach-point="wmxcomments" data-dojo-attach-event="Blur:_onCommentsBlur" placeHolder="'Notes' or 'Description'"
+            data-dojo-props='style:{width:"100%"}'/>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.wmxrequestuser}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
+            data-dojo-attach-point="wmxrequestuser" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder=""
+            data-dojo-props='style:{width:"100%"}'/>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

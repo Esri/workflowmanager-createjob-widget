@@ -1,0 +1,6 @@
+{
+    "wmxserviceurl": "https://workflowsample.esri.com/arcgis/rest/services/Workflow/WMServer",
+    "selectableLayer": "http://workflowsample.esri.com/arcgis/rest/services/Workflow_LOI/MapServer",
+    "wmxcomments": "Workflow Manager Create Job Widget",
+    "wmxrequestuser": "Username used to submit job requests"
+}

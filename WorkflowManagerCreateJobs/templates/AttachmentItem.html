@@ -1,0 +1,6 @@
+﻿<div style="margin-left: 10px; margin-top: 10px">
+    <img src="" height="25" alt="Image preview..." data-dojo-attach-point="imagePreviewNode">
+    <span data-dojo-attach-point="attachmentURLName">${exifInfo.fullImageFile.name}</span>
+    <span>x: ${exifInfo.gpsLongitude:_roundFormatter} y: ${exifInfo.gpsLatitude:_roundFormatter}</span>
+    <button data-dojo-type="dijit/form/Button" data-dojo-attach-event="onClick:_removeAttachment" data-dojo-attach-point="btnRemoveAttachment" data-dojo-props="iconClass:'dijitEditorIcon dijitEditorIconDelete', showLabel: false" type="button"></button>
+</div>
