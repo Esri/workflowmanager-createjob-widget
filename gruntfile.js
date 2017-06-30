@@ -24,17 +24,17 @@ module.exports = function(grunt) {
           dest: stemappDir
         }],
         verbose: true // Display log messages when copying files
-      },
-      libs: {
-        files: [{
-          // cwd: 'src',
-          src: [
-            'widgets/WorkflowManagerCreateJobs/exifjs'
-          ],
-          dest: stemappDir + '/libs'
-        }],
-        verbose: true // Display log messages when copying files
       }//,
+      // libs: {
+      //   files: [{
+      //     cwd: 'widgets/WorkflowManagerCreateJobs',
+      //     src: [
+      //       'widgets/WorkflowManagerCreateJobs/exifjs', 'widgets/WorkflowManagerCreateJobs/libs/workflowmanager'
+      //     ],
+      //     dest: stemappDir + '/libs'
+      //   }],
+      //   verbose: true // Display log messages when copying files
+      // },
       // app: {
       //   files: [{
       //     // cwd: 'src',
