@@ -1,6 +1,6 @@
 <div>
     <div data-dojo-attach-point="jobTypeSelectors" style="width: 100%;">
-        <div class="job-type-selector" data-dojo-attach-event="onClick:_createJobClick" data-job-type="402">
+        <div class="job-type-selector" data-dojo-attach-event="onClick:_createJobClick" data-job-type="402" data-job-type-title="Pothole">
             <div class="job-type-symbol">
                 <img src="./widgets/WorkflowManagerCreateJobs/images/pothole.svg" />
             </div>
@@ -11,7 +11,7 @@
                 </p>
             </div>
         </div>
-        <div class="job-type-selector" data-dojo-attach-event="onClick:_createJobClick" data-job-type="404">
+        <div class="job-type-selector" data-dojo-attach-event="onClick:_createJobClick" data-job-type="404" data-job-type-title="Graffiti">
             <div class="job-type-symbol">
                 <img src="./widgets/WorkflowManagerCreateJobs/images/graffiti.svg" />
             </div>
@@ -23,54 +23,70 @@
             </div>
         </div>
     </div>
-    <div class="wmx-input-content jimu-item-form" data-dojo-attach-point="inputDiv" style="width:100%; padding-left: 20px">
-        <!--
-        <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
-            <b>${nls.usernameLabel}:</b>
-            <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtUserName" class="common-input" data-dojo-attach-event="Blur:_onUserBlur" >
-        </div>
-        -->
-        <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
-            <b class="input-label">${nls.nameLabel}:</b>
-            <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtName" class="common-input jimu-input input-item">
-        </div>
-        <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
-            <b class="input-label">${nls.emailLabel}:</b>
-            <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtEmail" class="common-input jimu-input input-item">
-        </div>
-        <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
-            <b class="input-label">${nls.phoneLabel}:</b>
-            <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtPhone" class="common-input jimu-input input-item">
-        </div>
-        <!-- <div data-dojo-attach-point="createJobNode" style="padding: 5px 5px 5px 5px">
-            <b>${nls.jobNameLabel}:</b><select data-dojo-attach-point="selJobTypes"></select>
-            <button data-dojo-type="dijit/form/Button" type="button" data-dojo-attach-event="onClick:_createJobClick" data-dojo-attach-point="btnCreateJob" data-dojo-props="class: 'dojo-btn-success'"></button>
-        </div> -->
-    </div>
-    <hr />
-    <div class="query-setting-content" data-dojo-attach-point="tabDiv" style="height:auto; padding-top: 10px; display: none">
-        <div class="geotag-section" data-dojo-attach-point="photoGeotagNode" onselect="return false;" style="display:none"></div>
-        <div class="draw-section" data-dojo-attach-point="drawLocationNode" onselect="return false;" style="display:none">
-            <div class="draw-graphic" align="center" data-dojo-attach-point="drawBoxDiv"></div>
-        </div>
-        <div class="select-section" data-dojo-attach-point="selectFeaturesNode" onselect="return false;" style="display:none">
-            <div class="select-graphic" data-dojo-attach-point="selectBoxDiv"></div>
-        </div>
-    </div>
-    <div data-dojo-attach-point="notesDiv" style="display: none; padding-left: 20px">
-        <div class="photo-section" data-dojo-attach-point="photoNode" onselect="return false;">
-            <div style="padding-top:10px" data-dojo-attach-point="attachmentItemsNode"></div>
-            <div style="display:none;" data-dojo-attach-point="busySpinnerNode">...UPLOADING ATTACHMENT...</div>
+    <div class="wmx-create-job-content" data-dojo-attach-point="wmxCreateJobContent" style="display: none;">
+      <h1 data-dojo-attach-point="createJobHeader"></h1>
+      <hr />
+      <div class="wmx-input-content jimu-item-form" data-dojo-attach-point="inputDiv" style="width:100%;">
+          <!--
+          <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
+              <b>${nls.usernameLabel}:</b>
+              <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtUserName" class="common-input" data-dojo-attach-event="Blur:_onUserBlur" >
+          </div>
+          -->
+          <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
+              <b class="input-label">${nls.nameLabel}:</b>
+              <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtName" class="common-input jimu-input input-item">
+          </div>
+          <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
+              <b class="input-label">${nls.emailLabel}:</b>
+              <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtEmail" class="common-input jimu-input input-item">
+          </div>
+          <div data-dojo-attach-point="userNameNode" style="padding: 5px 5px 5px 5px">
+              <b class="input-label">${nls.phoneLabel}:</b>
+              <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="txtPhone" class="common-input jimu-input input-item">
+          </div>
+          <!-- <div data-dojo-attach-point="createJobNode" style="padding: 5px 5px 5px 5px">
+              <b>${nls.jobNameLabel}:</b><select data-dojo-attach-point="selJobTypes"></select>
+              <button data-dojo-type="dijit/form/Button" type="button" data-dojo-attach-event="onClick:_createJobClick" data-dojo-attach-point="btnCreateJob" data-dojo-props="class: 'dojo-btn-success'"></button>
+          </div> -->
 
-            <div data-dojo-attach-point="attachmentTypeContainer" style="padding-top:10px; padding-bottom: 10px">
-                <form id="sendForm">
-                    <input type="text" id="user" name="user" value="" style="display: none" />
-                    <input type="text" id="storageType" name="storageType" value="2" style="display: none" />
-                    <input type="text" id="f" name="f" value="json" style="display: none" />
-                    <input type="file" id="fileToUpload" name="fileToUpload" data-dojo-attach-point="fileUploader" data-dojo-attach-event="onchange:_loadPhoto" />
-                </form>
-            </div>
-            <label title="${nls.notesLabel}">${nls.notesLabel}:</label><input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="notesTextBox" text-align="top" style="padding-left: 10px; padding-top: 10px; width: 60%; height: 50px">
-        </div>
+      </div>
+      <hr />
+      <div class="query-setting-content" data-dojo-attach-point="tabDiv" style="height:auto; padding-top: 10px;">
+          <div class="geotag-section" data-dojo-attach-point="photoGeotagNode" onselect="return false;" style="display:none"></div>
+          <div class="draw-section" data-dojo-attach-point="drawLocationNode" onselect="return false;" style="display:none">
+              <div class="draw-graphic" align="center" data-dojo-attach-point="drawBoxDiv"></div>
+          </div>
+          <div class="select-section" data-dojo-attach-point="selectFeaturesNode" onselect="return false;" style="display:none">
+              <div class="select-graphic" data-dojo-attach-point="selectBoxDiv"></div>
+          </div>
+      </div>
+      <hr />
+      <div data-dojo-attach-point="notesDiv">
+          <div class="photo-section" data-dojo-attach-point="photoNode" onselect="return false;">
+              <div style="padding-top:10px" data-dojo-attach-point="attachmentItemsNode" class="attachment-list"></div>
+
+              <div data-dojo-attach-point="attachmentTypeContainer" style="padding-top:10px; padding-bottom: 10px">
+                  <form id="sendForm">
+                      <input type="text" id="user" name="user" value="" style="display: none" />
+                      <input type="text" id="storageType" name="storageType" value="2" style="display: none" />
+                      <input type="text" id="f" name="f" value="json" style="display: none" />
+                      <input type="file" id="fileToUpload" name="fileToUpload" data-dojo-attach-point="fileToUpload" data-dojo-attach-point="fileUploader" data-dojo-attach-event="onchange:_loadPhoto" style="display: none;" />
+                  </form>
+                  <label class="wmx-file-uploader" for="fileToUpload">
+                      <img data-dojo-attach-point="uploadGraphic" src="./widgets/WorkflowManagerCreateJobs/images/upload-generic.svg"/>
+                      <p data-dojo-attach-point="uploadText">Add a photo to this job</p>
+                  </label>
+              </div>
+              <div class="wmx-input-content jimu-item-form">
+                <label class="input-label" title="${nls.notesLabel}">${nls.notesLabel}:</label>
+                <input class="common-input jimu-input input-item" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="notesTextBox" text-align="top" style="height: 50px">
+              </div>
+          </div>
+      </div>
+      <div class="wmx-footer">
+        <button class="btn btn-transparent" data-dojo-attach-point="backBtn" data-dojo-attach-event="onClick:_resetWidget">← Back</button>
+        <button class="btn" data-dojo-attach-event="onClick:_createJobClick">Create Job</button>
+      </div>
     </div>
 </div>

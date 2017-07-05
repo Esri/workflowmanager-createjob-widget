@@ -100,6 +100,34 @@
 	display: inline-block;
 }
 
+/*Calcite stuff*/
+.btn {
+  position: relative;
+  display: inline-block;
+  padding: 0.31rem 0.9rem;
+  width: auto;
+  color: #ffffff;
+  border: 1px solid #0079c1;
+  background-color: #0079c1;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transition: all 0.05s linear;
+  transition: all 0.05s linear;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  line-height: 1.55rem;
+}
+
+.btn-transparent {
+  background: none;
+  color: #0079c1;
+  border: none;
+}
+
+/*WMX stuff*/
+
 .job-type-selector {
   background: #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 16px 0 rgba(0, 0, 0, 0.05);
@@ -134,4 +162,48 @@
 
 .job-type-title {
   margin: 0 0 .25em;
+}
+
+.wmx-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+  margin-top: 10px;
+}
+
+.wmx-file-uploader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #F8F8F8;
+  border: 1px solid #efefef;
+  border-radius: 2px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.wmx-file-uploader:hover {
+  background: #F0F0F0;
+  border-color: #E8E8E8;
+}
+
+.wmx-file-uploader img {
+  margin-bottom: 5px;
+}
+
+.wmx-file-uploader p {
+  font-style: italic;
+  color: #444;
+}
+
+.attachment-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attachment-list > div > * {
+  margin: 0 4px;
 }

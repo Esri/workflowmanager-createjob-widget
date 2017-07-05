@@ -95,14 +95,8 @@ define(['dojo/_base/declare',
 
       _loadPhoto: function(e) {
         console.log("_loadPhoto");
-
-        this.busySpinnerNode.style.display = 'block';
-
-        if (!e.target.files.length) {
-          // if there are no files then return early and do nothing
-          this.busySpinnerNode.style.display = 'none';
-          return;
-        }
+        this.uploadText.innerHTML = "Add a photo to this job";
+        this.uploadGraphic.src = "./widgets/WorkflowManagerCreateJobs/images/upload-generic.svg";
 
         var fullImageFile = e.target.files[0];
 
@@ -143,16 +137,21 @@ define(['dojo/_base/declare',
 
           //Call the addEmbeddedAttachment
           var form = dom.byId('sendForm');
+          //processing message
+          this.uploadText.innerHTML = "Processing " + fullImageFile.name + "...";
+          this.uploadGraphic.src = "";
           this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId,
             form,
             lang.hitch(this, function(attachmentId) {
               console.log('addEmbeddedAttachment');
               console.log(attachmentId);
 
+              this.uploadText.innerHTML = "Success! Upload another";
+              this.uploadGraphic.src = "./widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg";
+
               // upload was successful, so add an AttachmentItem widget
               this._createAttachmentItem(latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
 
-              this.busySpinnerNode.style.display = 'none';
             }),
             lang.hitch(this, function(error) {
               console.log('Error Adding Attachment ' + this.jobId +
@@ -217,7 +216,7 @@ define(['dojo/_base/declare',
 
       _initDrawBox: function() {
         this.drawBox = new DrawBox({
-          types: ['point', 'polygon'],
+          types: ['point'],
           map: this.map,
           showClear: true,
           keepOneGraphic: true
@@ -367,7 +366,7 @@ define(['dojo/_base/declare',
         // this.photoGeotagNode.style.display = "";
         // tabs.push(geotagTab);
 
-        var drawTab = {title: "Draw"};
+        var drawTab = {title: "Add Feature"};
         drawTab.content = this.drawLocationNode;
         this.drawLocationNode.style.display = "";
         tabs.push(drawTab);
@@ -400,10 +399,13 @@ define(['dojo/_base/declare',
         var self = lang.hitch(this);
         console.log("_createJobClick function", e);
 
+        if (e) {
+          this.createJobHeader.innerHTML = "Creating Job: " + e.currentTarget.dataset.jobTypeTitle;
+        }
+
         if(!this.bJobCreated)
         {
           var creationParams = new JobCreationParameters();
-          // creationParams.jobTypeId = this.selJobTypes.options[this.selJobTypes.selectedIndex].value;
           creationParams.jobTypeId = e.currentTarget.dataset.jobType;
           creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
           creationParams.assignedTo = this.user;
@@ -415,8 +417,8 @@ define(['dojo/_base/declare',
             self.jobId = data[0];
             console.log(self.jobId);
 
-            self.tabDiv.style.display = "";
-            self.notesDiv.style.display = "";
+            self.wmxCreateJobContent.style.display = "";
+            self.jobTypeSelectors.style.display = "none";
             // self.btnCreateJob.innerHTML = "<b>Submit Job<b>";
           }, function(error) {
             alert('Create Job Error: Please make sure the user is a valid user');
@@ -470,10 +472,12 @@ define(['dojo/_base/declare',
         this.drawBox.clear();
         this.fileToUpload.value = "";
 
-        this.tabDiv.style.display = "none";
-        this.notesDiv.style.display = "none";
-        // this.btnCreateJob.style.display = "";
-        // this.btnCreateJob.innerHTML = "<b>Create Job<b>";
+        this.txtName.value = "";
+        this.txtEmail.value = "";
+        this.txtPhone.value = "";
+
+        this.wmxCreateJobContent.style.display = "none";
+        this.jobTypeSelectors.style.display = "block";
       }
 
     });
