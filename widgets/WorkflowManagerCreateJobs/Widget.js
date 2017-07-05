@@ -62,8 +62,8 @@ define(['dojo/_base/declare',
         this._initSelf();
         this._initDrawBox();
 
-        this.user = this.config.wmxrequestuser;
-        this.populateJobTypes();
+        this.user = "demo"; this.config.wmxrequestuser;
+        // this.populateJobTypes();
       },
 
       // _onUserBlur: function () {
@@ -74,7 +74,7 @@ define(['dojo/_base/declare',
       populateJobTypes () {
         var self = lang.hitch(this);
         var jobTypes = new Array();
-        this.wmConfigTask.getVisibleJobTypes(this.user, function(data){  
+        this.wmConfigTask.getVisibleJobTypes(this.user, function(data){
             jobTypes = data;
 
             self.createJobNode.style.display = "";
@@ -82,7 +82,7 @@ define(['dojo/_base/declare',
               var option = document.createElement("option")
               option.text = jobTypes.jobTypes[i].name;
               option.value = jobTypes.jobTypes[i].id;
-              self.selJobTypes.add(option);
+              // self.selJobTypes.add(option);
             }
         });
       },
@@ -357,7 +357,7 @@ define(['dojo/_base/declare',
       _initSelf: function() {
         var uniqueId = jimuUtils.getRandomString();
         var cbxName = "Query_" + uniqueId;
-        this.btnCreateJob.innerHTML = "<b>Create Job<b>";
+        // this.btnCreateJob.innerHTML = "<b>Create Job<b>";
 
         var tabs = [];
 
@@ -396,14 +396,15 @@ define(['dojo/_base/declare',
         this.wmConfigTask = new WMConfigurationTask(this.config.wmxserviceurl);
       },
 
-      _createJobClick: function() {
+      _createJobClick: function(e) {
         var self = lang.hitch(this);
-        console.log("_createJobClick function");
+        console.log("_createJobClick function", e);
 
         if(!this.bJobCreated)
         {
           var creationParams = new JobCreationParameters();
-          creationParams.jobTypeId = this.selJobTypes.options[this.selJobTypes.selectedIndex].value;
+          // creationParams.jobTypeId = this.selJobTypes.options[this.selJobTypes.selectedIndex].value;
+          creationParams.jobTypeId = e.currentTarget.dataset.jobType;
           creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
           creationParams.assignedTo = this.user;
 
@@ -416,7 +417,7 @@ define(['dojo/_base/declare',
 
             self.tabDiv.style.display = "";
             self.notesDiv.style.display = "";
-            self.btnCreateJob.innerHTML = "<b>Submit Job<b>";
+            // self.btnCreateJob.innerHTML = "<b>Submit Job<b>";
           }, function(error) {
             alert('Create Job Error: Please make sure the user is a valid user');
           });
@@ -471,8 +472,8 @@ define(['dojo/_base/declare',
 
         this.tabDiv.style.display = "none";
         this.notesDiv.style.display = "none";
-        this.btnCreateJob.style.display = "";
-        this.btnCreateJob.innerHTML = "<b>Create Job<b>";
+        // this.btnCreateJob.style.display = "";
+        // this.btnCreateJob.innerHTML = "<b>Create Job<b>";
       }
 
     });

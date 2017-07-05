@@ -99,3 +99,39 @@
 .attachment-item-row .coordinates {
 	display: inline-block;
 }
+
+.job-type-selector {
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.job-type-selector:hover {
+  background: #f8f8f8;
+}
+
+.job-type-symbol {
+  background: #f8f8f8;
+  padding: 1.5em;
+  border-right: 1px solid #E1E1E1;
+}
+
+.job-type-selector:hover .job-type-symbol {
+  background: #eaeaea;
+}
+
+.job-type-symbol img {
+  width: 60px;
+  height: 60px;
+}
+
+.job-type-content {
+  margin: 10px;
+}
+
+.job-type-title {
+  margin: 0 0 .25em;
+}
