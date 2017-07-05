@@ -207,3 +207,20 @@
 .attachment-list > div > * {
   margin: 0 4px;
 }
+
+.wmx-success-panel {
+  font-size: 0.9375rem;
+  line-height: 1.55rem;
+  padding: 0.775rem 0.775rem;
+  margin-bottom: 0.775rem;
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #ddeedb;
+  position: relative;
+  z-index: 100;
+  max-width: 40em;
+  border: 1px solid #9bc19c;
+  -webkit-box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  color: #4c4c4c;
+}
