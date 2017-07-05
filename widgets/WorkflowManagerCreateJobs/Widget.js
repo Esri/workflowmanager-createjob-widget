@@ -215,6 +215,7 @@ define(['dojo/_base/declare',
       },
 
       _initDrawBox: function() {
+        //add 'polygon' type for more options
         this.drawBox = new DrawBox({
           types: ['point'],
           map: this.map,
