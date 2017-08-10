@@ -62,7 +62,7 @@ define(['dojo/_base/declare',
         this._initSelf();
         this._initDrawBox();
 
-        this.user = "demo"; this.config.wmxrequestuser;
+        this.user = this.config.wmxrequestuser;
         // this.populateJobTypes();
       },
 

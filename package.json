@@ -1,6 +1,6 @@
 {
-  "name": "wab-widget",
-  "version": "1.0.0",
+  "name": "workflowmanager-createjob-widget",
+  "version": "0.1.0",
   "description": "Sample ArcGIS Workflow Manager Create Job widget for [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/)",
   "main": "gruntfile.js",
   "scripts": {
@@ -10,13 +10,13 @@
     "type": "git",
     "url": "git+https://github.com/ArcGIS/workflowmanager-createjob-widget.git"
   },
-  "author": "",
+  "author": "ArcGIS Workflow Manager",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ArcGIS/workflowmanager-createjob-widget/issues"
   },
   "homepage": "https://github.com/ArcGIS/workflowmanager-createjob-widget#readme",
-  "dependencies": {
+  "devDependencies": {
     "grunt-contrib-watch": "^1.0.0",
     "grunt-sync": "^0.6.2"
   }

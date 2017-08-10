@@ -1,0 +1,67 @@
+{
+ "jobTypes": [
+  {
+   "id": 401,
+   "name": "Create Version",
+   "description": "Execute as part of a larger workflow for managing your job version",
+   "category": "",
+   "state": 0
+  },
+  {
+   "id": 402,
+   "name": "Data Edits",
+   "description": "Common workflow for editing data in a geospatial database",
+   "category": "",
+   "state": 1
+  },
+  {
+   "id": 403,
+   "name": "Map Request",
+   "description": "Request for map based on a user defined extent.",
+   "category": "Mapping",
+   "state": 1
+  },
+  {
+   "id": 404,
+   "name": "Signage Report",
+   "description": "",
+   "category": "City Works",
+   "state": 1
+  },
+  {
+   "id": 405,
+   "name": "Traffic Accident",
+   "description": "",
+   "category": "City Works",
+   "state": 1
+  },
+  {
+   "id": 406,
+   "name": "Traffic Signal",
+   "description": "",
+   "category": "City Works",
+   "state": 1
+  },
+  {
+   "id": 408,
+   "name": "Domestic Incident",
+   "description": "",
+   "category": "City Works",
+   "state": 1
+  },
+  {
+   "id": 409,
+   "name": "Landbase Updates",
+   "description": "Landbase Updates",
+   "category": "",
+   "state": 1
+  },
+  {
+   "id": 407,
+   "name": "Tree Fell",
+   "description": "",
+   "category": "City Works",
+   "state": 1
+  }
+ ]
+}

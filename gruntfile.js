@@ -1,7 +1,10 @@
 /* global module */
 module.exports = function(grunt) {
+
   var stemappDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/client/stemapp';
   var appDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/server/apps/4';
+  // var stemappDir = '/c/WebAppBuilderForArcGIS/client/stemapp';
+  // var appDir = '/c/WebAppBuilderForArcGIS/server/apps/20';
 
   grunt.initConfig({
     watch: {

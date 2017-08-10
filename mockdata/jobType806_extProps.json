@@ -1,0 +1,102 @@
+{
+ "fields": [
+  {
+   "name": "JTX_AUX_PROPS.job_type_id",
+   "alias": "JTX_AUX_PROPS.job_type_id",
+   "type": 1,
+   "length": 4
+  },
+  {
+   "name": "JTX_AUX_PROPS.table_name",
+   "alias": "JTX_AUX_PROPS.table_name",
+   "type": 4,
+   "length": 100
+  },
+  {
+   "name": "JTX_AUX_PROPS.field_name",
+   "alias": "JTX_AUX_PROPS.field_name",
+   "type": 4,
+   "length": 100
+  },
+  {
+   "name": "JTX_AUX_PROPS.field_alias_name",
+   "alias": "JTX_AUX_PROPS.field_alias_name",
+   "type": 4,
+   "length": 100
+  },
+  {
+   "name": "JTX_AUX_PROPS.field_domain",
+   "alias": "JTX_AUX_PROPS.field_domain",
+   "type": 4,
+   "length": 100
+  },
+  {
+   "name": "JTX_AUX_PROPS.display_type",
+   "alias": "JTX_AUX_PROPS.display_type",
+   "type": 1,
+   "length": 4
+  },
+  {
+   "name": "JTX_AUX_PROPS.required",
+   "alias": "JTX_AUX_PROPS.required",
+   "type": 1,
+   "length": 4
+  }
+ ],
+ "rows": [
+  [
+   "806",
+   "wmx.wmx.callreports",
+   "requestor_text",
+   "Requestor Information",
+   "",
+   "1",
+   "0"
+  ],
+  [
+   "806",
+   "wmx.wmx.callreports",
+   "request_date",
+   "Request Date",
+   "",
+   "2",
+   "0"
+  ],
+  [
+   "806",
+   "wmx.wmx.callreports",
+   "estimate_hours",
+   "Estimate Hours",
+   "",
+   "1",
+   "0"
+  ],
+  [
+   "806",
+   "wmx.wmx.callreports",
+   "completed_hours",
+   "Actual Completion Hours",
+   "",
+   "1",
+   "0"
+  ],
+  [
+   "806",
+   "wmx.wmx.callreports",
+   "request_details",
+   "Additional Details",
+   "",
+   "1",
+   "0"
+  ],
+  [
+   "806",
+   "wmx.wmx.callreports",
+   "action_taken",
+   "Action Taken",
+   "",
+   "1",
+   "0"
+  ]
+ ]
+}
