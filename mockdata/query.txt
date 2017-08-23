@@ -1,4 +1,4 @@
-http://llam.esri.com:6080/arcgis/rest/services/WMX_LLAM_Postgres/WMServer/jobs/query?user=lala5443&id=&fields=JTX_AUX_PROPS.job_type_id%2CJTX_AUX_PROPS.table_name%2CJTX_AUX_PROPS.field_name%2CJTX_AUX_PROPS.field_alias_name%2CJTX_AUX_PROPS.field_domain%2CJTX_AUX_PROPS.display_type%2CJTX_AUX_PROPS.display_order%2CJTX_AUX_PROPS.required&aliases=&tables=JTX_AUX_PROPS&where=JTX_AUX_PROPS.JOB_TYPE_ID+%3D+806&orderby=&f=pjson
+http://llam.esri.com:6080/arcgis/rest/services/WMX_LLAM_Postgres/WMServer/jobs/query?user=lala5443&id=&fields=JTX_AUX_PROPS.job_type_id%2CJTX_AUX_PROPS.table_name%2CJTX_AUX_PROPS.field_name%2CJTX_AUX_PROPS.field_alias_name%2CJTX_AUX_PROPS.field_domain%2CJTX_AUX_PROPS.display_type%2CJTX_AUX_PROPS.required&aliases=&tables=JTX_AUX_PROPS&where=JTX_AUX_PROPS.JOB_TYPE_ID+%3D+806&orderby=&f=pjson
 
 fields:
 JTX_AUX_PROPS.job_type_id,JTX_AUX_PROPS.table_name,JTX_AUX_PROPS.field_name,JTX_AUX_PROPS.field_alias_name,JTX_AUX_PROPS.field_domain,JTX_AUX_PROPS.display_type,JTX_AUX_PROPS.required
