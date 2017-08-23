@@ -25,7 +25,7 @@ Sample [ArcGIS Workflow Manager](https://server.arcgis.com/en/workflow-manager/)
 * Create a Web AppBuilder application and include the WorkflowManager widget into your application.
 
 ## Dev setup
-This is to setup a continuous integration setup for a development environent.
+This is to setup a continuous integration setup using Grunt for a development environment.
 
 Prerequisites:
 * [npm](https://www.npmjs.com/package/npm) which comes installed with [Node.js](https://nodejs.org/en/download/)
@@ -35,6 +35,23 @@ Prerequisites:
 Install NPM dependencies for the app
 * `cd workflowmanager-createjob-widget`
 * `npm install`
+
+Update the Grunt configuration
+* Edit the `gruntfile.js` file in the project
+* Update the following paths to point to your Web App Builder installation
+  * stemappDir - location of WebAppBuilder stemapp directory
+  * appDir - location of WebAppBuilder application directory
+    <pre>
+    var stemappDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/client/stemapp';
+    var appDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/server/apps/4';
+    </pre>
+    
+Run Grunt
+
+This will run the watch task which takes care of automatically updating files in WebAppBuilder as you're making updates
+to them.
+* `grunt`
+
 
 
 
