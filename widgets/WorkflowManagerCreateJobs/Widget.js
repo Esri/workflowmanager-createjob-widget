@@ -62,7 +62,7 @@ define(['dojo/_base/declare',
         this._initSelf();
         this._initDrawBox();
 
-        this.user = this.config.wmxrequestuser;
+        this.user = this.config.defaultUser;
         // this.populateJobTypes();
       },
 
@@ -71,7 +71,7 @@ define(['dojo/_base/declare',
       //   this.populateJobTypes();
       // },
 
-      populateJobTypes () {
+      populateJobTypes: function() {
         var self = lang.hitch(this);
         var jobTypes = new Array();
         this.wmConfigTask.getVisibleJobTypes(this.user, function(data){
@@ -392,8 +392,8 @@ define(['dojo/_base/declare',
 
 
       _initTasks: function() {
-        this.wmJobTask = new WMJobTask(this.config.wmxserviceurl);
-        this.wmConfigTask = new WMConfigurationTask(this.config.wmxserviceurl);
+        this.wmJobTask = new WMJobTask(this.config.wmServiceUrl);
+        this.wmConfigTask = new WMConfigurationTask(this.config.wmServiceUrl);
       },
 
       _createJobClick: function(e) {

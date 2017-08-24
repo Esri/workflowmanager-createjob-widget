@@ -37,10 +37,10 @@ define([
       setConfig: function(config) {
         this.config = config;
 
-        if (config.wmxserviceurl) {
-          this.wmxserviceurl.set('value', config.wmxserviceurl);
+        if (config.wmServiceUrl) {
+          this.wmServiceUrl.set('value', config.wmServiceUrl);
         } else {
-          this.wmxserviceurl.set('value', "WMX URL");
+          this.wmServiceUrl.set('value', "Workflow Mananager Service URL");
         }
 
         if (config.selectableLayer) {
@@ -49,42 +49,126 @@ define([
           this.selectableLayer.set('value', "Select Layer URL");
         }
 
-        if (config.wmxcomments) {
-          this.wmxcomments.set('value', config.wmxcomments);
+        if (config.defaultUser) {
+          this.defaultUser.set('value', config.defaultUser);
         } else {
-          this.wmxcomments.set('value', "Notes or Description");
+          this.defaultUser.set('value', "Username to for submitting job requests");
         }
 
-        if (config.wmxrequestuser) {
-          this.wmxrequestuser.set('value', config.wmxrequestuser);
+        if (config.definLOILabel) {
+            this.definLOILabel.set('value', config.definLOILabel);
         } else {
-          this.wmxrequestuser.set('value', "Username to for submitting job requests");
+            this.definLOILabel.set('value', "Define Location");
+        }
+
+        if (config.attachmentsLabel) {
+          this.attachmentsLabel.set('value', config.attachmentsLabel);
+        } else {
+          this.attachmentsLabel.set('value', "Attachments");
+        }
+
+        if (config.extPropsLabel) {
+          this.extPropsLabel.set('value', config.extPropsLabel);
+        } else {
+          this.extPropsLabel.set('value', "Extended Properties");
         }
       },
 
       getConfig: function() {
-      	this.config.wmxserviceurl = this.wmxserviceurl.getValue();
+        this.config.wmServiceUrl = this.wmServiceUrl.getValue();
         this.config.selectableLayer = this.selectableLayer.getValue();
-      	this.config.wmxcomments = this.wmxcomments.getValue();
-      	this.config.wmxrequestuser = this.wmxrequestuser.getValue();
+        // this.config.wmxcomments = this.wmxcomments.getValue();
+        this.config.defaultUser = this.defaultUser.getValue();
+
+        this.config.definLOILabel = this.definLOILabel.getValue();
+        this.config.attachmentsLabel = this.attachmentsLabel.getValue();
+        this.config.extPropsLabel = this.extPropsLabel.getValue();
 
         return this.config;
-      }, 
+      },
 
       _onWMXURLBlur: function() {
-        this.wmxserviceurl.set('value', this.wmxserviceurl.get('value'));
+        this.wmServiceUrl.set('value', this.wmServiceUrl.get('value'));
       },
 
       _onSelectLayerBlur: function() {
         this.selectableLayer.set('value', this.selectableLayer.get('value'));
       },
 
-      _onCommentsBlur: function() {
-        this.wmxcomments.set('value', this.wmxcomments.get('value'));
+      _onRequestUserBlur: function() {
+        this.defaultUser.set('value', this.defaultUser.get('value'));
       },
 
-      _onRequestUserBlur: function() {
-        this.wmxrequestuser.set('value', this.wmxrequestuser.get('value'));
+      _onBtnSetSourceClicked: function() {
+        // TODO Update settings with new info from WMX Server URL
+        // 1.  Retrieve job types
+        // 2.  Retrieve extended properties per job type
+      },
+
+      _onListContentClicked: function(event){
+        var target = event.target || event.srcElement;
+        var itemDom = jimuUtils.getAncestorDom(target, function(dom){
+          return html.hasClass(dom, 'item');
+        }, 3);
+        if(!itemDom){
+          return;
+        }
+        if(html.hasClass(target, 'action')){
+          if(html.hasClass(target, 'up')){
+            if(itemDom.previousElementSibling){
+              html.place(itemDom, itemDom.previousElementSibling, 'before');
+            }
+          }else if(html.hasClass(target, 'down')){
+            if(itemDom.nextElementSibling){
+              html.place(itemDom, itemDom.nextElementSibling, 'after');
+            }
+          }else if(html.hasClass(target, 'delete')){
+            if(this.singleSetting && this.singleSetting.target === itemDom){
+              this.singleSetting.destroy();
+              this.singleSetting = null;
+            }
+            html.destroy(itemDom);
+            var filterItemDoms = query('.item', this.listContent);
+            if(filterItemDoms.length > 0){
+              this._createSingleSetting(filterItemDoms[0]);
+            }
+            this._updateNoQueryTip();
+          }
+          return;
+        }
+
+        if (this.singleSetting) {
+          if (this.singleSetting.target !== itemDom) {
+            var singleConfig = this.singleSetting.getConfig();
+            if (singleConfig) {
+              this.singleSetting.destroy();
+              this.singleSetting = null;
+              this._createSingleSetting(itemDom);
+            }
+          }
+        } else {
+          this._createSingleSetting(itemDom);
+        }
+      },
+
+      _onBtnAddItemClicked: function(){
+        // TODO Implement adding a new item.  Copied from Filter widget
+        // if(this.singleSetting){
+        //   var singleConfig = this.singleSetting.getConfig();
+        //   if(singleConfig){
+        //     this.singleSetting.destroy();
+        //     this.singleSetting = null;
+        //   }else{
+        //     return;
+        //   }
+        // }
+        //
+        // var target = this._createTarget();
+        // this._createSingleSetting(target, null);
+      },
+
+      _createSingleSetting: function(target) {
+        // TODO Create a new entry in the UI and save configuration
       }
     });
   });
