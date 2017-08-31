@@ -1,11 +1,12 @@
-define(['dojo/_base/declare',
-    "dojo/topic",
+define([
+    'dojo/_base/declare',
+    'dojo/topic',
     'dojo/_base/html',
-    "dojo/_base/lang",
+    'dojo/_base/lang',
     'dojo/_base/array',
-    "dojo/on",
+    'dojo/on',
     'dojo/dom',
-    "dojox/form/Uploader",
+    'dojox/form/Uploader',
 
     'jimu/utils',
     'jimu/BaseWidget',
@@ -13,34 +14,43 @@ define(['dojo/_base/declare',
     'jimu/dijit/SimpleTable',
     'jimu/dijit/DrawBox',
 
-    "workflowmanager/Enum",
-    "workflowmanager/WMJobTask",
-    "workflowmanager/WMConfigurationTask",
-    "workflowmanager/supportclasses/JobCreationParameters",
-    "workflowmanager/supportclasses/JobUpdateParameters",
+    'workflowmanager/Enum',
+    'workflowmanager/WMJobTask',
+    'workflowmanager/WMConfigurationTask',
+    'workflowmanager/supportclasses/JobCreationParameters',
+    'workflowmanager/supportclasses/JobUpdateParameters',
 
-    "./AttachmentItem",
+    './AttachmentItem',
 
-    "esri/geometry/webMercatorUtils",
-    "esri/tasks/query",
-    "esri/tasks/QueryTask",
-    "esri/graphic",
-    "esri/symbols/SimpleMarkerSymbol",
+    'esri/geometry/webMercatorUtils',
+    'esri/tasks/query',
+    'esri/tasks/QueryTask',
+    'esri/graphic',
+    'esri/symbols/SimpleMarkerSymbol',
 
     'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
     window.location.hostname + ':' + window.location.port + window.path +
     'libs/exifjs/exif.js'
   ],
-  function(declare, topic, html, lang, arrayUtils, on, dom, Uploader, jimuUtils, BaseWidget, TabContainer3, Table, DrawBox, Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters, AttachmentItem, WebMercatorUtils, Query, QueryTask, Graphic, SimpleMarkerSymbol, EXIF) {
+  function (
+    declare, topic, html, lang, arrayUtils, on, dom, Uploader,
+    jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
+    Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
+    AttachmentItem,
+    WebMercatorUtils, Query, QueryTask, Graphic, SimpleMarkerSymbol,
+    EXIF) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
       // Custom widget code goes here
 
       name: 'WorkflowManagerCreateJobsWidget',
       baseClass: 'jimu-widget-wmxcreatejobs',
-      _disabledClass: "jimu-state-disabled",
+      _disabledClass: 'jimu-state-disabled',
+
       wmJobTask: null,
       wmConfigTask: null,
+
+      jobTypes: [],
       attachmentList: [],
       exifInfosArray: [],
       jobId: null,
@@ -50,12 +60,12 @@ define(['dojo/_base/declare',
       bAOIDrawn: false,
       bAOISelected: false,
       bJobCreated: false,
-      sSelectableFeatureLayerURL: "",
+      sSelectableFeatureLayerURL: '',
       drawBox: null,
 
       //methods to communication with app container:
 
-      postCreate: function() {
+      postCreate: function () {
         console.log('postCreate');
         this.inherited(arguments);
         this._initTasks();
@@ -63,45 +73,41 @@ define(['dojo/_base/declare',
         this._initDrawBox();
 
         this.user = this.config.defaultUser;
-        // this.populateJobTypes();
+        this.populateJobTypes();
       },
 
-      // _onUserBlur: function () {
-      //   this.user = this.txtUserName.value;
-      //   this.populateJobTypes();
-      // },
-
-      populateJobTypes: function() {
+      _populateJobTypes: function () {
         var self = lang.hitch(this);
-        var jobTypes = new Array();
-        this.wmConfigTask.getVisibleJobTypes(this.user, function(data){
-            jobTypes = data;
-
-            self.createJobNode.style.display = "";
-            for (i = 0; i < jobTypes.jobTypes.length; i++) {
-              var option = document.createElement("option")
-              option.text = jobTypes.jobTypes[i].name;
-              option.value = jobTypes.jobTypes[i].id;
-              // self.selJobTypes.add(option);
-            }
+        this.jobTypes = [];
+        this.wmConfigTask.getVisibleJobTypes(this.user, function (data) {
+          // TODO Use visible job types to populate the first panel of the widget which
+          // shows the available job types to create
+          this.jobTypes = data;
+          self.createJobNode.style.display = '';
+          arrayUtils.forEach(this.jobTypes, function (jobType, index) {
+            var option = document.createElement('option');
+            option.text = jobType.name;
+            option.value = jobType.id;
+            // self.selJobTypes.add(option);
+          });
         });
       },
 
-      onClose: function() {
+      _onClose: function () {
         this.inherited(arguments);
 
         this._resetWidget();
       },
 
-      _loadPhoto: function(e) {
-        console.log("_loadPhoto");
-        this.uploadText.innerHTML = "Add a photo to this job";
-        this.uploadGraphic.src = "./widgets/WorkflowManagerCreateJobs/images/upload-generic.svg";
+      _loadPhoto: function (e) {
+        console.log('_loadPhoto');
+        this.uploadText.innerHTML = 'Add a photo to this job';
+        this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
 
         var fullImageFile = e.target.files[0];
 
-        window.EXIF.getData(fullImageFile, lang.hitch(this, function() {
-          console.log("window.Exif.getdata");
+        window.EXIF.getData(fullImageFile, lang.hitch(this, function () {
+          console.log('window.Exif.getdata');
           var gpsLatitudeRef = window.EXIF.getTag(fullImageFile,
             'GPSLatitudeRef');
           var gpsLatitude = window.EXIF.getTag(fullImageFile,
@@ -130,46 +136,49 @@ define(['dojo/_base/declare',
 
           this.exifInfosArray.push(latestExifInfo);
 
-          if(this.photoGeotagNode.style.display != "none")
-          {
+          if (this.photoGeotagNode.style.display != 'none') {
             this._saveGeotagAOI();
           }
 
-          //Call the addEmbeddedAttachment
-          var form = dom.byId('sendForm');
-          //processing message
-          this.uploadText.innerHTML = "Processing " + fullImageFile.name + "...";
-          this.uploadGraphic.src = "";
-          this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId,
-            form,
-            lang.hitch(this, function(attachmentId) {
-              console.log('addEmbeddedAttachment');
-              console.log(attachmentId);
+          // Add the attachment to the job
+          this._addEmbeddedAttachment();
 
-              this.uploadText.innerHTML = "Success! Upload another";
-              this.uploadGraphic.src = "./widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg";
-
-              // upload was successful, so add an AttachmentItem widget
-              this._createAttachmentItem(latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
-
-            }),
-            lang.hitch(this, function(error) {
-              console.log('Error Adding Attachment ' + this.jobId +
-                ' ' + error);
-            }));
         }));
       },
 
-      _saveGeotagAOI: function() {
-        if(this.bAOISelected || this.bAOIDrawn)
-        {
-          var r = confirm("This will overwrite the current AOI.  Are you sure?");
+      _addEmbeddedAttachment: function () {
+        var form = dom.byId('sendForm');
+        //processing message
+        this.uploadText.innerHTML = 'Processing ' + fullImageFile.name + '...';
+        this.uploadGraphic.src = '';
+        this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId, form,
+          lang.hitch(this, function (attachmentId) {
+            console.log('addEmbeddedAttachment');
+            console.log(attachmentId);
+
+            this.uploadText.innerHTML = 'Success! Upload another';
+            this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg';
+
+            // upload was successful, so add an AttachmentItem widget
+            this._createAttachmentItem(latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
+
+          }),
+          lang.hitch(this, function (error) {
+            console.log('Error Adding Attachment ' + this.jobId +
+              ' ' + error);
+          })
+        );
+      },
+
+      _saveGeotagAOI: function () {
+        if (this.bAOISelected || this.bAOIDrawn) {
+          var r = confirm('This will overwrite the current AOI.  Are you sure?');
           if (r == true) {
-              this.bAOISelected = false;
-              this.bAOIDrawn = false;
-              this.aoi = null;
+            this.bAOISelected = false;
+            this.bAOIDrawn = false;
+            this.aoi = null;
           } else {
-              return;
+            return;
           }
         }
         this.bAOIGeotagged = true;
@@ -181,7 +190,7 @@ define(['dojo/_base/declare',
             latitude: this.exifInfosArray[0].gpsLatitude
           });
           this.aoi = pt;
-          this.aoi.type = "point";
+          this.aoi.type = 'point';
         } else if (this.exifInfosArray.length > 1) {
           var mp = new esri.geometry.Multipoint();
           for (i = 0; i < this.exifInfosArray.length; i++) {
@@ -192,14 +201,14 @@ define(['dojo/_base/declare',
             mp.addPoint(pt);
           }
           this.aoi = mp;
-          this.aoi.type = "multipoint";
+          this.aoi.type = 'multipoint';
         }
         var sym = new SimpleMarkerSymbol();
         var g = new Graphic(this.aoi, sym);
         this.drawBox.addGraphic(g);
       },
 
-      _dmsToDd: function(exifGPSLatOrLongArray, exifGPSLatOrLongRef) {
+      _dmsToDd: function (exifGPSLatOrLongArray, exifGPSLatOrLongRef) {
         var modifier = 1;
         if (exifGPSLatOrLongRef === 'S' || exifGPSLatOrLongRef === 'W') {
           modifier = -1;
@@ -208,13 +217,12 @@ define(['dojo/_base/declare',
         var d = exifGPSLatOrLongArray[0];
         var m = exifGPSLatOrLongArray[1];
         var s = exifGPSLatOrLongArray[2];
-
         var dms = d + (m / 60.0) + (s / 3600.0);
 
         return modifier * dms;
       },
 
-      _initDrawBox: function() {
+      _initDrawBox: function () {
         //add 'polygon' type for more options
         this.drawBox = new DrawBox({
           types: ['point'],
@@ -232,7 +240,7 @@ define(['dojo/_base/declare',
           map: this.map,
           showClear: true,
           keepOneGraphic: true
-        })
+        });
 
         this.selectBox.placeAt(this.selectBoxDiv);
         this.selectBox.startup();
@@ -241,26 +249,25 @@ define(['dojo/_base/declare',
         this.own(on(this.selectBox, 'DrawEnd', lang.hitch(this, this._onSelectEnd)));
       },
 
-      _createAttachmentItem: function(latestExifInfo, wmJobTask, jobId,
-        attachmentId) {
+      _createAttachmentItem: function (latestExifInfo, wmJobTask, jobId,
+                                       attachmentId) {
         var attachmentItem = new AttachmentItem({
-            exifInfo: latestExifInfo,
-            wmJobTask: wmJobTask,
-            jobId: jobId,
-            attachmentId: attachmentId,
-            user: this.user,
-            removeAttachmentCallback: lang.hitch(this,
-                '_removeAttachmentItemCallback') // this is an alternative to topics, you can trigger a method out in Widget.js
-          })
+          exifInfo: latestExifInfo,
+          wmJobTask: wmJobTask,
+          jobId: jobId,
+          attachmentId: attachmentId,
+          user: this.user,
+          removeAttachmentCallback: lang.hitch(this,
+            '_removeAttachmentItemCallback') // this is an alternative to topics, you can trigger a method out in Widget.js
+        })
           .placeAt(this.attachmentItemsNode, 'last');
         attachmentItem.startup();
         this.attachmentList.push(attachmentItem);
       },
 
-      _removeAttachmentItemCallback: function(removeAttachmentId) {
+      _removeAttachmentItemCallback: function (removeAttachmentId) {
         var removalIndex = false;
-        arrayUtils.forEach(this.attachmentList, function(attachmentItem,
-          index) {
+        arrayUtils.forEach(this.attachmentList, function (attachmentItem, index) {
           if (attachmentItem.attachmentId === removeAttachmentId) {
             removalIndex = index;
           }
@@ -272,37 +279,36 @@ define(['dojo/_base/declare',
       },
 
       // _onIconSelected: function(target, geotype, commontype) {
-      //   console.log("_onIconSelected");
+      //   console.log('_onIconSelected');
 
       //   if (this.exifInfosArray.length > 0) {
-      //     alert("A Geotagged photo has been attached, and is currently used as the Job's AOI.  Drawing a graphic on the map, will overwrite the geotagged coordinates.");
+      //     alert('A Geotagged photo has been attached, and is currently used as the Job's AOI.  Drawing a graphic on the map, will overwrite the geotagged coordinates.');
       //   }
       // },
 
-      _onSelectEnd: function(graphic, geotype, commontype) {
+      _onSelectEnd: function (graphic, geotype, commontype) {
         var self = lang.hitch(this);
         this.inherited(arguments);
-        console.log("_onSelectEnd");
+        console.log('_onSelectEnd');
 
-        if(this.bAOIGeotagged || this.bAOIDrawn)
-        {
-          var r = confirm("This will overwrite the current AOI.  Are you sure?");
+        if (this.bAOIGeotagged || this.bAOIDrawn) {
+          var r = confirm('This will overwrite the current AOI.  Are you sure?');
           if (r == true) {
-              this.bAOIGeotagged = false;
-              this.bAOIDrawn = false;
-              this.aoi = null;
+            this.bAOIGeotagged = false;
+            this.bAOIDrawn = false;
+            this.aoi = null;
           } else {
-              return;
+            return;
           }
         }
         this.bAOISelected = true;
 
-        if (commontype == "point") {
+        if (commontype == 'point') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
-          this.aoi.type = "point";
-        } else if (commontype == "polygon") {
+          this.aoi.type = 'point';
+        } else if (commontype == 'polygon') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
-          this.aoi.type = "polygon";
+          this.aoi.type = 'polygon';
         }
 
         var qTask = new QueryTask(self.sSelectableFeatureLayerURL);
@@ -312,9 +318,9 @@ define(['dojo/_base/declare',
         qry.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
         qTask.execute(
           qry,
-          lang.hitch(this, function(fset) {
+          lang.hitch(this, function (fset) {
             var self = lang.hitch(this);
-            console.log("query success");
+            console.log('query success');
 
           }),
           lang.hitch(this, this._errorSelectFeatures)
@@ -322,61 +328,59 @@ define(['dojo/_base/declare',
       },
 
 
-      _errorSelectFeatures: function(params) {
+      _errorSelectFeatures: function (params) {
         // this._popupMessage(params.message);
         console.error(params);
       },
 
 
-      _onDrawEnd: function(graphic, geotype, commontype) {
+      _onDrawEnd: function (graphic, geotype, commontype) {
         this.inherited(arguments);
-        console.log("_onDrawEnd");
+        console.log('_onDrawEnd');
 
-        if(this.bAOIGeotagged || this.bAOISelected)
-        {
-          var r = confirm("This will overwrite the current AOI.  Are you sure?");
+        if (this.bAOIGeotagged || this.bAOISelected) {
+          var r = confirm('This will overwrite the current AOI.  Are you sure?');
           if (r == true) {
-              this.bAOIGeotagged = false;
-              this.bAOISelected = false;
-              this.aoi = null;
+            this.bAOIGeotagged = false;
+            this.bAOISelected = false;
+            this.aoi = null;
           } else {
-              return;
+            return;
           }
         }
         this.bAOIDrawn = true;
 
-        if (commontype == "point") {
+        if (commontype == 'point') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
-          this.aoi.type = "point";
-        } else if (commontype == "polygon") {
+          this.aoi.type = 'point';
+        } else if (commontype == 'polygon') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
-          this.aoi.type = "polygon";
+          this.aoi.type = 'polygon';
         }
       },
 
-      _initSelf: function() {
+      _initSelf: function () {
         var uniqueId = jimuUtils.getRandomString();
-        var cbxName = "Query_" + uniqueId;
-        // this.btnCreateJob.innerHTML = "<b>Create Job<b>";
+        var cbxName = 'Query_' + uniqueId;
+        // this.btnCreateJob.innerHTML = '<b>Create Job<b>';
 
         var tabs = [];
 
         // Comment out functionality
-        // var geotagTab = {title: "Geotag Photo"};
+        // var geotagTab = {title: 'Geotag Photo'};
         // geotagTab.content = this.photoGeotagNode;
-        // this.photoGeotagNode.style.display = "";
+        // this.photoGeotagNode.style.display = '';
         // tabs.push(geotagTab);
 
-        var drawTab = {title: "Add Feature"};
+        var drawTab = {title: 'Add Feature'};
         drawTab.content = this.drawLocationNode;
-        this.drawLocationNode.style.display = "";
+        this.drawLocationNode.style.display = '';
         tabs.push(drawTab);
 
-        if(this.config.selectableLayer != "" && this.config.selectableLayer != "Under Construction")
-        {
-          var selectTab = {title: "Select Features"};
+        if (this.config.selectableLayer != '' && this.config.selectableLayer != 'Under Construction') {
+          var selectTab = {title: 'Select Features'};
           selectTab.content = this.selectFeaturesNode;
-          this.selectFeaturesNode.style.display = "";
+          this.selectFeaturesNode.style.display = '';
           this.sSelectableFeatureLayerURL = this.config.selectableLayer; // make configurable
           tabs.push(selectTab)
         }
@@ -387,25 +391,29 @@ define(['dojo/_base/declare',
         this.tab = new TabContainer3(args);
         this.tab.placeAt(this.tabDiv);
         this.tab.startup();
-
       },
 
-
-      _initTasks: function() {
+      _initTasks: function () {
         this.wmJobTask = new WMJobTask(this.config.wmServiceUrl);
         this.wmConfigTask = new WMConfigurationTask(this.config.wmServiceUrl);
       },
 
-      _createJobClick: function(e) {
+      // TODO Implement this
+      _selectJobTypeClick: function (e) {
+        // User has selected the job type
+        // 1. Get the configured extended properties for the job type and populate the UI
+        // 2.
+      },
+
+      _createJobClick: function (e) {
         var self = lang.hitch(this);
-        console.log("_createJobClick function", e);
+        console.log('_createJobClick function', e);
 
         if (e) {
-          this.createJobHeader.innerHTML = "Creating Job: " + e.currentTarget.dataset.jobTypeTitle;
+          this.createJobHeader.innerHTML = 'Creating Job: ' + e.currentTarget.dataset.jobTypeTitle;
         }
 
-        if(!this.bJobCreated)
-        {
+        if (!this.bJobCreated) {
           var creationParams = new JobCreationParameters();
           creationParams.jobTypeId = e.currentTarget.dataset.jobType;
           creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
@@ -413,52 +421,34 @@ define(['dojo/_base/declare',
 
           this.bJobCreated = true;
 
-          this.wmJobTask.createJob(creationParams, this.user, function(data) {
-            console.log("createJob function");
+          this.wmJobTask.createJob(creationParams, this.user, function (data) {
+            console.log('createJob function');
             self.jobId = data[0];
             console.log(self.jobId);
 
-            self.wmxCreateJobContent.style.display = "";
-            self.jobTypeSelectors.style.display = "none";
-            // self.btnCreateJob.innerHTML = "<b>Submit Job<b>";
-          }, function(error) {
+            self.wmxCreateJobContent.style.display = '';
+            self.jobTypeSelectors.style.display = 'none';
+            // self.btnCreateJob.innerHTML = '<b>Submit Job<b>';
+          }, function (error) {
             alert('Create Job Error: Please make sure the user is a valid user');
           });
         }
-        else
-        {
-          if(this.config.wmxcomments == "Notes")
-          {
-            //Save AOI
-            this.wmJobTask.updateLOI(this.jobId, this.aoi, this.user, function (data) {
-                console.log("updateLOI");
-            });
-            this.wmJobTask.updateNotes(this.jobId, this.notesTextBox.value, this.user, function() {
-              console.log("Job note updated successfully.");
-              self._resetWidget();
-            });
-          }
-          else
-          {
-            var updateParam = new JobUpdateParameters();
-            updateParam.jobId = this.jobId;
-            updateParam.ownedBy = this.user;
-            updateParam.description = this.notesTextBox.value;
-            updateParam.loi = this.aoi;
-            /*updateParam.properties = {
-              "description":"Hard Test"//this.notesTextBox.value
-            };*/
-            this.wmJobTask.updateJob(updateParam, this.user, function() {
-              console.log("Job description updated successfully.");
-              self._resetWidget();
-            });
-          }
+        else {
+          var updateParam = new JobUpdateParameters();
+          updateParam.jobId = this.jobId;
+          updateParam.ownedBy = this.user;
+          updateParam.description = this.notesTextBox.value;
+          updateParam.loi = this.aoi;
+          this.wmJobTask.updateJob(updateParam, this.user, function () {
+            console.log('Job description updated successfully.');
+            self._resetWidget();
+          });
         }
       },
 
-      _resetWidget: function(){
+      _resetWidget: function () {
         // destroy all the attachmentItem child widgets
-        arrayUtils.forEach(this.attachmentList, function(attachmentItem) {
+        arrayUtils.forEach(this.attachmentList, function (attachmentItem) {
           attachmentItem.destroy();
         });
 
@@ -471,15 +461,14 @@ define(['dojo/_base/declare',
         this.bAOISelected = false;
         this.bJobCreated = false;
         this.drawBox.clear();
-        this.fileToUpload.value = "";
+        this.fileToUpload.value = '';
 
-        this.txtName.value = "";
-        this.txtEmail.value = "";
-        this.txtPhone.value = "";
+        this.txtName.value = '';
+        this.txtEmail.value = '';
+        this.txtPhone.value = '';
 
-        this.wmxCreateJobContent.style.display = "none";
-        this.jobTypeSelectors.style.display = "block";
+        this.wmxCreateJobContent.style.display = 'none';
+        this.jobTypeSelectors.style.display = 'block';
       }
-
     });
   });
