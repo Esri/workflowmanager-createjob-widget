@@ -1,4 +1,4 @@
-define("workflowmanager/Enum", [], function() {
+define([], function() {
     return {
 
         ChangeCondition: {

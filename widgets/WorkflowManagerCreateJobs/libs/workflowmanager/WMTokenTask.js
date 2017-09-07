@@ -1,6 +1,6 @@
-define("workflowmanager/WMTokenTask", [
+define([
     "dojo/_base/declare",
-    "workflowmanager/_BaseTask"
+    "./_BaseTask"
 ], function(declare, BaseTask) {
     return declare([BaseTask], {
         constructor: function (url) {

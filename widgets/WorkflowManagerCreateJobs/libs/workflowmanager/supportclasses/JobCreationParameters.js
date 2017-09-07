@@ -1,6 +1,6 @@
-define("workflowmanager/supportclasses/JobCreationParameters", [
+define([
     "dojo/_base/declare",
-    "workflowmanager/Enum"
+    "../Enum"
 ], function(declare, Enum) {
     return declare(null, {
         // instance properties

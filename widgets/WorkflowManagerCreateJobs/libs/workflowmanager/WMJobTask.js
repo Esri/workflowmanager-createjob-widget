@@ -1,9 +1,9 @@
-define("workflowmanager/WMJobTask", [
+define([
     "dojo/_base/declare",
     "dojo/dom",
-    "workflowmanager/_BaseTask",
-    "workflowmanager/_Util",
-    "workflowmanager/Enum",
+    "./_BaseTask",
+    "./_Util",
+    "./Enum",
     "esri/geometry/Multipoint"
 ], function(declare, dom, BaseTask, Util, Enum, Multipoint) {
     return declare([BaseTask], {

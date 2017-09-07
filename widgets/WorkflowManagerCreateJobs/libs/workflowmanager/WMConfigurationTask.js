@@ -1,8 +1,8 @@
-define("workflowmanager/WMConfigurationTask", [
+define([
     "dojo/_base/declare",
     "dojo/_base/lang",
-    "workflowmanager/_BaseTask",
-    "workflowmanager/_Util"
+    "./_BaseTask",
+    "./_Util"
 ], function(declare, lang, BaseTask, Util) {
     return declare([BaseTask], {
         constructor: function (url) {

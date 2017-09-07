@@ -1,6 +1,6 @@
-define("workflowmanager/WMReportTask", [
+define([
     "dojo/_base/declare",
-    "workflowmanager/_BaseTask"
+    "./_BaseTask"
 ], function(declare, BaseTask) {
     return declare([BaseTask], {
         timeZoneOffset: 0,

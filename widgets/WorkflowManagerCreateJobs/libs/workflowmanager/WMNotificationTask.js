@@ -1,7 +1,7 @@
-define("workflowmanager/WMNotificationTask", [
+define([
     "dojo/_base/declare",
-    "workflowmanager/_BaseTask",
-    "workflowmanager/_Util"
+    "./_BaseTask",
+    "./_Util"
 ], function(declare, BaseTask, Util) {
     return declare([BaseTask], {
         constructor: function (url) {

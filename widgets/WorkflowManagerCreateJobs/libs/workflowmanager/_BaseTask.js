@@ -1,4 +1,4 @@
-define("workflowmanager/_BaseTask", [
+define([
     "dojo/_base/declare",
     "esri/request"
 ], function(declare, esriRequest) {
