@@ -14,11 +14,11 @@ define([
     'jimu/dijit/SimpleTable',
     'jimu/dijit/DrawBox',
 
-    'workflowmanager/Enum',
-    'workflowmanager/WMJobTask',
-    'workflowmanager/WMConfigurationTask',
-    'workflowmanager/supportclasses/JobCreationParameters',
-    'workflowmanager/supportclasses/JobUpdateParameters',
+    './libs/workflowmanager/Enum',
+    './libs/workflowmanager/WMJobTask',
+    './libs/workflowmanager/WMConfigurationTask',
+    './libs/workflowmanager/supportclasses/JobCreationParameters',
+    './libs/workflowmanager/supportclasses/JobUpdateParameters',
 
     './AttachmentItem',
 
@@ -76,7 +76,7 @@ define([
         this.populateJobTypes();
       },
 
-      _populateJobTypes: function () {
+      populateJobTypes: function () {
         var self = lang.hitch(this);
         this.jobTypes = [];
         this.wmConfigTask.getVisibleJobTypes(this.user, function (data) {
@@ -84,7 +84,7 @@ define([
           // shows the available job types to create
           this.jobTypes = data;
           self.createJobNode.style.display = '';
-          arrayUtils.forEach(this.jobTypes, function (jobType, index) {
+          this.jobTypes.forEach(function (jobType) {
             var option = document.createElement('option');
             option.text = jobType.name;
             option.value = jobType.id;
@@ -142,7 +142,6 @@ define([
 
           // Add the attachment to the job
           this._addEmbeddedAttachment();
-
         }));
       },
 

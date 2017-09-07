@@ -1,7 +1,8 @@
 define({
   root: ({
-    wmServiceUrl: "Workflow Manager Service URL",
+    workflowManagerServiceUrl: "Workflow Manager Service URL",
     selectableLayer: "Selectable Map/Feature Service",
+    selectLayerUrl: "Select Layer Url",
     wmxcomments: "Description/Notes",
 
     defaultUser: "Default User",
