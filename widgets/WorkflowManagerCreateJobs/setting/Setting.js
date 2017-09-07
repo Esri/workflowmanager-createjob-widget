@@ -97,13 +97,16 @@ define([
       },
 
       getConfig: function() {
-        this.config.wmServiceUrl = this.wmServiceUrl;
+        this.config.wmServiceUrl = this.wmServiceUrl.getValue();
         this.config.selectableLayer = this.selectableLayer.getValue();
         this.config.defaultUser = this.defaultUser.getValue();
 
         this.config.definLOILabel = this.definLOILabel.getValue();
         this.config.attachmentsLabel = this.attachmentsLabel.getValue();
         this.config.extPropsLabel = this.extPropsLabel.getValue();
+
+        this.config.jobTypes = this.jobTypes;
+        this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
 
         return this.config;
       },
@@ -183,7 +186,7 @@ define([
         var user = this.defaultUser.get('value');
         this.user = user ? user.trim() : user;
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
-          function(response) {
+          lang.hitch(this, function(response) {
             var extProps = (response && response.rows) ? response.rows : [];
             if (extProps.length == 0) {
               // TODO Populate UI
@@ -208,7 +211,7 @@ define([
               return acc;
             }, {});
             console.log('jobTypeExtendedProperties = ', this.jobTypeExtendedProperties);
-          },
+          }),
           function(error) {
             console.log('Unable to retrieve any extended properties for job types', error);
           });
