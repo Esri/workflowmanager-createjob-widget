@@ -2,41 +2,48 @@
 
 Sample [ArcGIS Workflow Manager](https://server.arcgis.com/en/workflow-manager/) Create Job widget for [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/)
 
-## Setup
-* Follow [setup instructions for Web AppBuilder for ArcGIS](https://developers.arcgis.com/web-appbuilder/guide/getstarted.htm)
+## Portal Deployment
+Information about Web AppBuilder for Portal: http://server.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm
+
+* Run Web AppBuilder from your Portal installation
+  * e.g. http://hostname.domain.com/portal/apps/webappbuilder
+* Register the Workflow Manager Create Job widget as a custom widget.
+  * http://server.arcgis.com/en/portal/latest/use/add-custom-widgets.htm
+* Create a new application using the custom widget
+  
+
+## Developer Setup
+* Follow [setup instructions for Web AppBuilder for ArcGIS (Developer Edition)](https://developers.arcgis.com/web-appbuilder/guide/getstarted.htm)
 * Clone this repo to your local drive and copy `WorkflowManagerCreateJobs` to `<WebAppBuilderInstallDir>\client\stemapp\widgets` folder
   * e.g. `<WebAppBuilderInstallDir>\client\stemapp\widgets\WorkflowManagerCreateJobs`
 * Copy the following directories from `WorkflowManagerCreateJobs` to `<WebAppBuilderInstallDir>\client\stemapp\libs`
   * `WorkflowManagerCreateJobs\exifjs` -> `<WebAppBuilderInstallDir>\client\stemapp\libs\exifjs`
   * `WorkflowManagerCreateJobs\libs\workflowmanager` -> `<WebAppBuilderInstallDir>\client\stemapp\libs\workflowmanager`
   
-* Edit the `<WebAppBuilderInstallDir>\client\stemapp\init.js` file and add `workflowmanager` as a package location in two places
-    * Line 99     
-      `{
-        name: "workflowmanager",
-        location: "libs/workflowmanager"
-      }`   
-    * Line 149    
-      `{
-        name: "workflowmanager",
-        location: window.path + "libs/workflowmanager"
-      }`
+* Run Web AppBuilder Developer Edition and include the Workflow Manager Create Job widget into your application. 
 
-* Create a Web AppBuilder application and include the WorkflowManager widget into your application.
+* Deploy your application
+  * https://developers.arcgis.com/web-appbuilder/guide/xt-deploy-app.htm
+* Deploy the custom widget
+  * https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm
 
-## Dev setup
+### Continuous Integration
 This is to setup a continuous integration setup using Grunt for a development environment.
+From the local drive where you cloned this repository, you can run a watch task which will take care of 
+automatically updating files in Web AppBuilder as you're making updates to the files in this local
+directory.
 
-Prerequisites:
+####Prerequisites:
 * [npm](https://www.npmjs.com/package/npm) which comes installed with [Node.js](https://nodejs.org/en/download/)
-* [Grunt](https://gruntjs.com/) - Install the `grunt` command
+* [Grunt](https://gruntjs.com/) - Install the `grunt` command globally
   * `npm install -g grunt-cli`
   
-Install NPM dependencies for the app
-* `cd workflowmanager-createjob-widget`
+####Install NPM dependencies for the app
+Run `npm install` from the local drive where this repo was cloned to.
+* `cd workflowmanager-createjob-widget` - 
 * `npm install`
 
-Update the Grunt configuration
+####Update the Grunt configuration
 * Edit the `gruntfile.js` file in the project
 * Update the following paths to point to your Web App Builder installation
   * stemappDir - location of WebAppBuilder stemapp directory
@@ -46,7 +53,7 @@ Update the Grunt configuration
     var appDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/server/apps/4';
     </pre>
     
-Run Grunt
+####Run Grunt
 
 This will run the watch task which takes care of automatically updating files in WebAppBuilder as you're making updates
 to them.
