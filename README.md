@@ -33,17 +33,18 @@ From the local drive where you cloned this repository, you can run a watch task 
 automatically updating files in Web AppBuilder as you're making updates to the files in this local
 directory.
 
-####Prerequisites:
+**Prerequisites**
 * [npm](https://www.npmjs.com/package/npm) which comes installed with [Node.js](https://nodejs.org/en/download/)
 * [Grunt](https://gruntjs.com/) - Install the `grunt` command globally
   * `npm install -g grunt-cli`
   
-####Install NPM dependencies for the app
+**Install NPM dependencies for the app**
+
 Run `npm install` from the local drive where this repo was cloned to.
 * `cd workflowmanager-createjob-widget` - 
 * `npm install`
 
-####Update the Grunt configuration
+**Update the Grunt configuration**
 * Edit the `gruntfile.js` file in the project
 * Update the following paths to point to your Web App Builder installation
   * stemappDir - location of WebAppBuilder stemapp directory
@@ -53,7 +54,7 @@ Run `npm install` from the local drive where this repo was cloned to.
     var appDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/server/apps/4';
     </pre>
     
-####Run Grunt
+**Run Grunt**
 
 This will run the watch task which takes care of automatically updating files in WebAppBuilder as you're making updates
 to them.
