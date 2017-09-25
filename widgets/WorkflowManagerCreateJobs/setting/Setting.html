@@ -26,7 +26,7 @@
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
             data-dojo-attach-point="selectableLayer" data-dojo-attach-event="Blur:_onSelectLayerBlur" placeHolder=""
-            data-dojo-props='style:{width:"100%"}'/>
+            data-dojo-props="style:'width:100%'"/>
           </td>
         </tr>
         <tr>
@@ -34,15 +34,15 @@
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
             data-dojo-attach-point="defaultUser" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="demo"
-            data-dojo-props='style:{width:"100%"}'/>
+            data-dojo-props="style:'width:100%'"/>
           </td>
         </tr>
         <tr>
           <td class="first">${nls.definLOILabel}</td>
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
-                   data-dojo-attach-point="definLOILabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder=""${nls.defaultDefineLOILabel}"
-                   data-dojo-props='style:{width:"100%"}'/>
+                   data-dojo-attach-point="definLOILabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="${nls.defaultDefineLOILabel}"
+                   data-dojo-props="style:'width:100%'"/>
           </td>
         </tr>
         <tr>
@@ -50,7 +50,7 @@
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
                    data-dojo-attach-point="attachmentsLabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder=""
-                   data-dojo-props='style:{width:"100%"}'/>
+                   data-dojo-props="style:'width:100%'"/>
           </td>
         </tr>
         <tr>
@@ -58,11 +58,13 @@
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox"
                    data-dojo-attach-point="extPropsLabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder=""
-                   data-dojo-props='style:{width:"100%"}'/>
+                   data-dojo-props="style:'width:100%'"/>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <hr />
 
     <!-- Job type configuration -->
     <div>
@@ -73,12 +75,22 @@
             <div class="icon"></div>
             <div class="tip">${nls.jobType}</div>
           </div>
-          <div class="items-list-content" data-dojo-attach-point="listContent" data-dojo-attach-event="click:_onListContentClicked"></div>
+          <div class="items-list-content" id="jobItemsCol"></div>
         </div>
-        <div class="separator not-visible" data-dojo-attach-point="separator"></div>
-        <div class="single-setting-content" data-dojo-attach-point="singleSettingContent">
-          <div class="no-task-tip" data-dojo-attach-point="noTaskTip"></div>
-        </div>
+        <div class="job-content no-type-selected" id="singleSettingContent">
+          <select id="jobTypeSelect"></select>
+          <table>
+            <thead>
+              <tr>
+                <th><label><input type="checkbox" data-dojo-attach-point="allVisibleCheckbox" /> ${nls.visible}</label></th>
+                <th>${nls.dashboardFieldName}</th>
+                <th>${nls.alias}</th>
+              </tr>
+            </thead>
+            <tbody id="jobTypePropsTable"></tbody>
+          </table>
+          <div class="no-task-tip">${nls.selectAJobType}</div>
+        </input>
       </div>
       <div data-dojo-attach-point="shelter" data-dojo-type="jimu/dijit/LoadingShelter" data-dojo-props='hidden:true'></div>
     </div>

@@ -27,3 +27,80 @@
 .jimu-widget-wmxcreatejobs-setting .input-table > tbody > tr > .second{
   width:650px;
 }
+
+.widget-setting-popup .content {
+  display: flex;
+}
+
+.jimu-widget-wmxcreatejobs-setting .items-list {
+  flex: 0 0 300px;
+  position: relative;
+  border-right: 1px solid #ccc;
+}
+
+.job-content {
+  flex: 1 0 auto;
+  padding: 10px;
+}
+
+.job-content table {
+  margin-top: 10px;
+  width: 100%;
+  border-spacing: 0;
+}
+
+th,
+td {
+  padding: 6px;
+}
+
+th {
+  background: #666;
+  color: #fff;
+}
+
+.job-type-item {
+  display: flex;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.job-type-item:hover {
+  background: #fafafa;
+}
+
+.job-type-item.selected {
+  background: #efefef;
+}
+
+.job-type-item p {
+  flex: 1 0 auto;
+}
+
+.job-type-item .item-button {
+  flex: 0 0 20px;
+  padding: 2px 4px;
+  color: #999;
+}
+
+.job-type-item .item-button:hover {
+  color: #666;
+}
+
+.hint-text {
+  color: #888;
+  font-style: italic;
+}
+
+.no-task-tip {
+  display: none;
+  text-align: center;
+}
+
+.no-type-selected .no-task-tip {
+  display: block;
+}
+.no-type-selected table {
+  display: none;
+}

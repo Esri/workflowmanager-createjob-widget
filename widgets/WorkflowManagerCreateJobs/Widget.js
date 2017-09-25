@@ -4,8 +4,11 @@ define([
     'dojo/_base/html',
     'dojo/_base/lang',
     'dojo/_base/array',
+    'dojo/query',
     'dojo/on',
     'dojo/dom',
+    'dojo/dom-style',
+    'dojo/dom-construct',
     'dojox/form/Uploader',
 
     'jimu/utils',
@@ -33,7 +36,7 @@ define([
     'libs/exifjs/exif.js'
   ],
   function (
-    declare, topic, html, lang, arrayUtils, on, dom, Uploader,
+    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
@@ -83,14 +86,38 @@ define([
           // TODO Use visible job types to populate the first panel of the widget which
           // shows the available job types to create
           this.jobTypes = data;
-          self.createJobNode.style.display = '';
-          this.jobTypes.forEach(function (jobType) {
+          // self.createJobNode.style.display = '';
+          arrayUtils.forEach(this.jobTypes, lang.hitch(this, function(jobType) {
             var option = document.createElement('option');
             option.text = jobType.name;
             option.value = jobType.id;
             // self.selJobTypes.add(option);
-          });
+          }));
+
+          self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
+
+          self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, function(e) {
+            dom.byId('jobTypeFilterInput').value = '';
+            self._jobFilterUpdated();
+          })));
         });
+      },
+
+      _jobFilterUpdated: function(e) {
+        var inputVal = (e && e.target.value) || '';
+        if (inputVal == '') {
+          domStyle.set(dom.byId('jobTypeFilterClear'), 'display', 'none');
+        } else {
+          domStyle.set(dom.byId('jobTypeFilterClear'), 'display', 'initial');
+        }
+
+        arrayUtils.forEach(domQuery('.job-type-selector', dom.byId('jobTypeSelectors')), lang.hitch(this, function(jobItem) {
+          if (jobItem.dataset.jobTypeTitle.toLocaleLowerCase().indexOf(inputVal) > -1) {
+            domStyle.set(jobItem, 'display', 'flex');
+          } else {
+            domStyle.set(jobItem, 'display', 'none');
+          }
+        }));
       },
 
       _onClose: function () {
@@ -232,7 +259,7 @@ define([
         this.drawBox.placeAt(this.drawBoxDiv);
         this.drawBox.startup();
         //this.own(on(this.drawBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
-        this.own(on(this.drawBox, 'DrawEnd', lang.hitch(this, this._onDrawEnd)));
+        // this.own(on(this.drawBox, 'DrawEnd', lang.hitch(this, this._onDrawEnd)));
 
         this.selectBox = new DrawBox({
           types: ['point', 'polygon'],
@@ -245,7 +272,7 @@ define([
         this.selectBox.startup();
 
         //this.own(on(this.selectBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
-        this.own(on(this.selectBox, 'DrawEnd', lang.hitch(this, this._onSelectEnd)));
+        // this.own(on(this.selectBox, 'DrawEnd', lang.hitch(this, this._onSelectEnd)));
       },
 
       _createAttachmentItem: function (latestExifInfo, wmJobTask, jobId,
@@ -424,6 +451,82 @@ define([
             console.log('createJob function');
             self.jobId = data[0];
             console.log(self.jobId);
+
+            self.wmJobTask.getExtendedProperties(self.jobId, function(response) {
+              //loop through groups of extended props
+              var props, formGroup, formRow, formRowLabel, inputEl;
+              arrayUtils.forEach(response, lang.hitch(this, function(extendedPropsGroup) {
+                props = extendedPropsGroup.records;
+                domConstruct.create('h3', {
+                  innerHTML: extendedPropsGroup.tableAlias
+                }, dom.byId('wmxCreateJobForms'), 'last');
+                domConstruct.create('hr', {}, this.wmxCreateJobForms, 'last');
+
+                formGroup = domConstruct.create('div', {
+                  class: 'wmx-input-content jimu-item-form'
+                }, dom.byId('wmxCreateJobForms'), 'last');
+
+                //loop through the form elements
+                arrayUtils.forEach(props[0].recordValues, lang.hitch(this, function(formEl) {
+                  if (formEl.userVisible) {
+                    formRow = domConstruct.create('div', {
+                      class: "create-job-form-row"
+                    }, formGroup);
+                    formRowLabel = domConstruct.create('b', {
+                      innerHTML: formEl.alias,
+                      class: 'input-label'
+                    }, formRow, 'first');
+                    inputEl;
+                    switch (formEl.dataType) {
+                      case 1:
+                        //??
+                        inputEl = domConstruct.create('input', {
+                          class: 'common-input jimu-input input-item',
+                          type: 'text',
+                          value: 'unknown type'
+                        }, formRow, 'last');
+
+                        break;
+                      case 2:
+                        //??
+                        inputEl = domConstruct.create('input', {
+                          class: 'common-input jimu-input input-item',
+                          type: 'text',
+                          value: 'unknown type'
+                        }, formRow, 'last');
+
+                        break;
+                      case 3:
+                        //number
+                        inputEl = domConstruct.create('input', {
+                          class: 'common-input jimu-input input-item',
+                          type: 'number'
+                        }, formRow, 'last');
+
+                        break;
+                      case 4:
+                        //text
+                        inputEl = domConstruct.create('input', {
+                          class: 'common-input jimu-input input-item',
+                          type: 'text'
+                        }, formRow, 'last');
+
+                        break;
+                      case 5:
+                        //date
+                        inputEl = domConstruct.create('input', {
+                          class: 'common-input jimu-input input-item',
+                          type: 'date'
+                        }, formRow, 'last');
+
+                        break;
+                      default:
+
+                    }
+                  }
+                }));
+              }));
+            });
 
             self.wmxCreateJobContent.style.display = '';
             self.jobTypeSelectors.style.display = 'none';

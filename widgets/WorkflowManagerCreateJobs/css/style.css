@@ -224,3 +224,57 @@
   box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
   color: #4c4c4c;
 }
+
+.wmx-create-job-content h2 {
+  text-align: center;
+  margin: 0 0 10px;
+  border-bottom: 1px solid #ccc;
+  padding: 0 0 10px;
+}
+
+.wmx-create-job-content h3 {
+  font-size: 1.2em;
+  color: #888;
+}
+
+.jimu-item-form .input-label {
+  width: 35%;
+  margin-right: 5%;
+}
+
+.jimu-item-form .input-item {
+  width: 60%;
+}
+
+.jimu-item-form .input-item.input-item-full-width {
+	width: 100%;
+}
+
+.create-job-form-row {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+}
+
+.job-type-filter {
+  padding: 10px 0;
+  display: flex;
+}
+
+.job-type-filter button {
+  cursor: pointer;
+  flex: 0 0 16px;
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin-left: 10px;
+  opacity: .8;
+}
+
+.job-type-filter button:hover {
+  opacity: 1;
+}
+
+.job-type-filter input {
+  flex: 1 0 auto;
+}

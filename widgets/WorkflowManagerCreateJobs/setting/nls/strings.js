@@ -17,6 +17,11 @@ define({
 
     addTaskTip: "Add one or more job types to the widget and configure extended properties (max 10) for each job type.",
     jobType: "Job Type",
-    visible: "Visible"
+    visible: "Visible",
+
+    dashboardFieldName: "Dashboard Field Name",
+    alias: "Alias",
+    selectJobTypePlaceholder: "Select a job type",
+    selectAJobType: "Select a job type to view extended properties"
   })
 });
