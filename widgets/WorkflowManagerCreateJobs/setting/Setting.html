@@ -8,13 +8,13 @@
             <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
               <tbody>
               <tr>
-                <td style="width:auto;">
+                <td style="width:auto; padding-left: 0;">
                   <input type="text" data-dojo-type="dijit/form/ValidationTextBox" required="true"
-                         data-dojo-attach-point="wmServiceUrl" style="width:100%;"
+                         data-dojo-attach-point="wmServiceUrl" id="wmServiceUrl" style="width:100%;"
                          placeholder="http://workflowsample.esri.com/arcgis/rest/services/Workflow/WMServer"/>
                 </td>
-                <td style="width:80px;">
-                  <div data-dojo-attach-event="onclick:_onBtnSetSourceClicked" class="jimu-btn  jimu-float-trailing" style="padding:0px 15px !important;">${nls.setSource}</div>
+                <td style="width:80px; padding : 0;">
+                  <div data-dojo-attach-event="onclick:_onBtnSetSourceClicked" class="jimu-btn  jimu-float-trailing" style="padding:0px 15px !important; line-height: 28px;">${nls.setSource}</div>
                 </td>
               </tr>
               </tbody>
@@ -68,7 +68,7 @@
 
     <!-- Job type configuration -->
     <div>
-      <div>${nls.addTaskTip}</div>
+      <div class="task-tip">${nls.addTaskTip}</div>
       <div class="content">
         <div class="items-list jimu-not-selectable">
           <div class="add-btn" data-dojo-attach-event="click:_onBtnAddItemClicked">
@@ -79,10 +79,11 @@
         </div>
         <div class="job-content no-type-selected" id="singleSettingContent">
           <select id="jobTypeSelect"></select>
+          <hr class="hr-light" />
           <table>
             <thead>
               <tr>
-                <th><label><input type="checkbox" data-dojo-attach-point="allVisibleCheckbox" /> ${nls.visible}</label></th>
+                <th><label><input type="checkbox" id="allVisibleCheckbox" /> ${nls.visible}</label></th>
                 <th>${nls.dashboardFieldName}</th>
                 <th>${nls.alias}</th>
               </tr>

@@ -47,7 +47,7 @@ define([
       wmJobTask: null,
       wmConfigTask: null,
 
-      jobTypeExtendedProperties: [],
+      jobTypeExtendedProperties: {},
 
       selectedJobTypes: {},
       selectedJobItemRow: null,
@@ -62,6 +62,21 @@ define([
       startup: function() {
         this.inherited(arguments);
         this.setConfig(this.config);
+
+        if (dom.byId('wmServiceUrl').value) {
+          this._onBtnSetSourceClicked();
+        }
+
+        on(dom.byId('allVisibleCheckbox'), 'click', lang.hitch(this, function(e) {
+          var selectedId = this.selectedJobItemRow.dataset.id;
+          //update config
+          if (e.srcElement.checked) {
+            this.selectedJobTypes[selectedId].extendedProps = this.jobTypeExtendedProperties[selectedId].slice();
+          } else {
+            this.selectedJobTypes[selectedId].extendedProps = [];
+          }
+          this._createExtendedPropsTable(selectedId);
+        }));
       },
 
       setConfig: function(config) {
@@ -103,6 +118,13 @@ define([
         } else {
           this.extPropsLabel.set('value', 'Extended Properties');
         }
+
+        if (config.extProps) {
+          this.selectedJobTypes = config.extProps;
+        } else {
+          this.selectedJobTypes = {};
+          this._onJobItemRowClicked(this._createJobItem());
+        }
       },
 
       getConfig: function() {
@@ -116,6 +138,10 @@ define([
 
         this.config.jobTypes = this.jobTypes;
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
+
+        //clean up null job type
+        delete this.selectedJobTypes["nullJobItemRow"];
+        this.config.extProps = this.selectedJobTypes;
 
         return this.config;
       },
@@ -196,7 +222,7 @@ define([
 
       // Retrieve extended properties for each job type
       _loadExtendedPropertiesForJobTypes: function() {
-        this.jobTypeExtendedProperties = [];
+        this.jobTypeExtendedProperties = {};
         var requests = [];
         // Create a request to retrieve the extended properties for the job types
         var jobTypeIds = this.jobTypes.map(function(jobType) {
@@ -236,6 +262,21 @@ define([
               });
               return acc;
             }, {});
+
+            //after we have the job types loaded, lets render our table with the selected items
+            if (Object.keys(this.selectedJobTypes).length) {
+              //clear out the old elements
+              domConstruct.empty('jobItemsCol');
+
+              //make the new ones
+              var jobItem;
+              Object.keys(this.selectedJobTypes).map(lang.hitch(this, function(propKey, index) {
+                jobItem = this._createJobItem(this.selectedJobTypes[propKey].jobType);
+                this._onJobItemRowClicked(jobItem);
+                this._updateJobItemType(this.selectedJobTypes[propKey].jobType, this.selectedJobTypes[propKey].jobTypeName);
+              }))
+            }
+
             console.log('jobTypeExtendedProperties = ', this.jobTypeExtendedProperties);
           }),
           function(error) {
@@ -271,15 +312,13 @@ define([
         var jobItemId = (jobTypeId || dom.byId('jobTypeSelect').value) + 'JobItemRow';
         var jobTypeItem = domConstruct.create('div', {
           class: 'job-type-item',
-          id: jobItemId,
-          dataset: {
-            jobTypeId: dom.byId('jobTypeSelect').value || null
-          }
+          id: jobItemId
         }, 'jobItemsCol', 'last');
+        jobTypeItem.dataset.id = jobTypeId || null;
 
         var jobName = domConstruct.create('p', {
           class: 'item-name item-name-unassigned',
-          innerHTML: 'Select a job type...'
+          innerHTML: (jobTypeId ? this.selectedJobTypes[jobTypeId].jobTypeName + ' - ' + jobTypeId : i18n.selectJobTypePlaceholder)
         }, jobTypeItem, 'first');
 
         var jobDeleteBtn = domConstruct.create('a', {
@@ -297,11 +336,6 @@ define([
           this._deleteJobTypeItem(jobTypeItem);
         }));
 
-        this.selectedJobTypes[jobItemId] = {
-          jobType: null,
-          extendedProps: {}
-        };
-
         return jobTypeItem;
       },
 
@@ -311,10 +345,10 @@ define([
         this.selectedJobItemRow.dataset.id = jobTypeId;
 
         this.selectedJobTypes[jobTypeId] = {
-          jobType: jobTypeId
+          jobType: jobTypeId,
+          jobTypeName: jobTypeName,
+          extendedProps: (this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].extendedProps) || []
         };
-
-        this.selectedJobTypes[jobTypeId].extendedProps = this.selectedJobTypes[jobTypeId].extendedProps || {}
 
         var rowTitle = domQuery('.item-name', this.selectedJobItemRow)[0];
         rowTitle.innerHTML = jobTypeName + ' - ' + jobTypeId;
@@ -325,7 +359,7 @@ define([
       },
 
       _createExtendedPropsTable: function(jobTypeId) {
-        var props = this.jobTypeExtendedProperties[jobTypeId];
+        var props = this.jobTypeExtendedProperties[jobTypeId] && this.jobTypeExtendedProperties[jobTypeId].slice();
         domConstruct.empty('jobTypePropsTable');
 
         if (jobTypeId === "null" || jobTypeId === undefined) {
@@ -338,16 +372,23 @@ define([
           arrayUtil.forEach(props, lang.hitch(this, function(prop) {
             var propsRow = domConstruct.create('tr', {}, 'jobTypePropsTable', 'last');
 
+            var extendedProps = this.selectedJobTypes[jobTypeId].extendedProps;
+            var hasProp = extendedProps && extendedProps.slice().filter(function(item) {
+              return item.fieldName === prop.fieldName
+            }).length > 0;
             var propCheckbox = domConstruct.create('td', {
-              innerHTML: '<input type="checkbox" ' + (this.selectedJobTypes[jobTypeId].extendedProps && this.selectedJobTypes[jobTypeId].extendedProps[prop.fieldName] ? 'checked' : null) + ' />'
+              innerHTML: '<input type="checkbox" ' + (hasProp ? 'checked' : null) + ' />'
             }, propsRow, 'first');
 
             on(propCheckbox, 'click', lang.hitch(this, function(e) {
+              var extProps = this.selectedJobTypes[jobTypeId].extendedProps;
               if (e.srcElement.checked) {
-                this.selectedJobTypes[jobTypeId].extendedProps[prop.fieldName] = prop;
+                extProps.push(prop);
               } else {
-                this.selectedJobTypes[jobTypeId].extendedProps[prop.fieldName] = null;
+                extProps.splice(extProps.indexOf(prop), 1);
               }
+
+              this._updateAllVisibleCheckbox(jobTypeId);
             }));
 
             domConstruct.create('td', {
@@ -358,21 +399,30 @@ define([
               innerHTML: prop.fieldAlias
             }, propsRow, 'last');
           }));
+
+          this._updateAllVisibleCheckbox(jobTypeId);
         } else {
           var propsRow = domConstruct.create('tr', {}, 'jobTypePropsTable', 'last');
           var propCheckbox = domConstruct.create('td', {
             colspan: '3',
             style: 'text-align: center; padding: 10px;',
-            innerHTML: '<span class="hint-text">There are no extended props for this job type</span>'
+            innerHTML: '<span class="hint-text">' + i18n.noExtendedProps + '</span>'
           }, propsRow, 'first');
         }
       },
 
-      _updateJobItemExtendedProps: function(jobType, prop, isChecked) {
-        if (e.checked) {
-          this.jobTypeItem[jobType].extendedProps[prop.fieldName] = prop;
+      _updateAllVisibleCheckbox: function(jobTypeId) {
+        //set the all checked checkbox in the table header
+        var allSelected = this.selectedJobTypes[jobTypeId].extendedProps.length === this.jobTypeExtendedProperties[jobTypeId].length;
+        dom.byId('allVisibleCheckbox').checked = allSelected;
+      },
+
+      _updateJobItemExtendedProps: function(jobTypeId, prop, isChecked) {
+        var extendedProps = this.selectedJobTypes[jobTypeId].extendedProps;
+        if (isChecked) {
+          extendedProps.push(prop);
         } else {
-          this.jobTypeItem[jobType].extendedProps[prop.fieldName] = null;
+          extendedProps.splice(extendedProps.indexOf(prop), 1);
         }
       },
 
@@ -388,6 +438,10 @@ define([
       _resetTableSelect: function() {
         this._createExtendedPropsTable(null);
         dom.byId('jobTypeSelect').value = null;
+      },
+
+      _sortExtendedProps: function(a,b) {
+        return a.fieldName.localCompare(b.fieldName);
       }
     });
   });
