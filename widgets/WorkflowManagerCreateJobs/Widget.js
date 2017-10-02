@@ -83,16 +83,40 @@ define([
         var self = lang.hitch(this);
         this.jobTypes = [];
         this.wmConfigTask.getVisibleJobTypes(this.user, function (data) {
-          // TODO Use visible job types to populate the first panel of the widget which
-          // shows the available job types to create
-          this.jobTypes = data;
-          // self.createJobNode.style.display = '';
-          arrayUtils.forEach(this.jobTypes, lang.hitch(this, function(jobType) {
-            var option = document.createElement('option');
-            option.text = jobType.name;
-            option.value = jobType.id;
-            // self.selJobTypes.add(option);
-          }));
+          //generate dom elements for configured job types and ext props
+          var jobItem;
+          Object.keys(self.config.selectedJobTypes).map(function(propKey, index) {
+            jobItem = self.config.selectedJobTypes[propKey];
+
+            var jobItemDom = domConstruct.create('div', {
+              class: 'job-type-selector'
+            }, 'jobTypeSelectors', 'last');
+            jobItemDom.dataset.jobType = jobItem.jobType;
+            jobItemDom.dataset.jobTypeTitle = jobItem.jobTypeName;
+
+            on(jobItemDom, 'click', function(e) {
+              self._createJobSettings(self.config.selectedJobTypes[e.currentTarget.dataset.jobType]);
+            });
+
+            domConstruct.create('div', {
+              class: 'job-type-symbol',
+              innerHTML: '<img src="./widgets/WorkflowManagerCreateJobs/images/pothole.svg" />'
+            }, jobItemDom, 'first');
+
+            var jobItemContent = domConstruct.create('div', {
+              class: 'job-type-content',
+            }, jobItemDom, 'last');
+
+            domConstruct.create('h4', {
+              class: 'job-type-title',
+              innerHTML: jobItem.jobTypeName
+            }, jobItemContent, 'first');
+            domConstruct.create('p', {
+              class: 'job-type-description',
+              innerHTML: 'Create a new job for ' + jobItem.jobType + ' - ' + jobItem.jobTypeName
+              // TODO: @lalaine Here is where you will put the job type description
+            }, jobItemContent, 'last');
+          });
 
           self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
 
@@ -431,121 +455,129 @@ define([
         // 2.
       },
 
-      _createJobClick: function (e) {
+      _createJobSettings: function (jobTypeObj) {
         var self = lang.hitch(this);
-        console.log('_createJobClick function', e);
+        console.log('_createJobClick function', jobTypeObj);
 
-        if (e) {
-          this.createJobHeader.innerHTML = 'Creating Job: ' + e.currentTarget.dataset.jobTypeTitle;
+        if (jobTypeObj) {
+          this.createJobHeader.innerHTML = 'Creating Job: ' + jobTypeObj.jobTypeName;
         }
 
-        if (!this.bJobCreated) {
-          var creationParams = new JobCreationParameters();
-          creationParams.jobTypeId = e.currentTarget.dataset.jobType;
-          creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
-          creationParams.assignedTo = this.user;
+        var creationParams = new JobCreationParameters();
+        creationParams.jobTypeId = jobTypeObj.jobType;
+        creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
+        creationParams.assignedTo = this.user;
 
-          this.bJobCreated = true;
+        this.bJobCreated = true;
 
-          this.wmJobTask.createJob(creationParams, this.user, function (data) {
-            console.log('createJob function');
-            self.jobId = data[0];
-            console.log(self.jobId);
+        //loop through groups of extended props
+        var formRow, formRowLabel, inputEl;
+        var props = jobTypeObj.extendedProps
 
-            self.wmJobTask.getExtendedProperties(self.jobId, function(response) {
-              //loop through groups of extended props
-              var props, formGroup, formRow, formRowLabel, inputEl;
-              arrayUtils.forEach(response, lang.hitch(this, function(extendedPropsGroup) {
-                props = extendedPropsGroup.records;
-                domConstruct.create('h3', {
-                  innerHTML: extendedPropsGroup.tableAlias
-                }, dom.byId('wmxCreateJobForms'), 'last');
-                domConstruct.create('hr', {}, this.wmxCreateJobForms, 'last');
+        var formGroup = domConstruct.create('div', {
+          class: 'wmx-input-content jimu-item-form'
+        }, 'wmxExtendedProps', 'last');
 
-                formGroup = domConstruct.create('div', {
-                  class: 'wmx-input-content jimu-item-form'
-                }, dom.byId('wmxCreateJobForms'), 'last');
+        //loop through the form elements
+        arrayUtils.forEach(props, lang.hitch(this, function(formEl) {
+          formRow = domConstruct.create('div', {
+            class: "create-job-form-row"
+          }, formGroup);
+          formRowLabel = domConstruct.create('b', {
+            innerHTML: formEl.fieldAlias,
+            class: 'input-label'
+          }, formRow, 'first');
+          inputEl;
+          switch (formEl.displayType) {
+            case "1":
+              //
+              inputEl = domConstruct.create('input', {
+                class: 'common-input jimu-input input-item',
+                type: 'number',
+                name: formEl.fieldName
+              }, formRow, 'last');
 
-                //loop through the form elements
-                arrayUtils.forEach(props[0].recordValues, lang.hitch(this, function(formEl) {
-                  if (formEl.userVisible) {
-                    formRow = domConstruct.create('div', {
-                      class: "create-job-form-row"
-                    }, formGroup);
-                    formRowLabel = domConstruct.create('b', {
-                      innerHTML: formEl.alias,
-                      class: 'input-label'
-                    }, formRow, 'first');
-                    inputEl;
-                    switch (formEl.dataType) {
-                      case 1:
-                        //??
-                        inputEl = domConstruct.create('input', {
-                          class: 'common-input jimu-input input-item',
-                          type: 'text',
-                          value: 'unknown type'
-                        }, formRow, 'last');
+              break;
+            case "2":
+              //
+              inputEl = domConstruct.create('input', {
+                class: 'common-input jimu-input input-item',
+                type: 'date',
+                name: formEl.fieldName
+              }, formRow, 'last');
 
-                        break;
-                      case 2:
-                        //??
-                        inputEl = domConstruct.create('input', {
-                          class: 'common-input jimu-input input-item',
-                          type: 'text',
-                          value: 'unknown type'
-                        }, formRow, 'last');
+              break;
+            case "3":
+              //number
+              inputEl = domConstruct.create('input', {
+                class: 'common-input jimu-input input-item',
+                type: 'number',
+                name: formEl.fieldName
+              }, formRow, 'last');
 
-                        break;
-                      case 3:
-                        //number
-                        inputEl = domConstruct.create('input', {
-                          class: 'common-input jimu-input input-item',
-                          type: 'number'
-                        }, formRow, 'last');
+              break;
+            case "4":
+              //text
+              inputEl = domConstruct.create('input', {
+                class: 'common-input jimu-input input-item',
+                type: 'text',
+                name: formEl.fieldName
+              }, formRow, 'last');
 
-                        break;
-                      case 4:
-                        //text
-                        inputEl = domConstruct.create('input', {
-                          class: 'common-input jimu-input input-item',
-                          type: 'text'
-                        }, formRow, 'last');
+              break;
+            case "5":
+              //date
+              inputEl = domConstruct.create('input', {
+                class: 'common-input jimu-input input-item',
+                type: 'date',
+                name: formEl.fieldName
+              }, formRow, 'last');
 
-                        break;
-                      case 5:
-                        //date
-                        inputEl = domConstruct.create('input', {
-                          class: 'common-input jimu-input input-item',
-                          type: 'date'
-                        }, formRow, 'last');
+              break;
+            default:
 
-                        break;
-                      default:
+          }
+        }));
 
-                    }
-                  }
-                }));
-              }));
-            });
+        self.wmxCreateJobContent.style.display = '';
+        self.jobTypeSelectors.style.display = 'none';
+      },
 
-            self.wmxCreateJobContent.style.display = '';
-            self.jobTypeSelectors.style.display = 'none';
-            // self.btnCreateJob.innerHTML = '<b>Submit Job<b>';
-          }, function (error) {
-            alert('Create Job Error: Please make sure the user is a valid user');
-          });
-        }
-        else {
+      _createJobClick: function (jobTypeObj) {
+        var self = lang.hitch(this);
+
+        var creationParams = new JobCreationParameters();
+        creationParams.jobTypeId = jobTypeObj.jobType;
+        creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
+        creationParams.assignedTo = this.user;
+
+        this.wmJobTask.createJob(creationParams, this.user, function (data) {
+          self.jobId = data[0];
+
           var updateParam = new JobUpdateParameters();
           updateParam.jobId = this.jobId;
           updateParam.ownedBy = this.user;
           updateParam.description = this.notesTextBox.value;
           updateParam.loi = this.aoi;
+
+          var extPropsFormData = dom.byId('wmxExtendedProps').elements;
+          arrayUtils.forEach(extPropsFormData, lang.hitch(this, function(formEl) {
+
+            // TODO: @lalaine update the job that was just created with extended properties
+            // below is a sample of how to access the form element name and value
+            // you might have to reference self.config.selectedJobTypes.extendedProps
+            // to get the tableName etc.
+            //
+            // updateParam[formEl.name] = formEl.value;
+          }));
+
           this.wmJobTask.updateJob(updateParam, this.user, function () {
             console.log('Job description updated successfully.');
             self._resetWidget();
           });
-        }
+        }, function (error) {
+          alert('Create Job Error: Please make sure the user is a valid user');
+        });
       },
 
       _resetWidget: function () {
@@ -553,6 +585,8 @@ define([
         arrayUtils.forEach(this.attachmentList, function (attachmentItem) {
           attachmentItem.destroy();
         });
+
+        domConstruct.empty('wmxExtendedProps');
 
         this.attachmentList = [];
         this.exifInfosArray = [];

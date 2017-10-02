@@ -119,8 +119,8 @@ define([
           this.extPropsLabel.set('value', 'Extended Properties');
         }
 
-        if (config.extProps) {
-          this.selectedJobTypes = config.extProps;
+        if (config.selectedJobTypes) {
+          this.selectedJobTypes = config.selectedJobTypes;
         } else {
           this.selectedJobTypes = {};
           this._onJobItemRowClicked(this._createJobItem());
@@ -141,7 +141,7 @@ define([
 
         //clean up null job type
         delete this.selectedJobTypes["nullJobItemRow"];
-        this.config.extProps = this.selectedJobTypes;
+        this.config.selectedJobTypes = this.selectedJobTypes;
 
         return this.config;
       },

@@ -7,7 +7,7 @@
       <input class="common-input jimu-input input-item" type="text" id="jobTypeFilterInput" placeholder="Filter job types..." />
       <button type="button" id="jobTypeFilterClear" style="display: none;"><img src="./widgets/WorkflowManagerCreateJobs/images/clear-icon.svg" /></button>
     </div>
-    <div class="job-type-selector" data-dojo-attach-event="onClick:_createJobClick" data-job-type="402"
+    <!-- <div class="job-type-selector" data-dojo-attach-event="onClick:_createJobClick" data-job-type="402"
          data-job-type-title="Pothole">
       <div class="job-type-symbol">
         <img src="./widgets/WorkflowManagerCreateJobs/images/pothole.svg"/>
@@ -30,7 +30,7 @@
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus justo ligula, aliquet vel.
         </p>
       </div>
-    </div>
+    </div> -->
   </div>
   <div class="wmx-create-job-content" data-dojo-attach-point="wmxCreateJobContent" style="display: none;">
     <h2 data-dojo-attach-point="createJobHeader"></h2>
@@ -67,6 +67,11 @@
                  class="common-input jimu-input input-item">
         </div>
       </div>
+    </div>
+    <div>
+      <h3>${nls.extendedProps}</h3>
+      <hr/>
+      <form id="wmxExtendedProps"></form>
     </div>
     <hr/>
     <div data-dojo-attach-point="notesDiv">

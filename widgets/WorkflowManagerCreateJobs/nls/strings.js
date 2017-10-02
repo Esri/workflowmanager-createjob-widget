@@ -26,6 +26,7 @@
         submitJobBtnLabel: "Submit Job",
         cancelBtnLabel: "Cancel",
         addLocationLabel: "Location Tab",
-        selectFeaturesLabel: "Select Features"
+        selectFeaturesLabel: "Select Features",
+        extendedProps: "Extended Properties"
     }),
 });
