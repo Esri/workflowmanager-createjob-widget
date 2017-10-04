@@ -1,4 +1,5 @@
 @import url("list.css");
+@import url('../../libs/fontawesome/css/font-awesome.min.css');
 
 /* jimu-widget-coordinate-setting */
 .jimu-widget-wmxcreatejob-setting{
@@ -119,4 +120,17 @@ th {
   border-top: 1px solid #ccc;
   margin: 1em 0;
   padding: 0;
+}
+
+.job-type-selects > * {
+  vertical-align: middle;
+}
+
+.font-awesome-select-label {
+  margin-left: 20px;
+}
+
+.font-awesome-select {
+  max-width: 80px;
+  margin: 0 !important;
 }

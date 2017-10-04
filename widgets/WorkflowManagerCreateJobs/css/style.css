@@ -1,3 +1,5 @@
+@import url('../libs/fontawesome/css/font-awesome.min.css');
+
 .jimu-widget-wmxcreatejobs{
 	width: 100%;
 	height: 100%;
@@ -142,9 +144,20 @@
 }
 
 .job-type-symbol {
-  background: #f8f8f8;
-  padding: 1.5em;
+  font-size: 2.5em;
+  background: #efefef;
   border-right: 1px solid #E1E1E1;
+  color: #999;
+  height: 70px;
+  flex: 0 0 70px;
+  position: relative;
+}
+
+.job-type-symbol i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .job-type-selector:hover .job-type-symbol {

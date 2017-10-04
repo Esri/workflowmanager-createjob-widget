@@ -100,7 +100,7 @@ define([
 
             domConstruct.create('div', {
               class: 'job-type-symbol',
-              innerHTML: '<img src="./widgets/WorkflowManagerCreateJobs/images/pothole.svg" />'
+              innerHTML: '<i class="fa fa-'+ (jobItem.icon || 'exclamation-triangle') +'"></i>'
             }, jobItemDom, 'first');
 
             var jobItemContent = domConstruct.create('div', {
@@ -541,6 +541,9 @@ define([
 
         self.wmxCreateJobContent.style.display = '';
         self.jobTypeSelectors.style.display = 'none';
+
+        //scroll to the top of the panel
+        domQuery('.jimu-widget-frame.jimu-container')[0].scrollTop = 0;
       },
 
       _createJobClick: function (jobTypeObj) {
@@ -574,6 +577,8 @@ define([
           this.wmJobTask.updateJob(updateParam, this.user, function () {
             console.log('Job description updated successfully.');
             self._resetWidget();
+            //show the successful job creation div
+            domStyle.set(self.wmxSuccessPanel, 'display', 'block');
           });
         }, function (error) {
           alert('Create Job Error: Please make sure the user is a valid user');
@@ -605,6 +610,9 @@ define([
 
         this.wmxCreateJobContent.style.display = 'none';
         this.jobTypeSelectors.style.display = 'block';
+
+        //hide the successful job creation div
+        domStyle.set(this.wmxSuccessPanel, 'display', 'none');
       }
     });
   });

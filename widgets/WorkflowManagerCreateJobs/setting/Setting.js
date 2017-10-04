@@ -23,6 +23,7 @@ define([
     'dojo/dom',
     'dojo/dom-class',
     'dojo/dom-construct',
+    'dijit/registry',
 
     'jimu/BaseWidgetSetting',
     'jimu/utils',
@@ -36,7 +37,7 @@ define([
     '../libs/workflowmanager/supportclasses/JobQueryParameters'
   ],
   function(
-    declare, lang, arrayUtil, domQuery, on, dom, domClass, domConstruct,
+    declare, lang, arrayUtil, domQuery, on, dom, domClass, domConstruct, registry,
     BaseWidgetSetting, utils,
     _WidgetsInTemplateMixin, i18n,
     WMConfigurationTask, WMJobTask, Enum, JobQueryParameters) {
@@ -77,6 +78,8 @@ define([
           }
           this._createExtendedPropsTable(selectedId);
         }));
+
+        this._initIconSelect();
       },
 
       setConfig: function(config) {
@@ -146,6 +149,29 @@ define([
         return this.config;
       },
 
+      _initIconSelect: function() {
+        registry.byId('jobTypeIconSelect').set('options', [
+          { value:"", label: "None", disabled: true},
+          { value:"exclamation-triangle", label: "<i class='fa fa-exclamation-triangle'></i>"},
+          { value:"bell", label: "<i class='fa fa-bell'></i>"},
+          { value:"check", label: "<i class='fa fa-check'></i>"},
+          { value:"car", label: "<i class='fa fa-car'></i>"},
+          { value:"building", label: "<i class='fa fa-building'></i>"},
+          { value:"plane", label: "<i class='fa fa-plane'></i>"},
+          { value:"male", label: "<i class='fa fa-male'></i>"},
+          { value:"female", label: "<i class='fa fa-female'></i>"},
+          { value:"wheelchair", label: "<i class='fa fa-wheelchair'></i>"},
+          { value:"road", label: "<i class='fa fa-road'></i>"}
+        ]);
+
+        on(registry.byId('jobTypeIconSelect'), "change", lang.hitch(this, function(e) {
+          var currentId = this.selectedJobItemRow.dataset.id;
+          if (currentId && this.selectedJobTypes[currentId]) {
+            this._updateJobItemType(currentId, this.selectedJobTypes[currentId].jobTypeName, e)
+          }
+        }));
+      },
+
       _onSelectLayerBlur: function() {
         this.selectableLayer.set('value', this.selectableLayer.get('value'));
       },
@@ -194,13 +220,34 @@ define([
 
                   domConstruct.create('option', {
                     innerHTML: jobType.name,
-                    value: jobType.id
+                    value: jobType.id,
+                    disabled: (self.selectedJobTypes[jobType.id] ? true : false )
                   }, dom.byId('jobTypeSelect'), 'last')
                 }
               });
 
               on(dom.byId('jobTypeSelect'), "change", function(e) {
-                self._updateJobItemType(e.target.value, e.target.selectedOptions[0].innerText);
+                var selectedValue = e.target.value;
+                var selectedText = e.target.selectedOptions[0].innerText;
+
+                //since we're changing an option, we need to delete the old value
+                self._deleteJobTypeItem(self.selectedJobItemRow);
+
+                //now create the new one if it doesn't exist
+                if (!self.selectedJobTypes[selectedValue]) {
+                  self._onJobItemRowClicked(self._createJobItem());
+                }
+
+                //just update it if it does exist
+                self._updateJobItemType(selectedValue, selectedText);
+
+                //reselect the row so the ui updates properly
+                self._onJobItemRowClicked(self.selectedJobItemRow);
+
+                //update the option to be disabled or not based on the selected job types
+                arrayUtil.forEach(e.target, lang.hitch(this, function(selectOption) {
+                  selectOption.disabled = (self.selectedJobTypes[selectOption.value] ? true : false );
+                }));
               });
             }
 
@@ -303,6 +350,7 @@ define([
 
         //set the select to the correct option
         dom.byId('jobTypeSelect').value = jobTypeId || null;
+        registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "");
 
         //generate the table rows with the optional fields
         this._createExtendedPropsTable(jobTypeId);
@@ -336,10 +384,13 @@ define([
           this._deleteJobTypeItem(jobTypeItem);
         }));
 
+        //select null on icon dropdown
+        registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "");
+
         return jobTypeItem;
       },
 
-      _updateJobItemType: function(jobTypeId, jobTypeName) {
+      _updateJobItemType: function(jobTypeId, jobTypeName, jobIcon) {
         // update the job item row id
         this.selectedJobItemRow.id = jobTypeId + 'JobItemRow';
         this.selectedJobItemRow.dataset.id = jobTypeId;
@@ -347,12 +398,15 @@ define([
         this.selectedJobTypes[jobTypeId] = {
           jobType: jobTypeId,
           jobTypeName: jobTypeName,
+          icon: jobIcon || this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "",
           extendedProps: (this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].extendedProps) || []
         };
 
         var rowTitle = domQuery('.item-name', this.selectedJobItemRow)[0];
         rowTitle.innerHTML = jobTypeName + ' - ' + jobTypeId;
         domClass.remove(rowTitle, '.item-name-unassigned');
+
+        registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId].icon || "");
 
         // update the props table
         this._createExtendedPropsTable(jobTypeId);
@@ -428,7 +482,7 @@ define([
 
       _deleteJobTypeItem: function(e) {
         console.log('jobTypeRow', e, e.dataset.id);
-        this.selectedJobTypes[e.dataset.id] = null;
+        delete this.selectedJobTypes[e.dataset.id];
         domConstruct.destroy(e);
         this.selectedJobItemRow = null;
 
