@@ -33,7 +33,7 @@ define([
 
     'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
     window.location.hostname + ':' + window.location.port + window.path +
-    'libs/exifjs/exif.js'
+    'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
   ],
   function (
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,

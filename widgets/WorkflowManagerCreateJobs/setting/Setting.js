@@ -327,6 +327,7 @@ define([
             console.log('jobTypeExtendedProperties = ', this.jobTypeExtendedProperties);
           }),
           function(error) {
+            // TODO Provide error message to UI
             console.log('Unable to retrieve any extended properties for job types', error);
           });
       },
