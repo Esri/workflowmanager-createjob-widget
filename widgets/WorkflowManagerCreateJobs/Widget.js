@@ -104,7 +104,7 @@ define([
             }, jobItemDom, 'first');
 
             var jobItemContent = domConstruct.create('div', {
-              class: 'job-type-content',
+              class: 'job-type-content'
             }, jobItemDom, 'last');
 
             domConstruct.create('h4', {
@@ -410,8 +410,11 @@ define([
       },
 
       _initSelf: function () {
-        var uniqueId = jimuUtils.getRandomString();
-        var cbxName = 'Query_' + uniqueId;
+        // TODO Populate labels here
+        this.defineJobLocationLabel = this.config;
+
+        // var uniqueId = jimuUtils.getRandomString();
+        // var cbxName = 'Query_' + uniqueId;
         // this.btnCreateJob.innerHTML = '<b>Create Job<b>';
 
         var tabs = [];
