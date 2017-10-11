@@ -11,6 +11,8 @@ define([
     'dojo/dom-construct',
     'dojox/form/Uploader',
 
+    'dojo/i18n!./nls/strings',
+
     'jimu/utils',
     'jimu/BaseWidget',
     'jimu/dijit/TabContainer3',
@@ -37,6 +39,7 @@ define([
   ],
   function (
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,
+    i18n,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
@@ -152,7 +155,7 @@ define([
 
       _loadPhoto: function (e) {
         console.log('_loadPhoto');
-        this.uploadText.innerHTML = 'Add a photo to this job';
+        this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : i18n.addPhotoToJob;
         this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
 
         var fullImageFile = e.target.files[0];
@@ -199,14 +202,14 @@ define([
       _addEmbeddedAttachment: function () {
         var form = dom.byId('sendForm');
         //processing message
-        this.uploadText.innerHTML = 'Processing ' + fullImageFile.name + '...';
+        this.uploadText.innerHTML = i18n.processingFilename.replace('{0}', fullImageFile.name);
         this.uploadGraphic.src = '';
         this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId, form,
           lang.hitch(this, function (attachmentId) {
             console.log('addEmbeddedAttachment');
             console.log(attachmentId);
 
-            this.uploadText.innerHTML = 'Success! Upload another';
+            this.uploadText.innerHTML = i18n.successfulUploadAnother;
             this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg';
 
             // upload was successful, so add an AttachmentItem widget
@@ -214,6 +217,7 @@ define([
 
           }),
           lang.hitch(this, function (error) {
+            // TODO Provide error in UI
             console.log('Error Adding Attachment ' + this.jobId +
               ' ' + error);
           })
@@ -410,8 +414,10 @@ define([
       },
 
       _initSelf: function () {
-        // TODO Populate labels here
-        this.defineJobLocationLabel = this.config;
+        // Populate labels here
+        this.defineLOITitle.innerHTML = this.config.defineLOILabel;
+        this.extendedPropsTitle.innerHTML = this.config.extPropsLabel;
+        this.uploadText.innerHTML = this.config.attachmentsLabel;
 
         // var uniqueId = jimuUtils.getRandomString();
         // var cbxName = 'Query_' + uniqueId;
@@ -606,10 +612,6 @@ define([
         this.bJobCreated = false;
         this.drawBox.clear();
         this.fileToUpload.value = '';
-
-        this.txtName.value = '';
-        this.txtEmail.value = '';
-        this.txtPhone.value = '';
 
         this.wmxCreateJobContent.style.display = 'none';
         this.jobTypeSelectors.style.display = 'block';

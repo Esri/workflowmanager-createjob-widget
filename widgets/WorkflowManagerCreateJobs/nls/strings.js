@@ -1,32 +1,21 @@
 ﻿define({
-    root: ({
-        _widgetLabel: "Workflow Manager Create Job",
-        title: "Create a Workflow Manager Job",
-        selectFeatures: "Select Features",
-        drawLocation: "Draw Location",
-        photoGeotag: "Photo Geotag",
-        selectDrawMode: "Select AOI draw mode",
-        usernameLabel: "Username",
-        nameLabel: "Name",
-        emailLabel: "Email",
-        phoneLabel: "Phone",
-        useArcGISOnlineUsersLabel: "ArcGIS Online",
-        useWMXUsersLabel: "Workflow Manager Users",
-        jobNameLabel: "Job Type",
-        addGeotagLabel: "Add Geotag Photos",
-        choosePhotoButtonLabel: "Choose Photo",
-        notesLabel: "Comments",
-        noAttachments: "No Attachments",
-        noFilename: "No Filename",
-        attachmentTitle: "Filename",
-        attachmentType: "Type",
-        browserBtnCaption: "Choose a File",
-        wmxJobTypeName: "Data Edits",
-        createJobBtnLabel: "Create Job",
-        submitJobBtnLabel: "Submit Job",
-        cancelBtnLabel: "Cancel",
-        addLocationLabel: "Location Tab",
-        selectFeaturesLabel: "Select Features",
-        extendedProps: "Extended Properties"
-    }),
+  root: ({
+    _widgetLabel: "Workflow Manager Create Job",
+    title: "Create a Workflow Manager Job",
+
+    filterJobTypes: "Filter job types...",
+
+    notesLabel: "Comments",
+
+    defaultDefineLOILabel: "Define Location",
+    defaultAttachmentsLabel: "Add an Attachment to the job",
+    defaultExtPropsLabel: "Contact Information",
+
+    addPhotoToJob: "Add a photo to this job",
+    processingFilename: "Processing {0} ...",
+    successfulUploadAnother: "Successfully uploaded file! Upload another.",
+
+    backBtnLabel: "Back",
+    createJobBtnLabel: "Create Job"
+  })
 });
