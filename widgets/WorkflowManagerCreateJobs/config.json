@@ -2,7 +2,7 @@
   "wmServiceUrl": "https://workflowsample.esri.com/arcgis/rest/services/Workflow/WMServer",
   "selectableLayer": "http://workflowsample.esri.com/arcgis/rest/services/Workflow_LOI/MapServer",
   "defaultUser": "demo",
-  "definLOILabel": "Define Job Location",
+  "defineLOILabel": "Define Job Location",
   "attachmentsLabel": "Add an Attachment to the job",
   "extPropsLabel": "Contact Information",
   "selectedJobTypes": {}

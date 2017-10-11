@@ -104,10 +104,10 @@ define([
           this.defaultUser.set('value', 'Username to for submitting job requests');
         }
 
-        if (config.definLOILabel) {
-            this.definLOILabel.set('value', config.definLOILabel);
+        if (config.defineLOILabel) {
+            this.defineLOILabel.set('value', config.defineLOILabel);
         } else {
-            this.definLOILabel.set('value', 'Define Location');
+            this.defineLOILabel.set('value', 'Define Location');
         }
 
         if (config.attachmentsLabel) {
@@ -135,7 +135,7 @@ define([
         this.config.selectableLayer = this.selectableLayer.getValue();
         this.config.defaultUser = this.defaultUser.getValue();
 
-        this.config.definLOILabel = this.definLOILabel.getValue();
+        this.config.defineLOILabel = this.defineLOILabel.getValue();
         this.config.attachmentsLabel = this.attachmentsLabel.getValue();
         this.config.extPropsLabel = this.extPropsLabel.getValue();
 

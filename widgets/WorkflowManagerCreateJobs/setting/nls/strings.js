@@ -8,7 +8,7 @@ define({
     defaultUser: "Default User",
     setSource:"Set",
 
-    definLOILabel: "Define Location Label",
+    defineLOILabel: "Define Location Label",
     defaultDefineLOILabel: "Define Location",
     attachmentsLabel: "Attachments Label",
     defaultAttachmentsLabel: "Add an Attachment to the job",

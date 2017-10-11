@@ -10,17 +10,18 @@ Information about Web AppBuilder for Portal: http://server.arcgis.com/en/portal/
 * Register the Workflow Manager Create Job widget as a custom widget.
   * http://server.arcgis.com/en/portal/latest/use/add-custom-widgets.htm
 * Create a new application using the custom widget
+
+## Limitations
+* 
   
 
 ## Developer Setup
 * Follow [setup instructions for Web AppBuilder for ArcGIS (Developer Edition)](https://developers.arcgis.com/web-appbuilder/guide/getstarted.htm)
 * Clone this repo to your local drive and copy `WorkflowManagerCreateJobs` to `<WebAppBuilderInstallDir>\client\stemapp\widgets` folder
-  * e.g. `<WebAppBuilderInstallDir>\client\stemapp\widgets\WorkflowManagerCreateJobs`
-* Copy the following directories from `WorkflowManagerCreateJobs` to `<WebAppBuilderInstallDir>\client\stemapp\libs`
-  * `WorkflowManagerCreateJobs\exifjs` -> `<WebAppBuilderInstallDir>\client\stemapp\libs\exifjs`
-  * `WorkflowManagerCreateJobs\libs\workflowmanager` -> `<WebAppBuilderInstallDir>\client\stemapp\libs\workflowmanager`
-  
-* Run Web AppBuilder Developer Edition and include the Workflow Manager Create Job widget into your application. 
+  * e.g. `<WebAppBuilderInstallDir>\client\stemapp\widgets\WorkflowManagerCreateJobs` 
+* Run Web AppBuilder Developer Edition and include the Workflow Manager Create Job widget into your application.
+  * For widget development, run Web AppBuilder by appending `?id=stemapp`
+  * Example: http://hostname:3344/webappbuilder/?id=stemapp
 
 * Deploy your application
   * https://developers.arcgis.com/web-appbuilder/guide/xt-deploy-app.htm
