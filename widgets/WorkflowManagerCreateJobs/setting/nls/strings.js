@@ -5,8 +5,12 @@ define({
     selectLayerUrl: "Select Layer Url",
     wmxcomments: "Description/Notes",
 
-    defaultUser: "Default User",
     setSource:"Set",
+
+    defaultUser: "Default User",
+    nonAuthenticatedUser: "Non-Authenticated",
+    portalAuthenticatedUser: "Portal Authenticated",
+    serverAuthenticatedUser: "Server Authenticated",
 
     defineLOILabel: "Define Location Label",
     defaultDefineLOILabel: "Define Location",
@@ -18,6 +22,7 @@ define({
     addTaskTip: "Add one or more job types to the widget and configure extended properties (max 10) for each job type.",
     jobType: "Job Type",
     visible: "Visible",
+    selectAnIcon: "Select an Icon:",
 
     dashboardFieldName: "Dashboard Field Name",
     alias: "Alias",
