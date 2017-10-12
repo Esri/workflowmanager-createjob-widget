@@ -19,12 +19,13 @@ define({
     extPropsLabel: "Extended Properties Label",
     defaultExtPropsLabel: "Contact Information",
 
-    addTaskTip: "Add one or more job types to the widget and configure extended properties (max 10) for each job type.",
+    addJobTypeTip: "Add one or more job types to the widget and configure extended properties (max 10) for each job type.",
     jobType: "Job Type",
     visible: "Visible",
     selectAnIcon: "Select an Icon:",
 
-    dashboardFieldName: "Dashboard Field Name",
+    tableName: "Table Name",
+    fieldName: "Field Name",
     alias: "Alias",
     selectJobTypePlaceholder: "Select a job type",
     selectAJobType: "Select a job type to view extended properties",

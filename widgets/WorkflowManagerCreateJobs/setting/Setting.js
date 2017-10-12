@@ -447,6 +447,10 @@ define([
             }));
 
             domConstruct.create('td', {
+              innerHTML: prop.tableName
+            }, propsRow, 'last');
+
+            domConstruct.create('td', {
               innerHTML: prop.fieldName
             }, propsRow, 'last');
 

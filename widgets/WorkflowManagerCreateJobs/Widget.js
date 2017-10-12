@@ -457,13 +457,6 @@ define([
         this.wmConfigTask = new WMConfigurationTask(this.config.wmServiceUrl);
       },
 
-      // TODO Implement this
-      _selectJobTypeClick: function (e) {
-        // User has selected the job type
-        // 1. Get the configured extended properties for the job type and populate the UI
-        // 2.
-      },
-
       _createJobSettings: function (jobTypeObj) {
         var self = lang.hitch(this);
         console.log('_createJobClick function', jobTypeObj);
