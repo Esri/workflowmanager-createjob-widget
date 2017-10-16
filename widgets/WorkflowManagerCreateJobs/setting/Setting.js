@@ -151,7 +151,7 @@ define([
 
       _initIconSelect: function() {
         registry.byId('jobTypeIconSelect').set('options', [
-          { value:"", label: "None", disabled: true},
+          { value:"", label: "None"},
           { value:"exclamation-triangle", label: "<i class='fa fa-exclamation-triangle'></i>"},
           { value:"bell", label: "<i class='fa fa-bell'></i>"},
           { value:"check", label: "<i class='fa fa-check'></i>"},
@@ -261,13 +261,8 @@ define([
                   //reselect the row so the ui updates properly
                   self._onJobItemRowClicked(self.selectedJobItemRow);
 
-                  //update the option to be disabled or not based on the selected job types
-                  var updatedOptions = [];
-                  arrayUtil.forEach(jobTypeSelect.get('options'), lang.hitch(this, function(selectOption) {
-                    selectOption.disabled = (self.selectedJobTypes[selectOption.value] ? true : false );
-                    updatedOptions.push(selectOption)
-                  }));
-                  jobTypeSelect.set('options', updatedOptions);
+                  //update select options disabled prop
+                  self._updateSelectOptionsDisabled();
                 }
               });
             }
@@ -429,7 +424,7 @@ define([
         this.selectedJobTypes[jobTypeId] = {
           jobType: jobTypeId,
           jobTypeName: jobTypeName,
-          icon: jobIcon || this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "",
+          icon: (jobIcon !== undefined ? jobIcon : this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon),
           extendedProps: (this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].extendedProps) || []
         };
 
@@ -515,6 +510,17 @@ define([
         }
       },
 
+      _updateSelectOptionsDisabled: function() {
+        //update the option to be disabled or not based on the selected job types
+        var jobTypeSelect = registry.byId("jobTypeSelect");
+        var updatedOptions = [];
+        arrayUtil.forEach(jobTypeSelect.get('options'), lang.hitch(this, function(selectOption) {
+          selectOption.disabled = (this.selectedJobTypes[selectOption.value] ? true : false );
+          updatedOptions.push(selectOption)
+        }));
+        jobTypeSelect.set('options', updatedOptions);
+      },
+
       _deleteJobTypeItem: function(e) {
         console.log('jobTypeRow', e, e.dataset.id);
         delete this.selectedJobTypes[e.dataset.id];
@@ -527,12 +533,14 @@ define([
         if (domQuery('.job-type-item').length < 1) {
           registry.byId('jobTypeSelect').set('disabled', true);
         }
+
+        this._updateSelectOptionsDisabled();
       },
 
       _resetTableSelect: function() {
-        this._createExtendedPropsTable(null);
+        this._createExtendedPropsTable('null');
         this.selectChangeEvent.pause();
-        registry.byId('jobTypeSelect').set("value",  null);
+        registry.byId('jobTypeSelect').set('value',  'null');
         this.selectChangeEvent.resume();
       },
 
