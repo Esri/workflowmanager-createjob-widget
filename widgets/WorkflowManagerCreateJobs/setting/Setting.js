@@ -206,48 +206,65 @@ define([
           function (response) {
             // Filter on active job types
             if (response.jobTypes && response.jobTypes.length > 0) {
-              domConstruct.empty(dom.byId('jobTypeSelect'));
+              registry.byId("jobTypeSelect").set("options", []);
 
-              domConstruct.create('option', {
-                innerHTML: i18n.selectJobTypePlaceholder,
+              var jobTypeOptionsArr = [];
+
+              jobTypeOptionsArr.push({
                 value: null,
+                label: i18n.selectJobTypePlaceholder,
                 selected: true
-              }, dom.byId('jobTypeSelect'), 'last')
+              });
 
-              response.jobTypes.forEach(function(jobType) {
+              response.jobTypes.sort(function(a, b) {
+                if(a.name < b.name) {
+                  return -1;
+                }
+                if(a.name > b.name) {
+                  return 1;
+                }
+                return 0;
+              }).forEach(function(jobType) {
                 if (jobType.state == Enum.JobTypeState.ACTIVE) {
                   self.jobTypes.push(jobType);
 
-                  domConstruct.create('option', {
-                    innerHTML: jobType.name,
+                  jobTypeOptionsArr.push({
                     value: jobType.id,
+                    label: jobType.name,
                     disabled: (self.selectedJobTypes[jobType.id] ? true : false )
-                  }, dom.byId('jobTypeSelect'), 'last')
+                  });
                 }
               });
 
-              on(dom.byId('jobTypeSelect'), "change", function(e) {
-                var selectedValue = e.target.value;
-                var selectedText = e.target.selectedOptions[0].innerText;
+              registry.byId("jobTypeSelect").set("options", jobTypeOptionsArr);
 
-                //since we're changing an option, we need to delete the old value
-                self._deleteJobTypeItem(self.selectedJobItemRow);
+              self.selectChangeEvent = on.pausable(registry.byId('jobTypeSelect'), "change", function(e) {
+                if (e.toString() !== self.selectedJobItemRow.dataset.id) {
+                  var selectedValue = e;
+                  var selectedOption = self.jobTypes.filter(function(item) {
+                    return item.id === e;
+                  });
+                  var selectedText = selectedOption[0].name;
 
-                //now create the new one if it doesn't exist
-                if (!self.selectedJobTypes[selectedValue]) {
-                  self._onJobItemRowClicked(self._createJobItem());
+                  //since we're changing an option, we need to delete the old value
+                  self._deleteJobTypeItem(self.selectedJobItemRow);
+
+                  //now create the new one if it doesn't exist
+                  if (!self.selectedJobTypes[selectedValue]) {
+                    self._onJobItemRowClicked(self._createJobItem());
+                  }
+
+                  //just update it if it does exist
+                  self._updateJobItemType(selectedValue, selectedText);
+
+                  //reselect the row so the ui updates properly
+                  self._onJobItemRowClicked(self.selectedJobItemRow);
+
+                  //update the option to be disabled or not based on the selected job types
+                  arrayUtil.forEach(e.target, lang.hitch(this, function(selectOption) {
+                    selectOption.disabled = (self.selectedJobTypes[selectOption.value] ? true : false );
+                  }));
                 }
-
-                //just update it if it does exist
-                self._updateJobItemType(selectedValue, selectedText);
-
-                //reselect the row so the ui updates properly
-                self._onJobItemRowClicked(self.selectedJobItemRow);
-
-                //update the option to be disabled or not based on the selected job types
-                arrayUtil.forEach(e.target, lang.hitch(this, function(selectOption) {
-                  selectOption.disabled = (self.selectedJobTypes[selectOption.value] ? true : false );
-                }));
               });
             }
 
@@ -350,7 +367,11 @@ define([
         domClass.add(this.selectedJobItemRow, 'selected');
 
         //set the select to the correct option
-        dom.byId('jobTypeSelect').value = jobTypeId || null;
+        var jobTypeSelect = registry.byId('jobTypeSelect');
+        this.selectChangeEvent.pause();
+        jobTypeSelect.set("value", jobTypeId || null);
+        this.selectChangeEvent.resume();
+
         registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "");
 
         //generate the table rows with the optional fields
@@ -358,7 +379,7 @@ define([
       },
 
       _createJobItem: function(jobTypeId) {
-        var jobItemId = (jobTypeId || dom.byId('jobTypeSelect').value) + 'JobItemRow';
+        var jobItemId = jobTypeId || registry.byId('jobTypeSelect').get("value");
         var jobTypeItem = domConstruct.create('div', {
           class: 'job-type-item',
           id: jobItemId
@@ -496,7 +517,9 @@ define([
 
       _resetTableSelect: function() {
         this._createExtendedPropsTable(null);
-        dom.byId('jobTypeSelect').value = null;
+        this.selectChangeEvent.pause();
+        registry.byId('jobTypeSelect').set("value",  null);
+        this.selectChangeEvent.resume();
       },
 
       _sortExtendedProps: function(a,b) {

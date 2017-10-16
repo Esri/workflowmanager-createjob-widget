@@ -32,12 +32,12 @@
         <tr>
           <td class="first">${nls.defaultUser}</td>
           <td class="second" colspan="2">
-            <select style="width: 140px; margin-right: 10px;">
-              <option selected>${nls.nonAuthenticatedUser}</option>
-              <option>${nls.portalAuthenticatedUser}</option>
-              <option>${nls.serverAuthenticatedUser}</option>
+            <select style="width: 160px; margin-right: 10px;" data-dojo-type="dijit/form/Select">
+              <option selected="selected" value="nonAuthenticatedUser">${nls.nonAuthenticatedUser}</option>
+              <option value="portalAuthenticatedUser">${nls.portalAuthenticatedUser}</option>
+              <option value="serverAuthenticatedUser">${nls.serverAuthenticatedUser}</option>
             </select>
-            <input style="width: calc(100% - 155px); float: right; margin: 5px 0;" type="text" data-dojo-type="dijit/form/ValidationTextBox"
+            <input style="width: calc(100% - 175px); float: right; margin: 5px 0;" type="text" data-dojo-type="dijit/form/ValidationTextBox"
             data-dojo-attach-point="defaultUser" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="demo" />
           </td>
         </tr>
@@ -83,7 +83,7 @@
         </div>
         <div class="job-content no-type-selected" id="singleSettingContent">
           <div class="job-type-selects">
-            <select id="jobTypeSelect"></select>
+            <select id="jobTypeSelect" data-dojo-type="dijit/form/Select" style="width: 160px; margin: 0 10px 0 0;"></select>
             <label for="jobTypeIconSelect" class="font-awesome-select-label">${nls.selectAnIcon}</label>
             <select id="jobTypeIconSelect" data-dojo-type="dijit/form/Select" class="font-awesome-select"></select>
           </div>
