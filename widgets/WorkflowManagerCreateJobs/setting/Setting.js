@@ -206,7 +206,8 @@ define([
           function (response) {
             // Filter on active job types
             if (response.jobTypes && response.jobTypes.length > 0) {
-              registry.byId("jobTypeSelect").set("options", []);
+              var jobTypeSelect = registry.byId("jobTypeSelect");
+              jobTypeSelect.set("options", []);
 
               var jobTypeOptionsArr = [];
 
@@ -236,10 +237,10 @@ define([
                 }
               });
 
-              registry.byId("jobTypeSelect").set("options", jobTypeOptionsArr);
+              jobTypeSelect.set("options", jobTypeOptionsArr);
 
               self.selectChangeEvent = on.pausable(registry.byId('jobTypeSelect'), "change", function(e) {
-                if (e.toString() !== self.selectedJobItemRow.dataset.id) {
+                if (e && e.toString() !== self.selectedJobItemRow.dataset.id) {
                   var selectedValue = e;
                   var selectedOption = self.jobTypes.filter(function(item) {
                     return item.id === e;
@@ -261,9 +262,12 @@ define([
                   self._onJobItemRowClicked(self.selectedJobItemRow);
 
                   //update the option to be disabled or not based on the selected job types
-                  arrayUtil.forEach(e.target, lang.hitch(this, function(selectOption) {
+                  var updatedOptions = [];
+                  arrayUtil.forEach(jobTypeSelect.get('options'), lang.hitch(this, function(selectOption) {
                     selectOption.disabled = (self.selectedJobTypes[selectOption.value] ? true : false );
+                    updatedOptions.push(selectOption)
                   }));
+                  jobTypeSelect.set('options', updatedOptions);
                 }
               });
             }
@@ -409,6 +413,11 @@ define([
         //select null on icon dropdown
         registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "");
 
+        //enable job type select if we have at least one row added
+        if (domQuery('.job-type-item').length > 0) {
+          registry.byId('jobTypeSelect').set('disabled', false);
+        }
+
         return jobTypeItem;
       },
 
@@ -513,6 +522,11 @@ define([
         this.selectedJobItemRow = null;
 
         this._resetTableSelect();
+
+        //enable job type select if we have at least one row added
+        if (domQuery('.job-type-item').length < 1) {
+          registry.byId('jobTypeSelect').set('disabled', true);
+        }
       },
 
       _resetTableSelect: function() {

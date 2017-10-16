@@ -77,6 +77,10 @@ th {
 
 .job-type-item p {
   flex: 1 0 auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: calc(100% - 20px);
 }
 
 .job-type-item .item-button {
@@ -103,7 +107,7 @@ th {
 .no-type-selected .no-task-tip {
   display: block;
 }
-.no-type-selected table {
+.no-type-selected .extended-props-table {
   display: none;
 }
 
