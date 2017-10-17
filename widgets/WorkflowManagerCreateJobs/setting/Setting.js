@@ -29,7 +29,6 @@ define([
     'jimu/utils',
 
     'dijit/_WidgetsInTemplateMixin',
-    'dojo/i18n!./nls/strings',
 
     '../libs/workflowmanager/WMConfigurationTask',
     '../libs/workflowmanager/WMJobTask',
@@ -39,7 +38,7 @@ define([
   function(
     declare, lang, arrayUtil, domQuery, on, dom, domClass, domConstruct, registry,
     BaseWidgetSetting, utils,
-    _WidgetsInTemplateMixin, i18n,
+    _WidgetsInTemplateMixin,
     WMConfigurationTask, WMJobTask, Enum, JobQueryParameters) {
     return declare([BaseWidgetSetting, _WidgetsInTemplateMixin], {
 
@@ -54,11 +53,12 @@ define([
       selectedJobItemRow: null,
 
       // Query constants
-      QUERY_FIELDS: 'JTX_JOB_TYPES.JOB_TYPE_ID,JTX_JOB_TYPES.JOB_TYPE_NAME,JTX_AUX_PROPS.TABLE_NAME, JTX_AUX_PROPS.FIELD_NAME,\
+      QUERY_FIELDS: 'JTX_JOB_TYPES.JOB_TYPE_ID,JTX_JOB_TYPES.JOB_TYPE_NAME,JTX_JOB_TYPES.DESCRIPTION,JTX_AUX_PROPS.TABLE_NAME, JTX_AUX_PROPS.FIELD_NAME,\
         JTX_AUX_PROPS.FIELD_ALIAS_NAME,JTX_AUX_PROPS.FIELD_DOMAIN,JTX_AUX_PROPS.DISPLAY_TYPE,JTX_AUX_PROPS.DEFAULT_VALUE,JTX_AUX_PROPS.REQUIRED',
       QUERY_TABLES: 'JTX_JOB_TYPES, JTX_AUX_PROPS',
-      QUERY_WHERE: 'JTX_JOB_TYPES.JOB_TYPE_ID = JTX_AUX_PROPS.JOB_TYPE_ID AND JTX_AUX_PROPS.JOB_TYPE_ID in ({0})',
-      QUERY_ORDER_BY: 'JTX_JOB_TYPES.job_type_id',
+      // Match on jobTypeId, excluding properties that cannot be updated or is not visible
+      QUERY_WHERE: 'JTX_JOB_TYPES.JOB_TYPE_ID = JTX_AUX_PROPS.JOB_TYPE_ID AND JTX_AUX_PROPS.JOB_TYPE_ID in ({0}) AND JTX_AUX_PROPS.CAN_UPDATE <> \'0\' AND JTX_AUX_PROPS.IS_VISIBLE <> \'0\'',
+      QUERY_ORDER_BY: 'JTX_JOB_TYPES.job_type_id, JTX_AUX_PROPS.TABLE_NAME',
 
       startup: function() {
         this.inherited(arguments);
@@ -89,7 +89,7 @@ define([
           this.wmServiceUrl.set('value', config.wmServiceUrl);
         } else {
           // TODO How to localize this
-          this.wmServiceUrl.set('value', i18n.workflowManagerServiceUrl);
+          this.wmServiceUrl.set('value', this.nls.workflowManagerServiceUrl);
         }
 
         if (config.selectableLayer) {
@@ -101,7 +101,7 @@ define([
         if (config.defaultUser) {
           this.defaultUser.set('value', config.defaultUser);
         } else {
-          this.defaultUser.set('value', 'Username to for submitting job requests');
+          this.defaultUser.set('value', 'Default username for submitting job requests');
         }
 
         if (config.defineLOILabel) {
@@ -209,7 +209,7 @@ define([
               domConstruct.empty(dom.byId('jobTypeSelect'));
 
               domConstruct.create('option', {
-                innerHTML: i18n.selectJobTypePlaceholder,
+                innerHTML: self.nls.selectJobTypePlaceholder,
                 value: null,
                 selected: true
               }, dom.byId('jobTypeSelect'), 'last')
@@ -288,7 +288,7 @@ define([
           lang.hitch(this, function(response) {
             var extProps = (response && response.rows) ? response.rows : [];
             if (extProps.length == 0) {
-              // TODO Populate UI
+              // TODO Show error message in UI
               console.log('Unable to retrieve any extended properties for job types');
               return;
             }
@@ -298,13 +298,14 @@ define([
               acc[key] = acc[key] || [];
               acc[key].push({
                 jobTypeName: item[1],
-                tableName: item[2],
-                fieldName: item[3],
-                fieldAlias: item[4],
-                fieldDomain: item[5],
-                displayType: item[6],
-                defaultValue: item[7],
-                required: item[8],
+                description: item[2],
+                tableName: item[3],
+                fieldName: item[4],
+                fieldAlias: item[5],
+                fieldDomain: item[6],
+                displayType: item[7],
+                defaultValue: item[8],
+                required: item[9],
                 value: null
               });
               return acc;
@@ -367,7 +368,7 @@ define([
 
         var jobName = domConstruct.create('p', {
           class: 'item-name item-name-unassigned',
-          innerHTML: (jobTypeId ? this.selectedJobTypes[jobTypeId].jobTypeName + ' - ' + jobTypeId : i18n.selectJobTypePlaceholder)
+          innerHTML: (jobTypeId ? this.selectedJobTypes[jobTypeId].jobTypeName + ' - ' + jobTypeId : this.nls.selectJobTypePlaceholder)
         }, jobTypeItem, 'first');
 
         var jobDeleteBtn = domConstruct.create('a', {
@@ -465,7 +466,7 @@ define([
           var propCheckbox = domConstruct.create('td', {
             colspan: '3',
             style: 'text-align: center; padding: 10px;',
-            innerHTML: '<span class="hint-text">' + i18n.noExtendedProps + '</span>'
+            innerHTML: '<span class="hint-text">' + this.nls.noExtendedProps + '</span>'
           }, propsRow, 'first');
         }
       },
@@ -486,8 +487,11 @@ define([
       },
 
       _deleteJobTypeItem: function(e) {
-        console.log('jobTypeRow', e, e.dataset.id);
-        delete this.selectedJobTypes[e.dataset.id];
+        if (!e) return;
+        if (e.dataset) {
+          console.log('jobTypeRow', e, e.dataset.id);
+          delete this.selectedJobTypes[e.dataset.id];
+        }
         domConstruct.destroy(e);
         this.selectedJobItemRow = null;
 

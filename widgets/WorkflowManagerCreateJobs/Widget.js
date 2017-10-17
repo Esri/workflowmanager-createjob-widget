@@ -57,6 +57,7 @@ define([
       wmConfigTask: null,
 
       jobTypes: [],
+      attachmentToUpload: null,
       attachmentList: [],
       exifInfosArray: [],
       jobId: null,
@@ -65,9 +66,24 @@ define([
       bAOIGeotagged: false,
       bAOIDrawn: false,
       bAOISelected: false,
-      bJobCreated: false,
       sSelectableFeatureLayerURL: '',
       drawBox: null,
+
+      // Unlike promises, we cannot combine all callbacks into a single request.  We need to
+      // keep track of all callbacks coming back to determine if the job was created successfully
+      // or if we need to notify the user that an issue occurred. The other option is to update the
+      // Workflow Manager API to used deferred, rather than callbacks, but that would require updates
+      // to the 3.x API.
+      bNotesReqComplete: false,
+      bAttachmentReqComplete: false,
+      bExtPropsReqComplete: false,
+      extPropResults: [],
+
+      ResponseType: {
+        NOTES: 0,
+        ATTACHMENT: 1,
+        EXTPROPS: 2
+      },
 
       //methods to communication with app container:
 
@@ -86,51 +102,55 @@ define([
         var self = lang.hitch(this);
         this.jobTypes = [];
         this.wmConfigTask.getVisibleJobTypes(this.user, function (data) {
-          //generate dom elements for configured job types and ext props
-          var jobItem;
-          Object.keys(self.config.selectedJobTypes).map(function(propKey, index) {
-            jobItem = self.config.selectedJobTypes[propKey];
+            //generate dom elements for configured job types and ext props
+            var jobItem;
+            Object.keys(self.config.selectedJobTypes).map(function (propKey, index) {
+              jobItem = self.config.selectedJobTypes[propKey];
 
-            var jobItemDom = domConstruct.create('div', {
-              class: 'job-type-selector'
-            }, 'jobTypeSelectors', 'last');
-            jobItemDom.dataset.jobType = jobItem.jobType;
-            jobItemDom.dataset.jobTypeTitle = jobItem.jobTypeName;
+              var jobItemDom = domConstruct.create('div', {
+                class: 'job-type-selector'
+              }, 'jobTypeSelectors', 'last');
+              jobItemDom.dataset.jobType = jobItem.jobType;
+              jobItemDom.dataset.jobTypeTitle = jobItem.jobTypeName;
 
-            on(jobItemDom, 'click', function(e) {
-              self._createJobSettings(self.config.selectedJobTypes[e.currentTarget.dataset.jobType]);
+              on(jobItemDom, 'click', function (e) {
+                self._createJobSettings(self.config.selectedJobTypes[e.currentTarget.dataset.jobType]);
+              });
+
+              domConstruct.create('div', {
+                class: 'job-type-symbol',
+                innerHTML: '<i class="fa fa-' + (jobItem.icon || 'exclamation-triangle') + '"></i>'
+              }, jobItemDom, 'first');
+
+              var jobItemContent = domConstruct.create('div', {
+                class: 'job-type-content'
+              }, jobItemDom, 'last');
+
+              domConstruct.create('h4', {
+                class: 'job-type-title',
+                innerHTML: jobItem.jobTypeName
+              }, jobItemContent, 'first');
+              domConstruct.create('p', {
+                class: 'job-type-description',
+                innerHTML: jobItem.description ? jobItem.description : i18n.createJobForJobType.replace("{0}", jobItem.jobTypeName)
+              }, jobItemContent, 'last');
             });
 
-            domConstruct.create('div', {
-              class: 'job-type-symbol',
-              innerHTML: '<i class="fa fa-'+ (jobItem.icon || 'exclamation-triangle') +'"></i>'
-            }, jobItemDom, 'first');
+            self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
 
-            var jobItemContent = domConstruct.create('div', {
-              class: 'job-type-content'
-            }, jobItemDom, 'last');
-
-            domConstruct.create('h4', {
-              class: 'job-type-title',
-              innerHTML: jobItem.jobTypeName
-            }, jobItemContent, 'first');
-            domConstruct.create('p', {
-              class: 'job-type-description',
-              innerHTML: 'Create a new job for ' + jobItem.jobType + ' - ' + jobItem.jobTypeName
-              // TODO: @lalaine Here is where you will put the job type description
-            }, jobItemContent, 'last');
-          });
-
-          self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
-
-          self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, function(e) {
-            dom.byId('jobTypeFilterInput').value = '';
-            self._jobFilterUpdated();
-          })));
-        });
+            self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, function (e) {
+              dom.byId('jobTypeFilterInput').value = '';
+              self._jobFilterUpdated();
+            })));
+          },
+          function (error) {
+            // TODO Provide error message in UI
+            console.log("No visible job types returned for user " + this.user, error);
+          }
+        );
       },
 
-      _jobFilterUpdated: function(e) {
+      _jobFilterUpdated: function (e) {
         var inputVal = (e && e.target.value) || '';
         if (inputVal == '') {
           domStyle.set(dom.byId('jobTypeFilterClear'), 'display', 'none');
@@ -138,7 +158,7 @@ define([
           domStyle.set(dom.byId('jobTypeFilterClear'), 'display', 'initial');
         }
 
-        arrayUtils.forEach(domQuery('.job-type-selector', dom.byId('jobTypeSelectors')), lang.hitch(this, function(jobItem) {
+        arrayUtils.forEach(domQuery('.job-type-selector', dom.byId('jobTypeSelectors')), lang.hitch(this, function (jobItem) {
           if (jobItem.dataset.jobTypeTitle.toLocaleLowerCase().indexOf(inputVal) > -1) {
             domStyle.set(jobItem, 'display', 'flex');
           } else {
@@ -153,9 +173,9 @@ define([
         this._resetWidget();
       },
 
-      _loadPhoto: function (e) {
-        console.log('_loadPhoto');
-        this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : i18n.addPhotoToJob;
+      _addAttachmentToUpload: function (e) {
+        console.log('_addAttachmentToUpload');
+        this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : i18n.addAttachmentToJob;
         this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
 
         var fullImageFile = e.target.files[0];
@@ -194,39 +214,44 @@ define([
             this._saveGeotagAOI();
           }
 
-          // Add the attachment to the job
-          this._addEmbeddedAttachment();
+          this.attachmentToUpload = {
+            latestExifInfo: latestExifInfo,
+            fullImageFilename: fullImageFile.name
+          };
+
+          // // Add the attachment to the job
+          // this._addEmbeddedAttachment();
         }));
       },
 
       _addEmbeddedAttachment: function () {
         var form = dom.byId('sendForm');
         //processing message
-        this.uploadText.innerHTML = i18n.processingFilename.replace('{0}', fullImageFile.name);
+        this.uploadText.innerHTML = i18n.processingFilename.replace('{0}', this.fullImageFilename);
         this.uploadGraphic.src = '';
         this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId, form,
           lang.hitch(this, function (attachmentId) {
-            console.log('addEmbeddedAttachment');
-            console.log(attachmentId);
+            console.log('Job attachment added successfully', attachmentId);
 
             this.uploadText.innerHTML = i18n.successfulUploadAnother;
             this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg';
 
             // upload was successful, so add an AttachmentItem widget
-            this._createAttachmentItem(latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
-
+            this._createAttachmentItem(this.attachmentToUpload.latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
+            this.attachmentToUpload = null;
+            this._handleRequestResponse(this.ResponseType.ATTACHMENT);
           }),
           lang.hitch(this, function (error) {
             // TODO Provide error in UI
-            console.log('Error Adding Attachment ' + this.jobId +
-              ' ' + error);
+            console.log('Error adding job attachment', error);
+            this._handleRequestResponse(this.ResponseType.ATTACHMENT, error);
           })
         );
       },
 
       _saveGeotagAOI: function () {
         if (this.bAOISelected || this.bAOIDrawn) {
-          var r = confirm('This will overwrite the current AOI.  Are you sure?');
+          var r = confirm(i18n.aoiOverwritePrompt);
           if (r == true) {
             this.bAOISelected = false;
             this.bAOIDrawn = false;
@@ -341,12 +366,11 @@ define([
       // },
 
       _onSelectEnd: function (graphic, geotype, commontype) {
-        var self = lang.hitch(this);
         this.inherited(arguments);
         console.log('_onSelectEnd');
 
         if (this.bAOIGeotagged || this.bAOIDrawn) {
-          var r = confirm('This will overwrite the current AOI.  Are you sure?');
+          var r = confirm(i18n.aoiOverwritePrompt);
           if (r == true) {
             this.bAOIGeotagged = false;
             this.bAOIDrawn = false;
@@ -365,7 +389,7 @@ define([
           this.aoi.type = 'polygon';
         }
 
-        var qTask = new QueryTask(self.sSelectableFeatureLayerURL);
+        var qTask = new QueryTask(this.sSelectableFeatureLayerURL);
         var qry = new Query();
         qry.returnGeometry = true;
         qry.geometry = graphic.geometry;
@@ -373,14 +397,11 @@ define([
         qTask.execute(
           qry,
           lang.hitch(this, function (fset) {
-            var self = lang.hitch(this);
             console.log('query success');
-
           }),
           lang.hitch(this, this._errorSelectFeatures)
         );
       },
-
 
       _errorSelectFeatures: function (params) {
         // this._popupMessage(params.message);
@@ -393,7 +414,7 @@ define([
         console.log('_onDrawEnd');
 
         if (this.bAOIGeotagged || this.bAOISelected) {
-          var r = confirm('This will overwrite the current AOI.  Are you sure?');
+          var r = confirm(i18n.aoiOverwritePrompt);
           if (r == true) {
             this.bAOIGeotagged = false;
             this.bAOISelected = false;
@@ -431,13 +452,13 @@ define([
         // this.photoGeotagNode.style.display = '';
         // tabs.push(geotagTab);
 
-        var drawTab = {title: 'Add Feature'};
+        var drawTab = {title: i18n.addFeature};
         drawTab.content = this.drawLocationNode;
         this.drawLocationNode.style.display = '';
         tabs.push(drawTab);
 
         if (this.config.selectableLayer != '' && this.config.selectableLayer != 'Under Construction') {
-          var selectTab = {title: 'Select Features'};
+          var selectTab = {title: i18n.selectFeatures};
           selectTab.content = this.selectFeaturesNode;
           this.selectFeaturesNode.style.display = '';
           this.sSelectableFeatureLayerURL = this.config.selectableLayer; // make configurable
@@ -459,29 +480,25 @@ define([
 
       _createJobSettings: function (jobTypeObj) {
         var self = lang.hitch(this);
-        console.log('_createJobClick function', jobTypeObj);
-
-        if (jobTypeObj) {
-          this.createJobHeader.innerHTML = 'Creating Job: ' + jobTypeObj.jobTypeName;
+        console.log('_createJobSettings function', jobTypeObj);
+        if (!jobTypeObj) {
+          console("JobType selection is invalid");
+          return;
         }
 
-        var creationParams = new JobCreationParameters();
-        creationParams.jobTypeId = jobTypeObj.jobType;
-        creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
-        creationParams.assignedTo = this.user;
-
-        this.bJobCreated = true;
+        this.jobType = jobTypeObj.jobType;
+        this.createJobHeader.innerHTML = i18n.creatingJobForJobType.replace("{0}", jobTypeObj.jobTypeName)
 
         //loop through groups of extended props
         var formRow, formRowLabel, inputEl;
-        var props = jobTypeObj.extendedProps
+        var props = jobTypeObj.extendedProps;
 
         var formGroup = domConstruct.create('div', {
           class: 'wmx-input-content jimu-item-form'
         }, 'wmxExtendedProps', 'last');
 
         //loop through the form elements
-        arrayUtils.forEach(props, lang.hitch(this, function(formEl) {
+        arrayUtils.forEach(props, lang.hitch(this, function (formEl) {
           formRow = domConstruct.create('div', {
             class: "create-job-form-row"
           }, formGroup);
@@ -501,7 +518,7 @@ define([
 
               break;
             case "2":
-              //
+              // DATE
               inputEl = domConstruct.create('input', {
                 class: 'common-input jimu-input input-item',
                 type: 'date',
@@ -537,7 +554,6 @@ define([
 
               break;
             default:
-
           }
         }));
 
@@ -548,43 +564,188 @@ define([
         domQuery('.jimu-widget-frame.jimu-container')[0].scrollTop = 0;
       },
 
-      _createJobClick: function (jobTypeObj) {
-        var self = lang.hitch(this);
-
+      _createJobClick: function () {
         var creationParams = new JobCreationParameters();
-        creationParams.jobTypeId = jobTypeObj.jobType;
-        creationParams.assignedType = Enum.JobAssignmentType.ASSIGNED_TO_USER;
-        creationParams.assignedTo = this.user;
+        creationParams.jobTypeId = this.jobType;
+        creationParams.loi = this.aoi;
 
-        this.wmJobTask.createJob(creationParams, this.user, function (data) {
-          self.jobId = data[0];
+        this.wmJobTask.createJob(creationParams, this.user,
+          lang.hitch(this, function (data) {
+            // Job created successfully. Update remaining job properties
+            console.log('Job created successfully, jobID = ' + data[0]);
+            this.jobId = data[0];
+            this._updateJobAfterCreate();
+          }),
+          lang.hitch(this, function (error) {
+            // TODO Provide error message in UI
+            alert('Error creating job', error);
+          })
+        );
+      },
 
-          var updateParam = new JobUpdateParameters();
-          updateParam.jobId = this.jobId;
-          updateParam.ownedBy = this.user;
-          updateParam.description = this.notesTextBox.value;
-          updateParam.loi = this.aoi;
+      _updateJobAfterCreate: function () {
+        this._clearRequestResponses();
 
-          var extPropsFormData = dom.byId('wmxExtendedProps').elements;
-          arrayUtils.forEach(extPropsFormData, lang.hitch(this, function(formEl) {
+        // Update job after creation.
+        // - job notes
+        // - job attachment
+        // - job extended properties
 
-            // TODO: @lalaine update the job that was just created with extended properties
-            // below is a sample of how to access the form element name and value
-            // you might have to reference self.config.selectedJobTypes.extendedProps
-            // to get the tableName etc.
-            //
-            // updateParam[formEl.name] = formEl.value;
-          }));
+        // job notes
+        if (this.notesTextBox.value) {
+          this.wmJobTask.updateNotes(this.jobId, this.notesTextBox.value, this.user,
+            lang.hitch(this, function (response) {
+              console.log((response.success ? "Successfully" : "Unsuccessfully") + " updated job notes");
+              this._handleRequestResponse(this.ResponseType.NOTES);
+            }),
+            lang.hitch(this, function (error) {
+              // TODO Provide error message in UI
+              console.log("Error updating job notes", error);
+              this._handleRequestResponse(this.ResponseType.NOTES, error);
+            }));
+        } else {
+          this._handleRequestResponse(this.ResponseType.NOTES);
+        }
 
-          this.wmJobTask.updateJob(updateParam, this.user, function () {
-            console.log('Job description updated successfully.');
-            self._resetWidget();
-            //show the successful job creation div
-            domStyle.set(self.wmxSuccessPanel, 'display', 'block');
+        // job attachment
+        if (this.attachmentToUpload) {
+          this._addEmbeddedAttachment();
+        } else {
+          this._handleRequestResponse(this.ResponseType.ATTACHMENT);
+        }
+
+        // job extended properties
+        // TODO Check if any extended properties were configured
+        var extProps = dom.byId('wmxExtendedProps').elements;
+        if (extProps && extProps.length > 0) {
+          this.wmJobTask.getExtendedProperties(this.jobId,
+            lang.hitch(this, function (data) {
+              // retrieve job extended properties, then update
+              console.log('Job extended properties retrieved successfully', data);
+              this._updateExtendedProperties(data);
+            }),
+            lang.hitch(this, function (error) {
+              console.log('Error retrieving job extended properties', error);
+              this._handleRequestResponse(this.ResponseType.EXTPROPS, error);
+            }));
+        } else {
+          this._handleRequestResponse(this.ResponseType.EXTPROPS);
+        }
+
+        // TODO Need to reset the widget only after all callbacks have been received
+        // this._resetWidget();
+      },
+
+      _updateExtendedProperties: function (jobExtProps) {
+        // get the configured ext props for the job in the widget and group by table name
+        var records = {};
+        var configuredExtProps = this.config.selectedJobTypes[this.jobType].extendedProps;
+        var extPropsFormData = dom.byId('wmxExtendedProps').elements;
+        for (i = 0; i < extPropsFormData.length; i++) {
+          var tableName = configuredExtProps[i].tableName;
+          if (!records[tableName]) {
+            records[tableName] = {
+              recordId: null,
+              tableName: tableName,
+              properties: {}
+            }
+          }
+          records[tableName].properties[configuredExtProps[i].fieldName] = extPropsFormData[i].value;
+        }
+
+        // get the associated recordId for each table
+        // values are nested in containers/records
+        for (tableName in records) {
+          jobExtProps.some(function(container) {
+            if (tableName === container.tableName) {
+              records[tableName].recordId = container.records[0].id;
+              return true;  // break out of the loop
+            }
           });
-        }, function (error) {
-          alert('Create Job Error: Please make sure the user is a valid user');
-        });
+        }
+
+        this.numExtPropRecords = Object.keys(records).length;
+        this.extPropResults = [];
+        for (tableName in records) {
+          var record = records[tableName];
+          record.properties = JSON.stringify(record.properties);  // mkae properties into a JSON string
+          this.wmJobTask.updateRecord(this.jobId, record, this.user,
+            lang.hitch(this, function(response) {
+              console.log((response.success ? "Successfully" : "Unsuccessfully") + " updated job ext prop record", record);
+              this._handleExtPropsResult({
+                tableName: record.tableName,
+                recordId: record.recordId,
+                success: response.success
+              });
+            }),
+            lang.hitch(this, function (error) {
+              console.log("Error updating job ext prop record", record, error);
+              this._handleExtPropsResult({
+                tableName: record.tableName,
+                recordId: record.recordId,
+                success: false
+              });
+            })
+          );
+        }
+
+        // arrayUtils.forEach(extPropsFormData, lang.hitch(this, function (formEl) {
+        //
+        //   // configured ext props for the widget
+        //
+        //   var extPropName = formEl.name;
+        //   var extPropValue = formElem.value;
+        //
+        //   // TODO: @lalaine update the job that was just created with extended properties
+        //   // below is a sample of how to access the form element name and value
+        //   // you might have to reference self.config.selectedJobTypes.extendedProps
+        //   // to get the tableName etc.
+        //   //
+        //   // updateParam[formEl.name] = formEl.value;
+        //
+        //   // this._handleRequestResponse("extProps", error);
+        //
+        // }));
+      },
+
+      _handleExtPropsResult: function(result) {
+        this.extPropResults.push(result);
+        if (this.extPropResults.length == this.numExtPropRecords) {
+          var success = true;
+          this.extPropResults.some(function(result) {
+            if (result.success === false) {
+              success = false;
+              return true; // break out of loop
+            }
+          });
+          var msg = success ? null : "Unable to update all job extended properties";
+          this._handleRequestResponse(this.ResponseType.EXTPROPS, msg);
+        }
+      },
+
+      _clearRequestResponses: function () {
+        bNotesReqComplete = false;
+        bAttachmentReqComplete = false;
+        bExtPropsReqComplete = false;
+      },
+
+      _handleRequestResponse: function (requestType, errMsg) {
+        if (this.ResponseType.NOTES === requestType) {
+          this.bNotesReqComplete = true;
+        } else if (this.ResponseType.ATTACHMENT === requestType) {
+          this.bAttachmentReqComplete = true;
+        } else if (this.ResponseType.EXTPROPS === requestType) {
+          this.bExtPropsReqComplete = true;
+        }
+        if (errMsg) {
+          console.log("Error updating job " + requestType, errMsg);
+          // TODO Provide feedback in UI
+        }
+
+        if (this.bNotesReqComplete && this.bAttachmentReqComplete && this.bExtPropsReqComplete) {
+          // reset the widget only when all requests have completed
+          this._resetWidget();
+        }
       },
 
       _resetWidget: function () {
@@ -597,14 +758,15 @@ define([
 
         this.attachmentList = [];
         this.exifInfosArray = [];
+        this.jobType = null;
         this.jobId = null;
         this.aoi = null;
         this.bAOIGeotagged = false;
         this.bAOIDrawn = false;
         this.bAOISelected = false;
-        this.bJobCreated = false;
         this.drawBox.clear();
         this.fileToUpload.value = '';
+        this.fullImageFilename = null;
 
         this.wmxCreateJobContent.style.display = 'none';
         this.jobTypeSelectors.style.display = 'block';

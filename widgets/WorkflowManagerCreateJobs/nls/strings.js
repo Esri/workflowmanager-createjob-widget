@@ -4,18 +4,25 @@
     title: "Create a Workflow Manager Job",
 
     filterJobTypes: "Filter job types...",
+    createJobForJobType: "Create a new job for {0}.",
+    creatingJobForJobType: "Creating a new job for {0}",
 
     notesLabel: "Comments",
 
     defaultDefineLOILabel: "Define Location",
-    defaultAttachmentsLabel: "Add an Attachment to the job",
+    addFeature: "Add Feature",
+    selectFeatures: "Select Features",
+    aoiOverwritePrompt: "This will overwrite the current AOI.  Are you sure?",
+
     defaultExtPropsLabel: "Contact Information",
 
-    addPhotoToJob: "Add a photo to this job",
+    defaultAttachmentsLabel: "Add an Attachment to the job",
+    addAttachmentToJob: "Add an attachment to this job",
     processingFilename: "Processing {0} ...",
     successfulUploadAnother: "Successfully uploaded file! Upload another.",
 
     backBtnLabel: "Back",
-    createJobBtnLabel: "Create Job"
+    createJobBtnLabel: "Create Job",
+    creatingJob: "Creating Job: {0}"
   })
 });

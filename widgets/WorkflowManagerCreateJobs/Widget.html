@@ -1,7 +1,8 @@
 <div class="wmx-widget-container">
   <div id="jobTypeSelectors" data-dojo-attach-point="jobTypeSelectors" style="width: 100%;">
+    <!-- TODO Move this to a success page -->
     <div class="wmx-success-panel" data-dojo-attach-point="wmxSuccessPanel" style="display: none;">
-      Job created
+      Job created.  Do you want to create a new way of life for yourself?
     </div>
     <div class="job-type-filter">
       <input class="common-input jimu-input input-item" type="text" id="jobTypeFilterInput" placeholder="${nls.filterJobTypes}" />
@@ -41,7 +42,7 @@
             <input type="text" id="storageType" name="storageType" value="2" style="display: none"/>
             <input type="text" id="f" name="f" value="json" style="display: none"/>
             <input type="file" id="fileToUpload" name="fileToUpload" data-dojo-attach-point="fileToUpload"
-                   data-dojo-attach-point="fileUploader" data-dojo-attach-event="onchange:_loadPhoto"
+                   data-dojo-attach-point="fileUploader" data-dojo-attach-event="onchange:_addAttachmentToUpload"
                    style="display: none;"/>
           </form>
           <label class="wmx-file-uploader" for="fileToUpload">
