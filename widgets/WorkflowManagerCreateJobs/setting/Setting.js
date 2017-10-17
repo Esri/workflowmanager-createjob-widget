@@ -79,6 +79,8 @@ define([
           this._createExtendedPropsTable(selectedId);
         }));
 
+        on(dom.byId('WMXSettingsErrorBtn'), 'click', lang.hitch(this, this._hideErrorMessage));
+
         this._initIconSelect();
       },
 
@@ -546,6 +548,15 @@ define([
 
       _sortExtendedProps: function(a,b) {
         return a.fieldName.localCompare(b.fieldName);
+      },
+
+      _showErrorMessage: function(message) {
+        domClass.add(this.domNode, 'settings-error-visible');
+        dom.byId('WMXSettingsErrorMessage').innerHTML = message || i18n.errorPlaceholder;
+      },
+
+      _hideErrorMessage: function() {
+        domClass.remove(this.domNode, 'settings-error-visible');
       }
     });
   });
