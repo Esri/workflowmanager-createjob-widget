@@ -77,6 +77,10 @@ th {
 
 .job-type-item p {
   flex: 1 0 auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: calc(100% - 20px);
 }
 
 .job-type-item .item-button {
@@ -103,7 +107,7 @@ th {
 .no-type-selected .no-task-tip {
   display: block;
 }
-.no-type-selected table {
+.no-type-selected .extended-props-table {
   display: none;
 }
 
@@ -133,4 +137,55 @@ th {
 .font-awesome-select {
   max-width: 80px;
   margin: 0 !important;
+}
+
+.clearfix::after {
+  display: table;
+  content: "";
+  clear: both;
+}
+
+.wmx-settings-error-container {
+  display: none;
+}
+
+.settings-error-visible .wmx-settings-error-container {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 9999;
+  -webkit-animation: fade-in 275ms forwards cubic-bezier(0.4, 0.0, 0.2, 1);
+  animation: fade-in 275ms forwards cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.wmx-settings-error-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  min-width: 400px;
+  max-width: 600px;
+}
+
+.wmx-settings-error-panel > div {
+  padding: 10px;
+}
+
+.wmx-settings-error-header {
+  border-bottom: 1px solid #ccc;
+}
+
+@-webkit-keyframes fade-in {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+@keyframes fade-in {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
 }

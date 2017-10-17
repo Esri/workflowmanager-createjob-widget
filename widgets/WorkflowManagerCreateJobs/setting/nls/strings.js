@@ -29,6 +29,10 @@ define({
     alias: "Alias",
     selectJobTypePlaceholder: "Select a job type",
     selectAJobType: "Select a job type to view extended properties",
-    noExtendedProps: "There are no extended props for this job type"
+    noExtendedProps: "There are no extended props for this job type",
+
+    errorHeader: "An Error Occured",
+    errorPlaceholder: "Something went wrong...",
+    errorOk: "OK"
   })
 });
