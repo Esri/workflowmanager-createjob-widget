@@ -215,7 +215,7 @@ define([
 
               jobTypeOptionsArr.push({
                 value: null,
-                label: i18n.selectJobTypePlaceholder,
+                label: self.nls.selectJobTypePlaceholder,
                 selected: true
               });
 
@@ -556,7 +556,7 @@ define([
 
       _showErrorMessage: function(message) {
         domClass.add(this.domNode, 'settings-error-visible');
-        dom.byId('WMXSettingsErrorMessage').innerHTML = message || i18n.errorPlaceholder;
+        dom.byId('WMXSettingsErrorMessage').innerHTML = message || this.nls.errorPlaceholder;
       },
 
       _hideErrorMessage: function() {

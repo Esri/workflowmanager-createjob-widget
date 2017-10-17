@@ -304,15 +304,16 @@ define([
       _initDrawBox: function () {
         //add 'polygon' type for more options
         this.drawBox = new DrawBox({
-          types: ['point'],
+          types: ['point','polygon'],
           map: this.map,
           showClear: true,
           keepOneGraphic: true
         });
         this.drawBox.placeAt(this.drawBoxDiv);
         this.drawBox.startup();
-        //this.own(on(this.drawBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
-        // this.own(on(this.drawBox, 'DrawEnd', lang.hitch(this, this._onDrawEnd)));
+        // TODO Is this needed?
+        // this.own(on(this.drawBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
+        this.own(on(this.drawBox, 'DrawEnd', lang.hitch(this, this._onDrawEnd)));
 
         this.selectBox = new DrawBox({
           types: ['point', 'polygon'],
