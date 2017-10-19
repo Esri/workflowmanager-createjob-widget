@@ -32,7 +32,7 @@ define([
     'esri/tasks/QueryTask',
     'esri/graphic',
     'esri/symbols/SimpleMarkerSymbol',
-
+    
     './libs/exifjs/exif'
 
     // 'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
