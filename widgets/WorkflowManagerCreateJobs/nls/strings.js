@@ -27,6 +27,8 @@
     creatingJob: "Creating Job: {0}",
     defaultJobBeingCreatedLabel: "The job is being created, this could take a moment.",
 
+    jobCreatedSuccessfully: "Job {0} created successfully.",
+
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",
     errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job.",

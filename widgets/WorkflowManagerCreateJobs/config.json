@@ -1,5 +1,8 @@
 {
   "wmServiceUrl": "https://workflowsample.esri.com/arcgis/rest/services/Workflow/WMServer",
+  "wmMapServiceUrl": "http://workflowsample.esri.com/arcgis/rest/services/Workflow_LOI/MapServer",
+  "poiLayerId": "0",
+  "aoiLayerId": "1",
   "selectableLayer": "http://workflowsample.esri.com/arcgis/rest/services/Workflow_LOI/MapServer",
   "defaultUser": "demo",
   "defineLOILabel": "Define Job Location",

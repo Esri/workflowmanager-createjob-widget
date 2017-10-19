@@ -856,10 +856,6 @@ define([
         this.wmxCreateJobContent.style.display = 'none';
         this.jobTypeSelectors.style.display = 'block';
 
-        this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
-        this.uploadText.innerHTML = this.config.attachmentsLabel || i18n.defaultAttachmentsLabel;
-        domClass.add(domUploaderDiv, 'upload-error');
-
         //hide the successful job creation div
         domStyle.set(this.wmxSuccessPanel, 'display', (jobCreated === true ? 'block' : 'none'));
 
