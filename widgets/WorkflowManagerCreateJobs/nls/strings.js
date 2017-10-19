@@ -23,6 +23,10 @@
 
     backBtnLabel: "Back",
     createJobBtnLabel: "Create Job",
-    creatingJob: "Creating Job: {0}"
+    creatingJob: "Creating Job: {0}",
+
+    errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
+    errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",
+    errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job.",
   })
 });

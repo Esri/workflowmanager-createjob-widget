@@ -95,13 +95,34 @@ define([
         this._initDrawBox();
 
         this.user = this.config.defaultUser;
-        this.populateJobTypes();
+        this._validateUser(this.user);
       },
 
-      populateJobTypes: function () {
+      _validateUser: function (username) {
+        this.wmConfigTask.getUser(username,
+          lang.hitch(this, function(userInfo) {
+            // check if the user can create jobs
+            var canCreateJob = userInfo.privileges.some(function(privilege) {
+              return 'CreateJob' === privilege.name;
+            });
+            if (!canCreateJob) {
+              this._displayError(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", username));
+            } else {
+              this._populateJobTypes();
+            }
+          }),
+          lang.hitch(this, function(error) {
+            console.log("Error retrieving user, " + username, error);
+            this._displayError(this.nls.errorUserInvalid.replace("{0}", username));
+          })
+        );
+      },
+
+      _populateJobTypes: function () {
         var self = lang.hitch(this);
         this.jobTypes = [];
-        this.wmConfigTask.getVisibleJobTypes(this.user, function (data) {
+        this.wmConfigTask.getVisibleJobTypes(this.user,
+          function (data) {
             //generate dom elements for configured job types and ext props
             var jobItem;
             Object.keys(self.config.selectedJobTypes).map(function (propKey, index) {
@@ -144,8 +165,8 @@ define([
             })));
           },
           function (error) {
-            // TODO Provide error message in UI
-            console.log("No visible job types returned for user " + this.user, error);
+            console.log("No visible job types returned for user " + self.user, error);
+            self._displayError(self.nls.errorUserNoVisibleJobTypes.replace("{0}", self.user));
           }
         );
       },
@@ -749,6 +770,15 @@ define([
         }
       },
 
+      _displayError: function (errMsg) {
+        this.wmxErrorPanel.innerHTML = errMsg;
+        domStyle.set(this.wmxErrorPanel, 'display', 'block');
+      },
+
+      _hideError: function () {
+        domStyle.set(this.wmxErrorPanel, 'display', 'none');
+      },
+
       _resetWidget: function () {
         // destroy all the attachmentItem child widgets
         arrayUtils.forEach(this.attachmentList, function (attachmentItem) {
@@ -774,6 +804,9 @@ define([
 
         //hide the successful job creation div
         domStyle.set(this.wmxSuccessPanel, 'display', 'none');
+
+        //hide the error message div
+        domStyle.set(this.wmxErrorPanel, 'display', 'none');
       }
     });
   });

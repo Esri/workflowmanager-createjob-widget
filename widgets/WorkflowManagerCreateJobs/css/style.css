@@ -238,6 +238,22 @@
   color: #4c4c4c;
 }
 
+.wmx-error-panel {
+  font-size: 0.9375rem;
+  line-height: 1.55rem;
+  padding: 0.775rem 0.775rem;
+  margin-bottom: 0.775rem;
+  background-color: #eeeeee;
+  position: relative;
+  z-index: 100;
+  max-width: 40em;
+  border: 1px solid #cccccc;
+  -webkit-box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.05);
+  color: #ff3333;
+}
+
 .wmx-create-job-content h2 {
   text-align: center;
   margin: 0 0 10px;

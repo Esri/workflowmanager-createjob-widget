@@ -4,11 +4,17 @@
     <div class="wmx-success-panel" data-dojo-attach-point="wmxSuccessPanel" style="display: none;">
       Job created.  Do you want to create a new way of life for yourself?
     </div>
+    <!-- Job list and filter -->
     <div class="job-type-filter">
       <input class="common-input jimu-input input-item" type="text" id="jobTypeFilterInput" placeholder="${nls.filterJobTypes}" />
       <button type="button" id="jobTypeFilterClear" style="display: none;"><img src="./widgets/WorkflowManagerCreateJobs/images/clear-icon.svg" /></button>
     </div>
+    <!-- Error panel -->
+    <div class="wmx-error-panel" data-dojo-attach-point="wmxErrorPanel" style="display: none;">
+    </div>
   </div>
+
+  <!-- Create Job Content -->
   <div class="wmx-create-job-content" data-dojo-attach-point="wmxCreateJobContent" style="display: none;">
     <h2 data-dojo-attach-point="createJobHeader"></h2>
     <!-- Job Location -->
