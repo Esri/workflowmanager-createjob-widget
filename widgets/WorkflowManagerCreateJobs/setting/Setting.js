@@ -53,11 +53,13 @@ define([
       selectedJobItemRow: null,
 
       // Query constants
-      QUERY_FIELDS: 'JTX_JOB_TYPES.JOB_TYPE_ID,JTX_JOB_TYPES.JOB_TYPE_NAME,JTX_JOB_TYPES.DESCRIPTION,JTX_AUX_PROPS.TABLE_NAME, JTX_AUX_PROPS.FIELD_NAME,\
-        JTX_AUX_PROPS.FIELD_ALIAS_NAME,JTX_AUX_PROPS.FIELD_DOMAIN,JTX_AUX_PROPS.DISPLAY_TYPE,JTX_AUX_PROPS.DEFAULT_VALUE,JTX_AUX_PROPS.REQUIRED',
-      QUERY_TABLES: 'JTX_JOB_TYPES, JTX_AUX_PROPS',
-      // Match on jobTypeId, excluding properties that cannot be updated or is not visible
-      QUERY_WHERE: 'JTX_JOB_TYPES.JOB_TYPE_ID = JTX_AUX_PROPS.JOB_TYPE_ID AND JTX_AUX_PROPS.JOB_TYPE_ID in ({0}) AND JTX_AUX_PROPS.CAN_UPDATE <> \'0\' AND JTX_AUX_PROPS.IS_VISIBLE <> \'0\'',
+      QUERY_FIELDS: 'JTX_JOB_TYPES.JOB_TYPE_ID,JTX_JOB_TYPES.JOB_TYPE_NAME,JTX_JOB_TYPES.DESCRIPTION,JTX_AUX_PROPS.TABLE_NAME,' +
+        'JTX_AUX_PROPS.FIELD_NAME,JTX_AUX_PROPS.FIELD_ALIAS_NAME,JTX_AUX_PROPS.FIELD_DOMAIN,JTX_AUX_PROPS.DISPLAY_TYPE,' +
+        'JTX_AUX_PROPS.DEFAULT_VALUE,JTX_AUX_PROPS.REQUIRED,JTX_PROP_RELATIONSHIPS.CARDINALITY',
+      QUERY_TABLES: 'JTX_JOB_TYPES,JTX_AUX_PROPS,JTX_PROP_RELATIONSHIPS',
+      // Match on cardinality 1-1, excluding properties that cannot be updated or is not visible
+      QUERY_WHERE: 'JTX_JOB_TYPES.JOB_TYPE_ID = JTX_AUX_PROPS.JOB_TYPE_ID AND JTX_AUX_PROPS.TABLE_NAME = JTX_PROP_RELATIONSHIPS.TABLE_NAME ' +
+        'AND JTX_PROP_RELATIONSHIPS.CARDINALITY <> 2 AND JTX_AUX_PROPS.CAN_UPDATE <> 0 AND JTX_AUX_PROPS.IS_VISIBLE <> 0',
       QUERY_ORDER_BY: 'JTX_JOB_TYPES.job_type_id, JTX_AUX_PROPS.TABLE_NAME',
 
       startup: function() {
@@ -290,13 +292,10 @@ define([
         this.jobTypeExtendedProperties = {};
         var requests = [];
         // Create a request to retrieve the extended properties for the job types
-        var jobTypeIds = this.jobTypes.map(function(jobType) {
-          return jobType.id;
-        });
         var parameters = new JobQueryParameters();
         parameters.fields = this.QUERY_FIELDS;
         parameters.tables = this.QUERY_TABLES;
-        parameters.where = this.QUERY_WHERE.replace('{0}', jobTypeIds.join());
+        parameters.where = this.QUERY_WHERE;
         parameters.orderBy = this.QUERY_ORDER_BY;
 
         // TODO Do we check the user credentials here or rely on user input in the config setting
