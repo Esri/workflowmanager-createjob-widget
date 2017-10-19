@@ -32,10 +32,12 @@ define([
     'esri/tasks/QueryTask',
     'esri/graphic',
     'esri/symbols/SimpleMarkerSymbol',
+    
+    './libs/exifjs/exif'
 
-    'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
-    window.location.hostname + ':' + window.location.port + window.path +
-    'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
+    // 'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
+    // window.location.hostname + ':' + window.location.port + window.path +
+    // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.j
   ],
   function (
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,
