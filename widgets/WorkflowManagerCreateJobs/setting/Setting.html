@@ -54,6 +54,30 @@
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="extPropsLabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
           </td>
         </tr>
+        <tr>
+          <td class="first">${nls.configureWorkflowManagerMapService}</td>
+          <td class="second" colspan="2">
+            <div data-dojo-type="jimu/dijit/CheckBox" data-dojo-attach-point="cbxWMMapServiceConfigured" data-dojo-props='checked:true'></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.workflowManagerMapServiceUrl}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="wmMapServiceUrl" data-dojo-attach-event="Blur:_onSelectLayerBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.poiLayerId}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="poiLayerId" data-dojo-attach-event="Blur:_onSelectLayerBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.aoiLayerId}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="aoiLayerId" data-dojo-attach-event="Blur:_onSelectLayerBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
+          </td>
+        </tr>
       </tbody>
     </table>
 

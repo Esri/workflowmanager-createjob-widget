@@ -33,9 +33,11 @@ define([
     'esri/graphic',
     'esri/symbols/SimpleMarkerSymbol',
 
-    'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
-    window.location.hostname + ':' + window.location.port + window.path +
-    'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
+    './libs/exifjs/exif'
+
+    // 'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
+    // window.location.hostname + ':' + window.location.port + window.path +
+    // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
   ],
   function (
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,
@@ -587,6 +589,32 @@ define([
       },
 
       _createJobClick: function () {
+        // check if aoi overlap is allowed
+        if (!this.config.aoiOverlapAllowed && this.aoi) {
+          // An AOI is defined and AOI overlap is not allowed.  Check if there is an overlapping feature.
+          var query = new Query();
+          query.returnGeometry = false;
+          query.outFields = ["objectid"];
+          query.geometry = this.aoi;
+          query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
+          queryTask.execute(query);
+
+          queryTask.on("complete", function (evt) {
+            var hasOverlappingFeatures = evt.featureSet && evt.featureSet.features && evt.featureSet.features.length > 1;
+            // TODO Do something with this
+            if (hasOverlappingFeatures) {
+              console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+              this._displayError("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+            } else {
+              this._createJob();
+            }
+          });
+        } else {
+          this._createJob();
+        }
+      },
+
+      _createJob: function () {
         var creationParams = new JobCreationParameters();
         creationParams.jobTypeId = this.jobType;
         creationParams.loi = this.aoi;
@@ -766,13 +794,30 @@ define([
 
         if (this.bNotesReqComplete && this.bAttachmentReqComplete && this.bExtPropsReqComplete) {
           // reset the widget only when all requests have completed
+          var jobId = this.jobId; // save a copy of the jobId before we reset the widget
           this._resetWidget();
+          this._displayMessage(this.nls.jobCreatedSuccessfully.replace("{0}", jobId));
         }
+      },
+
+      _displayMessage: function (msg) {
+        this.wmxSuccessPanel.innerHTML = msg;
+        domStyle.set(this.wmxSuccessPanel, 'display', 'block');
+
+        // hide any previous errors
+        this._hideError();
+      },
+
+      _hideMsg: function () {
+        domStyle.set(this.wmxSuccessPanel, 'display', 'none');
       },
 
       _displayError: function (errMsg) {
         this.wmxErrorPanel.innerHTML = errMsg;
         domStyle.set(this.wmxErrorPanel, 'display', 'block');
+
+        // hide any previous messages
+        this._hideMsg();
       },
 
       _hideError: function () {

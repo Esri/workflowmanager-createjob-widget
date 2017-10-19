@@ -1,6 +1,11 @@
 define({
   root: ({
     workflowManagerServiceUrl: "Workflow Manager Service URL",
+    workflowManagerMapServiceUrl: "Workflow Manager Map Service URL",
+    configureWorkflowManagerMapService: "Configure Workflow Manager Map Service",
+    aoiOverlapUse: "(Required for disabling AOI overlap)",
+    poiLayerId: "POI Layer Id",
+    aoiLayerId: "AOI Layer Id",
     selectableLayer: "Selectable Map/Feature Service",
     selectLayerUrl: "Select Layer Url",
     wmxcomments: "Description/Notes",

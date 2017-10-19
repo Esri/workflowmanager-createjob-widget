@@ -91,9 +91,6 @@ define([
 
         if (config.wmServiceUrl) {
           this.wmServiceUrl.set('value', config.wmServiceUrl);
-        } else {
-          // TODO How to localize this
-          this.wmServiceUrl.set('value', this.nls.workflowManagerServiceUrl);
         }
 
         if (config.selectableLayer) {
@@ -126,6 +123,18 @@ define([
           this.extPropsLabel.set('value', 'Extended Properties');
         }
 
+        var hasMapServiceConfigured = config.wmMapServiceUrl && config.wmMapServiceUrl.trim() !== '' ? true : false;
+        this.cbxWMMapServiceConfigured.set('value', hasMapServiceConfigured);
+        if (config.wmMapServiceUrl) {
+          this.wmMapServiceUrl.set('value', config.wmMapServiceUrl);
+        }
+        if (config.poiLayerId) {
+          this.poiLayerId.set('value', config.poiLayerId);
+        }
+        if (config.aoiLayerId) {
+          this.aoiLayerId.set('value', config.aoiLayerId);
+        }
+
         if (config.selectedJobTypes) {
           this.selectedJobTypes = config.selectedJobTypes;
         } else {
@@ -143,8 +152,16 @@ define([
         this.config.attachmentsLabel = this.attachmentsLabel.getValue();
         this.config.extPropsLabel = this.extPropsLabel.getValue();
 
+        var mapServiceConfigured = this.cbxWMMapServiceConfigured.getValue();
+        this.config.wmMapServiceUrl = mapServiceConfigured ? this.wmMapServiceUrl.getValue() : null;
+        this.config.poiLayerId = mapServiceConfigured ? this.poiLayerId.getValue() : null;
+        this.config.aoiLayerId = mapServiceConfigured ? this.aoiLayerId.getValue() : null;
+
         this.config.jobTypes = this.jobTypes;
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
+
+        // setting for aoi overlap
+        this.config.aoiOverlapAllowed = this.aoiOverlapAllowed;
 
         //clean up null job type
         delete this.selectedJobTypes["nullJobItemRow"];
@@ -176,6 +193,9 @@ define([
         }));
       },
 
+      // @cody - Are these _onXXXBlur methods needed?  These 2 methods seem to be used in multiple locations, not
+      // tied to the correct dom elements
+
       _onSelectLayerBlur: function() {
         this.selectableLayer.set('value', this.selectableLayer.get('value'));
       },
@@ -202,12 +222,24 @@ define([
       },
 
       _loadConfiguration: function(serviceUrl) {
-        var self = lang.hitch(this);
         this.jobTypes = [];
         this.wmJobTask = new WMJobTask(serviceUrl);
         this.wmConfigTask = new WMConfigurationTask(serviceUrl);
+        this._loadServiceInfo();
+        this._checkMapService();
+      },
+
+      _loadServiceInfo: function(serviceUrl) {
+        var self = lang.hitch(this);
         this.wmConfigTask.getServiceInfo(
           function (response) {
+            // Check setting of AOIOVERLAP setting
+            this.aoiOverlapAllowed = true;
+            if (response.configProperties &&
+              (response.configProperties['AOIOVERLAP'] === 'disallow' || response.configProperties['AOIOVERLAP'] === 'disallowjobtype')) {
+              this.aoiOverlapAllowed = false;
+            }
+
             // Filter on active job types
             if (response.jobTypes && response.jobTypes.length > 0) {
               var jobTypeSelect = registry.byId("jobTypeSelect");
@@ -285,6 +317,11 @@ define([
             console.error('Unable to load job types from service: ' + self.wmServiceUrl, error);
             // TODO Provide error message in UI to let user know
           });
+      },
+
+      _checkMapService: function() {
+        // TODO Implement this
+        // Verify that the Workflow Manager map service is valid
       },
 
       // Retrieve extended properties for each job type
