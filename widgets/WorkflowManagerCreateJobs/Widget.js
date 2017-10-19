@@ -108,14 +108,14 @@ define([
               return 'CreateJob' === privilege.name;
             });
             if (!canCreateJob) {
-              this._displayError(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", username));
+              this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", username));
             } else {
               this._populateJobTypes();
             }
           }),
           lang.hitch(this, function(error) {
             console.log("Error retrieving user, " + username, error);
-            this._displayError(this.nls.errorUserInvalid.replace("{0}", username));
+            this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", username));
           })
         );
       },
@@ -168,7 +168,7 @@ define([
           },
           function (error) {
             console.log("No visible job types returned for user " + self.user, error);
-            self._displayError(self.nls.errorUserNoVisibleJobTypes.replace("{0}", self.user));
+            self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace("{0}", self.user));
           }
         );
       },
@@ -604,7 +604,7 @@ define([
             // TODO Do something with this
             if (hasOverlappingFeatures) {
               console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
-              this._displayError("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+              this._showErrorMessage("Unable to create job. Specified AOI overlaps with an existing job AOI.");
             } else {
               this._createJob();
             }
@@ -774,9 +774,9 @@ define([
       },
 
       _clearRequestResponses: function () {
-        bNotesReqComplete = false;
-        bAttachmentReqComplete = false;
-        bExtPropsReqComplete = false;
+        this.bNotesReqComplete = false;
+        this.bAttachmentReqComplete = false;
+        this.bExtPropsReqComplete = false;
       },
 
       _handleRequestResponse: function (requestType, errMsg) {
@@ -796,31 +796,31 @@ define([
           // reset the widget only when all requests have completed
           var jobId = this.jobId; // save a copy of the jobId before we reset the widget
           this._resetWidget();
-          this._displayMessage(this.nls.jobCreatedSuccessfully.replace("{0}", jobId));
+          this._showStatusMessage(this.nls.jobCreatedSuccessfully.replace("{0}", jobId));
         }
       },
 
-      _displayMessage: function (msg) {
+      _showStatusMessage: function (msg) {
         this.wmxSuccessPanel.innerHTML = msg;
         domStyle.set(this.wmxSuccessPanel, 'display', 'block');
 
         // hide any previous errors
-        this._hideError();
+        this._hideErrorMessage();
       },
 
-      _hideMsg: function () {
+      _hideStatusMessage: function () {
         domStyle.set(this.wmxSuccessPanel, 'display', 'none');
       },
 
-      _displayError: function (errMsg) {
+      _showErrorMessage: function (errMsg) {
         this.wmxErrorPanel.innerHTML = errMsg;
         domStyle.set(this.wmxErrorPanel, 'display', 'block');
 
         // hide any previous messages
-        this._hideMsg();
+        this._hideStatusMessage();
       },
 
-      _hideError: function () {
+      _hideErrorMessage: function () {
         domStyle.set(this.wmxErrorPanel, 'display', 'none');
       },
 
