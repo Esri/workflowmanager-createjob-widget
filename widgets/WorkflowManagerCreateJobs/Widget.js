@@ -8,6 +8,7 @@ define([
     'dojo/on',
     'dojo/dom',
     'dojo/dom-style',
+    'dojo/dom-class',
     'dojo/dom-construct',
     'dojox/form/Uploader',
 
@@ -32,7 +33,7 @@ define([
     'esri/tasks/QueryTask',
     'esri/graphic',
     'esri/symbols/SimpleMarkerSymbol',
-    
+
     './libs/exifjs/exif'
 
     // 'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
@@ -40,7 +41,7 @@ define([
     // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.j
   ],
   function (
-    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,
+    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, Uploader,
     i18n,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
@@ -198,53 +199,63 @@ define([
 
       _addAttachmentToUpload: function (e) {
         console.log('_addAttachmentToUpload');
-        this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : i18n.addAttachmentToJob;
-        this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
-
         var fullImageFile = e.target.files[0];
+        var domUploaderDiv = domQuery('.wmx-file-uploader')[0]
 
-        window.EXIF.getData(fullImageFile, lang.hitch(this, function () {
-          console.log('window.Exif.getdata');
-          var gpsLatitudeRef = window.EXIF.getTag(fullImageFile,
-            'GPSLatitudeRef');
-          var gpsLatitude = window.EXIF.getTag(fullImageFile,
-            'GPSLatitude');
-          var gpsLongitudeRef = window.EXIF.getTag(fullImageFile,
-            'GPSLongitudeRef');
-          var gpsLongitude = window.EXIF.getTag(fullImageFile,
-            'GPSLongitude');
+        if (fullImageFile.size <= 5000000) {
+          //do the normal attachment stuff
+          this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : i18n.addAttachmentToJob;
+          this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
+          domClass.remove(domUploaderDiv, 'upload-error');
 
-          var ddLatitude, ddLongitude;
+          window.EXIF.getData(fullImageFile, lang.hitch(this, function () {
+            console.log('window.Exif.getdata');
+            var gpsLatitudeRef = window.EXIF.getTag(fullImageFile,
+              'GPSLatitudeRef');
+            var gpsLatitude = window.EXIF.getTag(fullImageFile,
+              'GPSLatitude');
+            var gpsLongitudeRef = window.EXIF.getTag(fullImageFile,
+              'GPSLongitudeRef');
+            var gpsLongitude = window.EXIF.getTag(fullImageFile,
+              'GPSLongitude');
 
-          var latestExifInfo = {
-            gpsLatitude: '',
-            gpsLongitude: '',
-            fullImageFile: fullImageFile
-          };
-          if (gpsLatitude) {
-            ddLatitude = this._dmsToDd(gpsLatitude,
-              gpsLatitudeRef);
-            ddLongitude = this._dmsToDd(gpsLongitude,
-              gpsLongitudeRef);
+            var ddLatitude, ddLongitude;
 
-            latestExifInfo.gpsLatitude = ddLatitude;
-            latestExifInfo.gpsLongitude = ddLongitude;
-          }
+            var latestExifInfo = {
+              gpsLatitude: '',
+              gpsLongitude: '',
+              fullImageFile: fullImageFile
+            };
+            if (gpsLatitude) {
+              ddLatitude = this._dmsToDd(gpsLatitude,
+                gpsLatitudeRef);
+              ddLongitude = this._dmsToDd(gpsLongitude,
+                gpsLongitudeRef);
 
-          this.exifInfosArray.push(latestExifInfo);
+              latestExifInfo.gpsLatitude = ddLatitude;
+              latestExifInfo.gpsLongitude = ddLongitude;
+            }
 
-          if (this.photoGeotagNode.style.display != 'none') {
-            this._saveGeotagAOI();
-          }
+            this.exifInfosArray.push(latestExifInfo);
 
-          this.attachmentToUpload = {
-            latestExifInfo: latestExifInfo,
-            fullImageFilename: fullImageFile.name
-          };
+            if (this.photoGeotagNode.style.display != 'none') {
+              this._saveGeotagAOI();
+            }
 
-          // // Add the attachment to the job
-          // this._addEmbeddedAttachment();
-        }));
+            this.attachmentToUpload = {
+              latestExifInfo: latestExifInfo,
+              fullImageFilename: fullImageFile.name
+            };
+
+            // // Add the attachment to the job
+            // this._addEmbeddedAttachment();
+          }));
+        } else {
+          //file too large, throw error
+          this.uploadText.innerHTML = i18n.fileTooLargeLabel;
+          this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-error.svg';
+          domClass.add(domUploaderDiv, 'upload-error');
+        }
       },
 
       _addEmbeddedAttachment: function () {
@@ -460,9 +471,9 @@ define([
 
       _initSelf: function () {
         // Populate labels here
-        this.defineLOITitle.innerHTML = this.config.defineLOILabel;
-        this.extendedPropsTitle.innerHTML = this.config.extPropsLabel;
-        this.uploadText.innerHTML = this.config.attachmentsLabel;
+        this.defineLOITitle.innerHTML = this.config.defineLOILabel || i18n.defaultDefineLOILabel;
+        this.extendedPropsTitle.innerHTML = this.config.extPropsLabel || i18n.defaultExtPropsLabel;
+        this.uploadText.innerHTML = this.config.attachmentsLabel || i18n.defaultAttachmentsLabel;
 
         // var uniqueId = jimuUtils.getRandomString();
         // var cbxName = 'Query_' + uniqueId;
@@ -531,9 +542,21 @@ define([
             class: 'input-label'
           }, formRow, 'first');
           inputEl;
+          //  ExtendedPropertyDisplayType: {
+          //     DEFAULT: 0,
+          //     TEXT: 1,
+          //     DATE: 2,
+          //     DOMAIN: 4,
+          //     FILE: 5,
+          //     GEO_FILE: 6,
+          //     FOLDER: 7,
+          //     LIST: 8,
+          //     TABLE_LIST: 9,
+          //     MULTI_LEVEL_TABLE_LIST: 10
+          // }
           switch (formEl.displayType) {
             case "1":
-              //
+              //INTEGER
               inputEl = domConstruct.create('input', {
                 class: 'common-input jimu-input input-item',
                 type: 'number',
@@ -550,34 +573,13 @@ define([
               }, formRow, 'last');
 
               break;
-            case "3":
-              //number
-              inputEl = domConstruct.create('input', {
-                class: 'common-input jimu-input input-item',
-                type: 'number',
-                name: formEl.fieldName
-              }, formRow, 'last');
-
-              break;
-            case "4":
+            default:
               //text
               inputEl = domConstruct.create('input', {
                 class: 'common-input jimu-input input-item',
                 type: 'text',
                 name: formEl.fieldName
               }, formRow, 'last');
-
-              break;
-            case "5":
-              //date
-              inputEl = domConstruct.create('input', {
-                class: 'common-input jimu-input input-item',
-                type: 'date',
-                name: formEl.fieldName
-              }, formRow, 'last');
-
-              break;
-            default:
           }
         }));
 
@@ -592,6 +594,8 @@ define([
         var creationParams = new JobCreationParameters();
         creationParams.jobTypeId = this.jobType;
         creationParams.loi = this.aoi;
+
+        this._showJobCreationLoader();
 
         this.wmJobTask.createJob(creationParams, this.user,
           lang.hitch(this, function (data) {
@@ -768,7 +772,7 @@ define([
 
         if (this.bNotesReqComplete && this.bAttachmentReqComplete && this.bExtPropsReqComplete) {
           // reset the widget only when all requests have completed
-          this._resetWidget();
+          this._resetWidget(true);
         }
       },
 
@@ -781,7 +785,12 @@ define([
         domStyle.set(this.wmxErrorPanel, 'display', 'none');
       },
 
-      _resetWidget: function () {
+      _showJobCreationLoader: function () {
+        domStyle.set(this.wmxCreateJobContent, 'display', 'none');
+        domStyle.set(this.wmxCreateJobLoader, 'display', 'block');
+      },
+
+      _resetWidget: function (jobCreated) {
         // destroy all the attachmentItem child widgets
         arrayUtils.forEach(this.attachmentList, function (attachmentItem) {
           attachmentItem.destroy();
@@ -805,10 +814,13 @@ define([
         this.jobTypeSelectors.style.display = 'block';
 
         //hide the successful job creation div
-        domStyle.set(this.wmxSuccessPanel, 'display', 'none');
+        domStyle.set(this.wmxSuccessPanel, 'display', (jobCreated === true ? 'block' : 'none'));
 
         //hide the error message div
         domStyle.set(this.wmxErrorPanel, 'display', 'none');
+
+        //hide loader
+        domStyle.set(this.wmxCreateJobLoader, 'display', 'none');
       }
     });
   });

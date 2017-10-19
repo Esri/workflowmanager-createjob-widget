@@ -18,12 +18,14 @@
 
     defaultAttachmentsLabel: "Add an Attachment to the job",
     addAttachmentToJob: "Add an attachment to this job",
+    fileTooLargeLabel: "Attachment file size exceeds limit, try a smaller file to add an attachment",
     processingFilename: "Processing {0} ...",
     successfulUploadAnother: "Successfully uploaded file! Upload another.",
 
     backBtnLabel: "Back",
     createJobBtnLabel: "Create Job",
     creatingJob: "Creating Job: {0}",
+    defaultJobBeingCreatedLabel: "The job is being created, this could take a moment.",
 
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",

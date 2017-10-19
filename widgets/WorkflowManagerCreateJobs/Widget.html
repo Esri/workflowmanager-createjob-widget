@@ -73,4 +73,10 @@
       <button class="btn" data-dojo-attach-event="onClick:_createJobClick">${nls.createJobBtnLabel}</button>
     </div>
   </div>
+  <div class="wmx-create-job-loader" data-dojo-attach-point="wmxCreateJobLoader" style="display: none;">
+    <div class="wmx-create-job-spinner">
+      <img src='./widgets/WorkflowManagerCreateJobs/images/loading_circle.gif' />
+      <p class="wmx-create-job-loader-text">${nls.defaultJobBeingCreatedLabel}</p>
+    </div>
+  </div>
 </div>
