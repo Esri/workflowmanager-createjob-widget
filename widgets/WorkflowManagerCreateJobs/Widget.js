@@ -239,6 +239,7 @@ define([
         console.log('_addAttachmentToUpload');
         var fullImageFile = e.target.files[0];
         var domUploaderDiv = domQuery('.wmx-file-uploader')[0]
+        this.uploadFilename.innerHTML = fullImageFile.name;
 
         if (fullImageFile.size <= 5000000) {
           //do the normal attachment stuff
@@ -512,6 +513,7 @@ define([
         this.defineLOITitle.innerHTML = this.config.defineLOILabel || this.nls.defaultDefineLOILabel;
         this.extendedPropsTitle.innerHTML = this.config.extPropsLabel || this.nls.defaultExtPropsLabel;
         this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
+        this.uploadFilename.innerHTML = '';
 
         // var uniqueId = jimuUtils.getRandomString();
         // var cbxName = 'Query_' + uniqueId;
@@ -917,8 +919,8 @@ define([
 
         this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
         this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
-        // @cody - commented this out since unable to resolve domUploaderDiv
-        // domClass.add(domUploaderDiv, 'upload-error');
+        this.uploadFilename.innerHTML = '';
+        domClass.remove(domQuery('.wmx-file-uploader')[0], 'upload-error');
 
         //hide the successful job creation div
         domStyle.set(this.wmxSuccessPanel, 'display', (jobCreated === true ? 'block' : 'none'));
