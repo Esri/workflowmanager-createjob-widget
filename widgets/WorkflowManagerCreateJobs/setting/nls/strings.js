@@ -9,6 +9,7 @@ define({
     selectableLayer: "Selectable Map/Feature Service",
     selectLayerUrl: "Select Layer Url",
     wmxcomments: "Description/Notes",
+    maxAttachmentSize: "Max Attachment Filesize (MB)",
 
     setSource:"Set",
 

@@ -241,7 +241,7 @@ define([
         var domUploaderDiv = domQuery('.wmx-file-uploader')[0]
         this.uploadFilename.innerHTML = fullImageFile.name;
 
-        if (fullImageFile.size <= 5000000) {
+        if ((fullImageFile.size <= (this.config.maxAttachmentSize * 1000000)) || (this.config.maxAttachmentSize === 0)) {
           //do the normal attachment stuff
           this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : this.nls.addAttachmentToJob;
           this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';

@@ -141,6 +141,12 @@ define([
           this.selectedJobTypes = {};
           this._onJobItemRowClicked(this._createJobItem());
         }
+
+        if (config.maxAttachmentSize) {
+          this.maxFileSize.set('value', config.maxAttachmentSize);
+        } else {
+          this.maxFileSize.set('value', 0);
+        }
       },
 
       getConfig: function() {
@@ -159,6 +165,8 @@ define([
 
         this.config.jobTypes = this.jobTypes;
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
+
+        this.config.maxAttachmentSize = this.maxFileSize.get('value');
 
         //clean up null job type
         delete this.selectedJobTypes["nullJobItemRow"];
