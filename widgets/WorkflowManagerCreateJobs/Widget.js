@@ -624,6 +624,10 @@ define([
         self.wmxCreateJobContent.style.display = '';
         self.jobTypeSelectors.style.display = 'none';
 
+        // clear out any previous messages
+        self._hideErrorMessage();
+        self._hideStatusMessage();
+
         //scroll to the top of the panel
         domQuery('.jimu-widget-frame.jimu-container')[0].scrollTop = 0;
       },
