@@ -18,12 +18,14 @@
 
     defaultAttachmentsLabel: "Add an Attachment to the job",
     addAttachmentToJob: "Add an attachment to this job",
+    fileTooLargeLabel: "Attachment file size exceeds limit, try a smaller file to add an attachment",
     processingFilename: "Processing {0} ...",
     successfulUploadAnother: "Successfully uploaded file! Upload another.",
 
     backBtnLabel: "Back",
     createJobBtnLabel: "Create Job",
     creatingJob: "Creating Job: {0}",
+    defaultJobBeingCreatedLabel: "The job is being created, this could take a moment.",
 
     jobCreatedSuccessfully: "Job {0} created successfully.",
 

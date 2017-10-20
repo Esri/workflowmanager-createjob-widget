@@ -209,6 +209,17 @@
 .wmx-file-uploader p {
   font-style: italic;
   color: #444;
+	text-align: center;
+}
+
+.wmx-file-uploader.upload-error {
+	background: #F8EAEA;
+	border: 1px solid #efdada;
+}
+
+.wmx-file-uploader.upload-error:hover {
+	background: #F0E6E6;
+	border: 1px solid #ead6d6;
 }
 
 .attachment-list > div {
@@ -286,7 +297,7 @@
 }
 
 .job-type-filter {
-  padding: 10px 0;
+  padding: 0 0 10px 0;
   display: flex;
 }
 
@@ -306,4 +317,24 @@
 
 .job-type-filter input {
   flex: 1 0 auto;
+}
+
+.wmx-create-job-loader {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.wmx-create-job-spinner {
+  text-align: center;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  padding: 20px;
+}
+
+.wmx-create-job-spinner img {
+	margin: 15px;
 }

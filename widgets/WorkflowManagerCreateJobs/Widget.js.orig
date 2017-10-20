@@ -10,8 +10,9 @@ define([
     'dojo/dom-style',
     'dojo/dom-class',
     'dojo/dom-construct',
-    'dojo/promise/all',
     'dojox/form/Uploader',
+
+    'dojo/i18n!./nls/strings',
 
     'jimu/utils',
     'jimu/BaseWidget',
@@ -40,7 +41,8 @@ define([
     // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
   ],
   function (
-    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader,
+    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, Uploader,
+    i18n,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
@@ -96,33 +98,10 @@ define([
         this._initDrawBox();
 
         this.user = this.config.defaultUser;
-
-        this._loadServerConfiguration();
-      },
-
-      _loadServerConfiguration: function(serviceUrl) {
-        var self = lang.hitch(this);
-        self.aoiOverlapAllowed = false;
-        console.log('Connecting to server ' + serviceUrl);
-        this.wmConfigTask.getServiceInfo(
-          function (response) {
-            console.log('Connected successfully');
-            // Check setting of AOIOVERLAP setting
-            if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
-              self.aoiOverlapAllowed = true;
-            }
-            // TODO Implement retrieving username from portal
-            self._validateUser(self.user);
-          },
-          function (error) {
-            console.log('Unable to connect to server ' + serviceUrl, error);
-            console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
-            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", serviceUrl));
-          });
+        this._validateUser(this.user);
       },
 
       _validateUser: function (username) {
-        console.log('Validating user: ' + username);
         this.wmConfigTask.getUser(username,
           lang.hitch(this, function(userInfo) {
             // check if the user can create jobs
@@ -132,7 +111,6 @@ define([
             if (!canCreateJob) {
               this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", username));
             } else {
-              this._initializeAOIOverlap();
               this._populateJobTypes();
             }
           }),
@@ -141,22 +119,6 @@ define([
             this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", username));
           })
         );
-      },
-
-      _initializeAOIOverlap: function(serviceUrl) {
-        var self = lang.hitch(this);
-        self.aoiOverlapAllowed = false;
-        this.wmConfigTask.getServiceInfo(
-          function (response) {
-            // Check setting of AOIOVERLAP setting
-            if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
-              self.aoiOverlapAllowed = true;
-            }
-          },
-          function (error) {
-            console.error('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow', error);
-            // TODO Does the end user need to know this?
-          });
       },
 
       _populateJobTypes: function () {
@@ -194,7 +156,7 @@ define([
               }, jobItemContent, 'first');
               domConstruct.create('p', {
                 class: 'job-type-description',
-                innerHTML: jobItem.description ? jobItem.description : self.nls.createJobForJobType.replace("{0}", jobItem.jobTypeName)
+                innerHTML: jobItem.description ? jobItem.description : i18n.createJobForJobType.replace("{0}", jobItem.jobTypeName)
               }, jobItemContent, 'last');
             });
 
@@ -242,7 +204,7 @@ define([
 
         if (fullImageFile.size <= 5000000) {
           //do the normal attachment stuff
-          this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : this.nls.addAttachmentToJob;
+          this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : i18n.addAttachmentToJob;
           this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
           domClass.remove(domUploaderDiv, 'upload-error');
 
@@ -290,7 +252,7 @@ define([
           }));
         } else {
           //file too large, throw error
-          this.uploadText.innerHTML = this.nls.fileTooLargeLabel;
+          this.uploadText.innerHTML = i18n.fileTooLargeLabel;
           this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-error.svg';
           domClass.add(domUploaderDiv, 'upload-error');
         }
@@ -299,13 +261,13 @@ define([
       _addEmbeddedAttachment: function () {
         var form = dom.byId('sendForm');
         //processing message
-        this.uploadText.innerHTML = this.nls.processingFilename.replace('{0}', this.fullImageFilename);
+        this.uploadText.innerHTML = i18n.processingFilename.replace('{0}', this.fullImageFilename);
         this.uploadGraphic.src = '';
         this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId, form,
           lang.hitch(this, function (attachmentId) {
             console.log('Job attachment added successfully', attachmentId);
 
-            this.uploadText.innerHTML = this.nls.successfulUploadAnother;
+            this.uploadText.innerHTML = i18n.successfulUploadAnother;
             this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg';
 
             // upload was successful, so add an AttachmentItem widget
@@ -323,7 +285,7 @@ define([
 
       _saveGeotagAOI: function () {
         if (this.bAOISelected || this.bAOIDrawn) {
-          var r = confirm(this.nls.aoiOverwritePrompt);
+          var r = confirm(i18n.aoiOverwritePrompt);
           if (r == true) {
             this.bAOISelected = false;
             this.bAOIDrawn = false;
@@ -443,7 +405,7 @@ define([
         console.log('_onSelectEnd');
 
         if (this.bAOIGeotagged || this.bAOIDrawn) {
-          var r = confirm(this.nls.aoiOverwritePrompt);
+          var r = confirm(i18n.aoiOverwritePrompt);
           if (r == true) {
             this.bAOIGeotagged = false;
             this.bAOIDrawn = false;
@@ -487,7 +449,7 @@ define([
         console.log('_onDrawEnd');
 
         if (this.bAOIGeotagged || this.bAOISelected) {
-          var r = confirm(this.nls.aoiOverwritePrompt);
+          var r = confirm(i18n.aoiOverwritePrompt);
           if (r == true) {
             this.bAOIGeotagged = false;
             this.bAOISelected = false;
@@ -509,9 +471,9 @@ define([
 
       _initSelf: function () {
         // Populate labels here
-        this.defineLOITitle.innerHTML = this.config.defineLOILabel || this.nls.defaultDefineLOILabel;
-        this.extendedPropsTitle.innerHTML = this.config.extPropsLabel || this.nls.defaultExtPropsLabel;
-        this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
+        this.defineLOITitle.innerHTML = this.config.defineLOILabel || i18n.defaultDefineLOILabel;
+        this.extendedPropsTitle.innerHTML = this.config.extPropsLabel || i18n.defaultExtPropsLabel;
+        this.uploadText.innerHTML = this.config.attachmentsLabel || i18n.defaultAttachmentsLabel;
 
         // var uniqueId = jimuUtils.getRandomString();
         // var cbxName = 'Query_' + uniqueId;
@@ -525,13 +487,13 @@ define([
         // this.photoGeotagNode.style.display = '';
         // tabs.push(geotagTab);
 
-        var drawTab = {title: this.nls.addFeature};
+        var drawTab = {title: i18n.addFeature};
         drawTab.content = this.drawLocationNode;
         this.drawLocationNode.style.display = '';
         tabs.push(drawTab);
 
         if (this.config.selectableLayer != '' && this.config.selectableLayer != 'Under Construction') {
-          var selectTab = {title: this.nls.selectFeatures};
+          var selectTab = {title: i18n.selectFeatures};
           selectTab.content = this.selectFeaturesNode;
           this.selectFeaturesNode.style.display = '';
           this.sSelectableFeatureLayerURL = this.config.selectableLayer; // make configurable
@@ -560,7 +522,7 @@ define([
         }
 
         this.jobType = jobTypeObj.jobType;
-        this.createJobHeader.innerHTML = this.nls.creatingJobForJobType.replace("{0}", jobTypeObj.jobTypeName)
+        this.createJobHeader.innerHTML = i18n.creatingJobForJobType.replace("{0}", jobTypeObj.jobTypeName)
 
         //loop through groups of extended props
         var formRow, formRowLabel, inputEl;
@@ -629,46 +591,29 @@ define([
       },
 
       _createJobClick: function () {
-        if (this.aoi && !this.aoiOverlapAllowed) {
+        // check if aoi overlap is allowed
+        if (!this.config.aoiOverlapAllowed && this.aoi) {
           // An AOI is defined and AOI overlap is not allowed.  Check if there is an overlapping feature.
-          this._checkAOIOverlap();
+          var query = new Query();
+          query.returnGeometry = false;
+          query.outFields = ["objectid"];
+          query.geometry = this.aoi;
+          query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
+          queryTask.execute(query);
+
+          queryTask.on("complete", function (evt) {
+            var hasOverlappingFeatures = evt.featureSet && evt.featureSet.features && evt.featureSet.features.length > 1;
+            // TODO Do something with this
+            if (hasOverlappingFeatures) {
+              console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+              this._showErrorMessage("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+            } else {
+              this._createJob();
+            }
+          });
         } else {
           this._createJob();
         }
-      },
-
-      _checkAOIOverlap: function() {
-        var self = lang.hitch(this);
-        var query = new Query();
-        query.returnGeometry = false;
-        query.outFields = ["objectid"];
-        query.geometry = this.aoi;
-        query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
-
-        var promises = [];
-        if (parseInt(this.config.poiLayerId) != NaN) {
-          var queryTask = new QueryTask(this.config.wmMapServiceUrl + "/" + this.config.poiLayerId);
-          promises.push(queryTask.execute(query));
-        }
-        if (parseInt(this.config.aoiLayerId) != NaN) {
-          var queryTask = new QueryTask(this.config.wmMapServiceUrl + "/" + this.config.aoiLayerId);
-          promises.push(queryTask.execute(query));
-        }
-
-        all(promises).then(function(results){
-
-          var hasOverlappingFeatures = false;
-          hasOverlappingFeatures = results.some(function(result) {
-            return (result && result.features && result.features.length > 0);
-          });
-
-          if (hasOverlappingFeatures) {
-            console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
-            self._showErrorMessage(self.nls.errorOverlappingAOI);
-          } else {
-            self._createJob();
-          }
-        });
       },
 
       _createJob: function () {
@@ -910,11 +855,6 @@ define([
 
         this.wmxCreateJobContent.style.display = 'none';
         this.jobTypeSelectors.style.display = 'block';
-
-        this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
-        this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
-        // @cody - commented this out since unable to resolve domUploaderDiv
-        // domClass.add(domUploaderDiv, 'upload-error');
 
         //hide the successful job creation div
         domStyle.set(this.wmxSuccessPanel, 'display', (jobCreated === true ? 'block' : 'none'));
