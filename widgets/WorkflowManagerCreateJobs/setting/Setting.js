@@ -160,9 +160,6 @@ define([
         this.config.jobTypes = this.jobTypes;
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
 
-        // setting for aoi overlap
-        this.config.aoiOverlapAllowed = this.aoiOverlapAllowed;
-
         //clean up null job type
         delete this.selectedJobTypes["nullJobItemRow"];
         this.config.selectedJobTypes = this.selectedJobTypes;
@@ -217,7 +214,7 @@ define([
           return;
         }
 
-        // Retrieve workflow configuration
+        // Retrieve workflow server configuration
         this._loadConfiguration(serviceUrl);
       },
 
@@ -233,13 +230,6 @@ define([
         var self = lang.hitch(this);
         this.wmConfigTask.getServiceInfo(
           function (response) {
-            // Check setting of AOIOVERLAP setting
-            this.aoiOverlapAllowed = true;
-            if (response.configProperties &&
-              (response.configProperties['AOIOVERLAP'] === 'disallow' || response.configProperties['AOIOVERLAP'] === 'disallowjobtype')) {
-              this.aoiOverlapAllowed = false;
-            }
-
             // Filter on active job types
             if (response.jobTypes && response.jobTypes.length > 0) {
               var jobTypeSelect = registry.byId("jobTypeSelect");

@@ -9,6 +9,7 @@ define([
     'dojo/dom',
     'dojo/dom-style',
     'dojo/dom-construct',
+    'dojo/promise/all',
     'dojox/form/Uploader',
 
     'dojo/i18n!./nls/strings',
@@ -40,7 +41,7 @@ define([
     // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
   ],
   function (
-    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, Uploader,
+    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domConstruct, all, Uploader,
     i18n,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
@@ -97,10 +98,33 @@ define([
         this._initDrawBox();
 
         this.user = this.config.defaultUser;
-        this._validateUser(this.user);
+
+        this._loadServerConfiguration();
+      },
+
+      _loadServerConfiguration: function(serviceUrl) {
+        var self = lang.hitch(this);
+        self.aoiOverlapAllowed = false;
+        console.log('Connecting to server ' + serviceUrl);
+        this.wmConfigTask.getServiceInfo(
+          function (response) {
+            console.log('Connected successfully');
+            // Check setting of AOIOVERLAP setting
+            if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
+              self.aoiOverlapAllowed = true;
+            }
+            // TODO Implement retrieving username from portal
+            self._validateUser(self.user);
+          },
+          function (error) {
+            console.log('Unable to connect to server ' + serviceUrl, error);
+            console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
+            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", serviceUrl));
+          });
       },
 
       _validateUser: function (username) {
+        console.log('Validating user: ' + username);
         this.wmConfigTask.getUser(username,
           lang.hitch(this, function(userInfo) {
             // check if the user can create jobs
@@ -110,6 +134,7 @@ define([
             if (!canCreateJob) {
               this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", username));
             } else {
+              this._initializeAOIOverlap();
               this._populateJobTypes();
             }
           }),
@@ -118,6 +143,22 @@ define([
             this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", username));
           })
         );
+      },
+
+      _initializeAOIOverlap: function(serviceUrl) {
+        var self = lang.hitch(this);
+        self.aoiOverlapAllowed = false;
+        this.wmConfigTask.getServiceInfo(
+          function (response) {
+            // Check setting of AOIOVERLAP setting
+            if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
+              self.aoiOverlapAllowed = true;
+            }
+          },
+          function (error) {
+            console.error('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow', error);
+            // TODO Does the end user need to know this?
+          });
       },
 
       _populateJobTypes: function () {
@@ -589,29 +630,46 @@ define([
       },
 
       _createJobClick: function () {
-        // check if aoi overlap is allowed
-        if (!this.config.aoiOverlapAllowed && this.aoi) {
+        if (this.aoi && !this.aoiOverlapAllowed) {
           // An AOI is defined and AOI overlap is not allowed.  Check if there is an overlapping feature.
-          var query = new Query();
-          query.returnGeometry = false;
-          query.outFields = ["objectid"];
-          query.geometry = this.aoi;
-          query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
-          queryTask.execute(query);
-
-          queryTask.on("complete", function (evt) {
-            var hasOverlappingFeatures = evt.featureSet && evt.featureSet.features && evt.featureSet.features.length > 1;
-            // TODO Do something with this
-            if (hasOverlappingFeatures) {
-              console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
-              this._showErrorMessage("Unable to create job. Specified AOI overlaps with an existing job AOI.");
-            } else {
-              this._createJob();
-            }
-          });
+          this._checkAOIOverlap();
         } else {
           this._createJob();
         }
+      },
+
+      _checkAOIOverlap: function() {
+        var self = lang.hitch(this);
+        var query = new Query();
+        query.returnGeometry = false;
+        query.outFields = ["objectid"];
+        query.geometry = this.aoi;
+        query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
+
+        var promises = [];
+        if (parseInt(this.config.poiLayerId) != NaN) {
+          var queryTask = new QueryTask(this.config.wmMapServiceUrl + "/" + this.config.poiLayerId);
+          promises.push(queryTask.execute(query));
+        }
+        if (parseInt(this.config.aoiLayerId) != NaN) {
+          var queryTask = new QueryTask(this.config.wmMapServiceUrl + "/" + this.config.aoiLayerId);
+          promises.push(queryTask.execute(query));
+        }
+
+        all(promises).then(function(results){
+
+          var hasOverlappingFeatures = false;
+          hasOverlappingFeatures = results.some(function(result) {
+            return (result && result.features && result.features.length > 0);
+          });
+
+          if (hasOverlappingFeatures) {
+            console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+            self._showErrorMessage(self.nls.errorOverlappingAOI);
+          } else {
+            self._createJob();
+          }
+        });
       },
 
       _createJob: function () {

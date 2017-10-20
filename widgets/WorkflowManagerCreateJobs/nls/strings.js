@@ -27,8 +27,10 @@
 
     jobCreatedSuccessfully: "Job {0} created successfully.",
 
+    errorUnableToConnectToServer: "Unable to connect to server {0}",
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",
     errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job.",
+    errorOverlappingAOI: "Unable to create job. Specified AOI overlaps with an existing job AOI."
   })
 });
