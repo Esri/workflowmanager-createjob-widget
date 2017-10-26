@@ -723,7 +723,6 @@ define([
               this._handleRequestResponse(this.ResponseType.NOTES);
             }),
             lang.hitch(this, function (error) {
-              // TODO Provide error message in UI
               console.log("Error updating job notes", error);
               this._handleRequestResponse(this.ResponseType.NOTES, error);
             }));
@@ -739,7 +738,7 @@ define([
         }
 
         // job extended properties
-        // TODO Check if any extended properties were configured
+        // check if any extended properties were configured
         var extProps = dom.byId('wmxExtendedProps').elements;
         if (extProps && extProps.length > 0) {
           this.wmJobTask.getExtendedProperties(this.jobId,
@@ -755,9 +754,6 @@ define([
         } else {
           this._handleRequestResponse(this.ResponseType.EXTPROPS);
         }
-
-        // TODO Need to reset the widget only after all callbacks have been received
-        // this._resetWidget();
       },
 
       _updateExtendedProperties: function (jobExtProps) {
@@ -812,24 +808,6 @@ define([
             })
           );
         }
-
-        // arrayUtils.forEach(extPropsFormData, lang.hitch(this, function (formEl) {
-        //
-        //   // configured ext props for the widget
-        //
-        //   var extPropName = formEl.name;
-        //   var extPropValue = formElem.value;
-        //
-        //   // TODO: @lalaine update the job that was just created with extended properties
-        //   // below is a sample of how to access the form element name and value
-        //   // you might have to reference self.config.selectedJobTypes.extendedProps
-        //   // to get the tableName etc.
-        //   //
-        //   // updateParam[formEl.name] = formEl.value;
-        //
-        //   // this._handleRequestResponse("extProps", error);
-        //
-        // }));
       },
 
       _handleExtPropsResult: function(result) {

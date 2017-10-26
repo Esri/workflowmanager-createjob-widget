@@ -306,8 +306,6 @@ define([
               // TODO Provide UI feedback to user
               console.log('No active job types found.');
             } else {
-              // TODO Should we retrieve job properties for all job types, or load them as the users
-              //    selects one from the dropdown?
               // Retrieve extended properties for the job types
               self._loadExtendedPropertiesForJobTypes();
             }
