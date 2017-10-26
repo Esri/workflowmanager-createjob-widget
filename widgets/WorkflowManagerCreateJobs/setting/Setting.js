@@ -111,16 +111,16 @@ define([
             this.defineLOILabel.set('value', 'Define Location');
         }
 
-        if (config.attachmentsLabel) {
-          this.attachmentsLabel.set('value', config.attachmentsLabel);
-        } else {
-          this.attachmentsLabel.set('value', 'Attachments');
-        }
-
         if (config.extPropsLabel) {
           this.extPropsLabel.set('value', config.extPropsLabel);
         } else {
           this.extPropsLabel.set('value', 'Extended Properties');
+        }
+
+        if (config.attachmentsLabel) {
+          this.attachmentsLabel.set('value', config.attachmentsLabel);
+        } else {
+          this.attachmentsLabel.set('value', 'Attachments');
         }
 
         var hasMapServiceConfigured = config.wmMapServiceUrl && config.wmMapServiceUrl.trim() !== '' ? true : false;
@@ -158,6 +158,9 @@ define([
         this.config.attachmentsLabel = this.attachmentsLabel.getValue();
         this.config.extPropsLabel = this.extPropsLabel.getValue();
 
+        this.config.allowAttachments = this.cbxAttachments.getValue();
+        this.config.maxAttachmentSize = this.maxFileSize.get('value');
+
         var mapServiceConfigured = this.cbxWMMapServiceConfigured.getValue();
         this.config.wmMapServiceUrl = mapServiceConfigured ? this.wmMapServiceUrl.getValue() : null;
         this.config.poiLayerId = mapServiceConfigured ? this.poiLayerId.getValue() : null;
@@ -165,8 +168,6 @@ define([
 
         this.config.jobTypes = this.jobTypes;
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
-
-        this.config.maxAttachmentSize = this.maxFileSize.get('value');
 
         //clean up null job type
         delete this.selectedJobTypes["nullJobItemRow"];

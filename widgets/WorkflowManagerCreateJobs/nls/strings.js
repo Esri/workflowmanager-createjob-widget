@@ -4,8 +4,7 @@
     title: "Create a Workflow Manager Job",
 
     filterJobTypes: "Filter job types...",
-    createJobForJobType: "Create a new job for {0}.",
-    creatingJobForJobType: "Creating a new job for {0}",
+    createJobForJobType: "Create a new job for {0}",
 
     notesLabel: "Comments",
 
@@ -33,6 +32,7 @@
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",
     errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job.",
+    errorCreatingJob: "Unable to create job: {0}",
     errorOverlappingAOI: "Unable to create job. Specified AOI overlaps with an existing job AOI."
   })
 });

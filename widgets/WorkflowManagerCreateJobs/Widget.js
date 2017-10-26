@@ -315,7 +315,6 @@ define([
             this._handleRequestResponse(this.ResponseType.ATTACHMENT);
           }),
           lang.hitch(this, function (error) {
-            // TODO Provide error in UI
             console.log('Error adding job attachment', error);
             this._handleRequestResponse(this.ResponseType.ATTACHMENT, error);
           })
@@ -515,6 +514,10 @@ define([
         this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
         this.uploadFilename.innerHTML = '';
 
+        if (!this.config.allowAttachments) {
+          this._hideAttachments();
+        }
+
         // var uniqueId = jimuUtils.getRandomString();
         // var cbxName = 'Query_' + uniqueId;
         // this.btnCreateJob.innerHTML = '<b>Create Job<b>';
@@ -562,66 +565,72 @@ define([
         }
 
         this.jobType = jobTypeObj.jobType;
-        this.createJobHeader.innerHTML = this.nls.creatingJobForJobType.replace("{0}", jobTypeObj.jobTypeName)
+        this.createJobHeader.innerHTML = this.nls.createJobForJobType.replace("{0}", jobTypeObj.jobTypeName)
 
-        //loop through groups of extended props
         var formRow, formRowLabel, inputEl;
         var props = jobTypeObj.extendedProps;
 
-        var formGroup = domConstruct.create('div', {
-          class: 'wmx-input-content jimu-item-form'
-        }, 'wmxExtendedProps', 'last');
+        if (!props || props.length === 0) {
+          // no job ext properties to show
+          this._hideExtProperties();
+        } else {
+          // loop through groups of extended props
+          this._showExtProperties();
+          var formGroup = domConstruct.create('div', {
+            class: 'wmx-input-content jimu-item-form'
+          }, 'wmxExtendedProps', 'last');
 
-        //loop through the form elements
-        arrayUtils.forEach(props, lang.hitch(this, function (formEl) {
-          formRow = domConstruct.create('div', {
-            class: "create-job-form-row"
-          }, formGroup);
-          formRowLabel = domConstruct.create('b', {
-            innerHTML: formEl.fieldAlias,
-            class: 'input-label'
-          }, formRow, 'first');
-          inputEl;
-          //  ExtendedPropertyDisplayType: {
-          //     DEFAULT: 0,
-          //     TEXT: 1,
-          //     DATE: 2,
-          //     DOMAIN: 4,
-          //     FILE: 5,
-          //     GEO_FILE: 6,
-          //     FOLDER: 7,
-          //     LIST: 8,
-          //     TABLE_LIST: 9,
-          //     MULTI_LEVEL_TABLE_LIST: 10
-          // }
-          switch (formEl.displayType) {
-            case "1":
-              //INTEGER
-              inputEl = domConstruct.create('input', {
-                class: 'common-input jimu-input input-item',
-                type: 'number',
-                name: formEl.fieldName
-              }, formRow, 'last');
+          //loop through the form elements
+          arrayUtils.forEach(props, lang.hitch(this, function (formEl) {
+            formRow = domConstruct.create('div', {
+              class: "create-job-form-row"
+            }, formGroup);
+            formRowLabel = domConstruct.create('b', {
+              innerHTML: formEl.fieldAlias,
+              class: 'input-label'
+            }, formRow, 'first');
+            inputEl;
+            //  ExtendedPropertyDisplayType: {
+            //     DEFAULT: 0,
+            //     TEXT: 1,
+            //     DATE: 2,
+            //     DOMAIN: 4,
+            //     FILE: 5,
+            //     GEO_FILE: 6,
+            //     FOLDER: 7,
+            //     LIST: 8,
+            //     TABLE_LIST: 9,
+            //     MULTI_LEVEL_TABLE_LIST: 10
+            // }
+            switch (formEl.displayType) {
+              case "1":
+                //INTEGER
+                inputEl = domConstruct.create('input', {
+                  class: 'common-input jimu-input input-item',
+                  type: 'number',
+                  name: formEl.fieldName
+                }, formRow, 'last');
 
-              break;
-            case "2":
-              // DATE
-              inputEl = domConstruct.create('input', {
-                class: 'common-input jimu-input input-item',
-                type: 'date',
-                name: formEl.fieldName
-              }, formRow, 'last');
+                break;
+              case "2":
+                // DATE
+                inputEl = domConstruct.create('input', {
+                  class: 'common-input jimu-input input-item',
+                  type: 'date',
+                  name: formEl.fieldName
+                }, formRow, 'last');
 
-              break;
-            default:
-              //text
-              inputEl = domConstruct.create('input', {
-                class: 'common-input jimu-input input-item',
-                type: 'text',
-                name: formEl.fieldName
-              }, formRow, 'last');
-          }
-        }));
+                break;
+              default:
+                //text
+                inputEl = domConstruct.create('input', {
+                  class: 'common-input jimu-input input-item',
+                  type: 'text',
+                  name: formEl.fieldName
+                }, formRow, 'last');
+            }
+          }));
+        }
 
         self.wmxCreateJobContent.style.display = '';
         self.jobTypeSelectors.style.display = 'none';
@@ -692,8 +701,8 @@ define([
             this._updateJobAfterCreate();
           }),
           lang.hitch(this, function (error) {
-            // TODO Provide error message in UI
-            alert('Error creating job', error);
+            console.log('Error creating job', error);
+            this._showErrorMessage(this.nls.errorCreatingJob.replace("{0}", error.message()));
           })
         );
       },
@@ -865,6 +874,18 @@ define([
         }
       },
 
+      _hideAttachments: function () {
+        domStyle.set(this.attachmentTypeContainer, 'display', 'none');
+      },
+
+      _showExtProperties: function () {
+        domStyle.set(this.extendedPropsContainer, 'display', 'block');
+      },
+
+      _hideExtProperties: function () {
+        domStyle.set(this.extendedPropsContainer, 'display', 'none');
+      },
+
       _showStatusMessage: function (msg) {
         this.wmxSuccessPanel.innerHTML = msg;
         domStyle.set(this.wmxSuccessPanel, 'display', 'block');
@@ -914,8 +935,10 @@ define([
         this.fileToUpload.value = '';
         this.fullImageFilename = null;
 
-        this.wmxCreateJobContent.style.display = 'none';
         this.jobTypeSelectors.style.display = 'block';
+        this.wmxCreateJobContent.style.display = 'none';
+        this.extendedPropsContainer.style.display = 'block';
+        this.attachmentTypeContainer.style.display = 'block';
 
         this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
         this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;

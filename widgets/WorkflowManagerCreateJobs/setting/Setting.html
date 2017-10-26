@@ -43,15 +43,27 @@
           </td>
         </tr>
         <tr>
+          <td class="first">${nls.extPropsLabel}</td>
+          <td class="second" colspan="2">
+            <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="extPropsLabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
+          </td>
+        </tr>
+        <tr>
+          <td class="first">${nls.allowAttachmentsLabel}</td>
+          <td class="second" colspan="2">
+            <div data-dojo-type="jimu/dijit/CheckBox" data-dojo-attach-point="cbxAttachments" data-dojo-props='checked:true'></div>
+          </td>
+        </tr>
+        <tr>
           <td class="first">${nls.attachmentsLabel}</td>
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="attachmentsLabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
           </td>
         </tr>
         <tr>
-          <td class="first">${nls.extPropsLabel}</td>
+          <td class="first">${nls.maxAttachmentSize}</td>
           <td class="second" colspan="2">
-            <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="extPropsLabel" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
+            <input type="text" data-dojo-type="dijit/form/NumberTextBox" data-dojo-attach-point="maxFileSize" placeHolder="" data-dojo-props="style:'width:100%'" />
           </td>
         </tr>
         <tr>
@@ -76,12 +88,6 @@
           <td class="first">${nls.aoiLayerId}</td>
           <td class="second" colspan="2">
             <input type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="aoiLayerId" data-dojo-attach-event="Blur:_onSelectLayerBlur" placeHolder="" data-dojo-props="style:'width:100%'" />
-          </td>
-        </tr>
-        <tr>
-          <td class="first">${nls.maxAttachmentSize}</td>
-          <td class="second" colspan="2">
-            <input type="text" data-dojo-type="dijit/form/NumberTextBox" data-dojo-attach-point="maxFileSize" placeHolder="" data-dojo-props="style:'width:100%'" />
           </td>
         </tr>
       </tbody>

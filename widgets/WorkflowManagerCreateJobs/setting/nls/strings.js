@@ -20,6 +20,7 @@ define({
 
     defineLOILabel: "Define Location Label",
     defaultDefineLOILabel: "Define Location",
+    allowAttachmentsLabel: "Allow Attachments",
     attachmentsLabel: "Attachments Label",
     defaultAttachmentsLabel: "Add an Attachment to the job",
     extPropsLabel: "Extended Properties Label",

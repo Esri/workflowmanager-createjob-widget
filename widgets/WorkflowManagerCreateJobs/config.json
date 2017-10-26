@@ -9,5 +9,5 @@
   "attachmentsLabel": "Add an Attachment to the job",
   "extPropsLabel": "Contact Information",
   "selectedJobTypes": {},
-  "maxAttachmentSize": 50000
+  "maxAttachmentSize": 2
 }
