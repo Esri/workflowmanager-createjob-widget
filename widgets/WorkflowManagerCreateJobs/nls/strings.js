@@ -33,6 +33,10 @@
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",
     errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job.",
     errorCreatingJob: "Unable to create job: {0}",
-    errorOverlappingAOI: "Unable to create job. Specified AOI overlaps with an existing job AOI."
+    errorOverlappingAOI: "Unable to create job. Specified AOI overlaps with an existing job AOI.",
+
+    errorNoSelectedFeatures: "No features were returned from selection",
+    errorRetrievingSelectedFeatures: "Error retrieving selectable features: {0}",
+    errorUnsupportedGeometryType: "Selected features returned unsupported geometry type: {0}"
   })
 });

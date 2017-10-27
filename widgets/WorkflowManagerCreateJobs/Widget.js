@@ -27,10 +27,13 @@ define([
 
     './AttachmentItem',
 
+    "esri/geometry/geometryEngine",
     'esri/geometry/webMercatorUtils',
     'esri/tasks/query',
     'esri/tasks/QueryTask',
     'esri/graphic',
+    'esri/symbols/jsonUtils',
+    'esri/symbols/SimpleFillSymbol',
     'esri/symbols/SimpleMarkerSymbol',
 
     './libs/exifjs/exif'
@@ -44,7 +47,7 @@ define([
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
-    WebMercatorUtils, Query, QueryTask, Graphic, SimpleMarkerSymbol,
+    GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils, SimpleFillSymbol, SimpleMarkerSymbol,
     EXIF) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
@@ -53,6 +56,8 @@ define([
       name: 'WorkflowManagerCreateJobsWidget',
       baseClass: 'jimu-widget-wmxcreatejobs',
       _disabledClass: 'jimu-state-disabled',
+
+      userCredential: null,
 
       wmJobTask: null,
       wmConfigTask: null,
@@ -69,6 +74,7 @@ define([
       bAOISelected: false,
       sSelectableFeatureLayerURL: '',
       drawBox: null,
+      selectBox: null,
 
       // Unlike promises, we cannot combine all callbacks into a single request.  We need to
       // keep track of all callbacks coming back to determine if the job was created successfully
@@ -80,11 +86,60 @@ define([
       bExtPropsReqComplete: false,
       extPropResults: [],
 
+      pointSymbol: null,
+      polygonSymbol: null,
+
       ResponseType: {
         NOTES: 0,
         ATTACHMENT: 1,
         EXTPROPS: 2
       },
+
+      /*********************************************************/
+      // BaseWidget events
+
+      onOpen: function(){
+        // summary:
+        //    this function will be called when widget is opened everytime.
+        // description:
+        //    state has been changed to "opened" when call this method.
+        //    this function will be called in two cases:
+        //      1. after widget's startup
+        //      2. if widget is closed, use re-open the widget
+      },
+
+      onClose: function(){
+        // summary:
+        //    this function will be called when widget is closed.
+        // description:
+        //    state has been changed to "closed" when call this method.
+        this.inherited(arguments);
+        this._resetWidget();
+      },
+
+      onActive: function(){
+        // summary:
+        //    this function will be called when widget is clicked.
+      },
+
+      onDeActive: function(){
+        // summary:
+        //    this function will be called when another widget is clicked.
+      },
+
+      onSignIn: function(credential){
+        // summary:
+        //    this function will be called after user sign in.
+        this.userCredential = credential;
+      },
+
+      onSignOut: function(){
+        // summary:
+        //    this function will be called after user sign out.
+        this.userCredential = null;
+      },
+
+      /*********************************************************/
 
       //methods to communication with app container:
 
@@ -229,12 +284,6 @@ define([
         }));
       },
 
-      _onClose: function () {
-        this.inherited(arguments);
-
-        this._resetWidget();
-      },
-
       _addAttachmentToUpload: function (e) {
         console.log('_addAttachmentToUpload');
         var fullImageFile = e.target.files[0];
@@ -354,8 +403,9 @@ define([
           this.aoi = mp;
           this.aoi.type = 'multipoint';
         }
-        var sym = new SimpleMarkerSymbol();
-        var g = new Graphic(this.aoi, sym);
+        //var sym = new SimpleMarkerSymbol();
+        //var g = new Graphic(this.aoi, sym);
+        var g = new Graphic(this.aoi, this.pointSymbol);
         this.drawBox.addGraphic(g);
       },
 
@@ -387,18 +437,53 @@ define([
         // this.own(on(this.drawBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
         this.own(on(this.drawBox, 'DrawEnd', lang.hitch(this, this._onDrawEnd)));
 
+        // separate drawbox for selection
         this.selectBox = new DrawBox({
           types: ['point', 'polygon'],
           map: this.map,
           showClear: true,
           keepOneGraphic: true
         });
-
         this.selectBox.placeAt(this.selectBoxDiv);
         this.selectBox.startup();
 
         //this.own(on(this.selectBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
-        // this.own(on(this.selectBox, 'DrawEnd', lang.hitch(this, this._onSelectEnd)));
+        this.own(on(this.selectBox, 'DrawEnd', lang.hitch(this, this._onSelectEnd)));
+
+        // initialize default symbols used to update the graphic
+        this._initDefaultSymbols();
+      },
+
+      _initDefaultSymbols:function(){
+        // initialize internal graphic styles to be consistent with DrawBox
+        var pointSys = {
+          "style": "esriSMSCircle",
+          "color": [0, 0, 128, 128],
+          "name": "Circle",
+          "outline": {
+            "color": [0, 0, 128, 255],
+            "width": 1
+          },
+          "type": "esriSMS",
+          "size": 18
+        };
+        var polygonSys = {
+          "style": "esriSFSSolid",
+          "color": [79, 129, 189, 128],
+          "type": "esriSFS",
+          "outline": {
+            "style": "esriSLSSolid",
+            "color": [54, 93, 141, 255],
+            "width": 1.5,
+            "type": "esriSLS"
+          }
+        };
+        if(!this.pointSymbol){
+          this.pointSymbol = jsonUtils.fromJson(pointSys);
+        }
+        if(!this.polygonSymbol){
+          this.polygonSymbol = jsonUtils.fromJson(polygonSys);
+        }
       },
 
       _createAttachmentItem: function (latestExifInfo, wmJobTask, jobId,
@@ -442,16 +527,20 @@ define([
         this.inherited(arguments);
         console.log('_onSelectEnd');
 
-        if (this.bAOIGeotagged || this.bAOIDrawn) {
-          var r = confirm(this.nls.aoiOverwritePrompt);
-          if (r == true) {
-            this.bAOIGeotagged = false;
-            this.bAOIDrawn = false;
-            this.aoi = null;
-          } else {
-            return;
-          }
-        }
+        // if (this.bAOIGeotagged || this.bAOIDrawn) {
+        //   var r = confirm(this.nls.aoiOverwritePrompt);
+        //   if (r == true) {
+        //     this.bAOIGeotagged = false;
+        //     this.bAOIDrawn = false;
+        //     this.aoi = null;
+        //   } else {
+        //     return;
+        //   }
+        // }
+        // clear out any previously drawn AOIs
+        this.drawBox.clear();
+        this.aoi = null;
+
         this.bAOISelected = true;
 
         if (commontype == 'point') {
@@ -470,21 +559,63 @@ define([
         qTask.execute(
           qry,
           lang.hitch(this, function (fset) {
-            console.log('query success');
+            if (!fset || !fset.features || fset.features.length == 0) {
+              // no returned features
+              console.log("No selectable features returned");
+              this._errorSelectFeatures(this.nls.errorNoSelectedFeatures);
+              return;
+            }
+            // one or more features returned
+            console.log('query success', fset);
+            var geometryType = fset.geometryType;
+            if (geometryType === "esriGeometryPolygon" || geometryType === "esriGeometryPoint" || geometryType === "esriGeometryMultiPoint") {
+              // combine features into a single feature
+              this.aoi = this._combineFeatures(fset.features);
+              // TODO how to update the drawn graphic with the selected features
+              var geomWM = WebMercatorUtils.webMercatorToGeographic(this.aoi);
+              var symbol = (geometryType === "esriGeometryPolygon") ? this.polygonSymbol : this.pointSymbol;
+              var g = new Graphic(geomWM, symbol);
+              this.selectBox.addGraphic(g);
+            } else {
+              // unexpected geometry type
+              this._errorSelectFeatures(this.nls.errorUnsupportedGeometryType.replace("{0}", geometryType));
+            }
           }),
-          lang.hitch(this, this._errorSelectFeatures)
+          lang.hitch(this, function (error) {
+            console.error("Error retrieving selectable features", error);
+            this._errorSelectFeatures(this.nls.errorRetrievingSelectedFeatures.replace("{0}", error.message));
+          })
         );
       },
 
-      _errorSelectFeatures: function (params) {
-        // this._popupMessage(params.message);
-        console.error(params);
+      _combineFeatures: function (features) {
+        if (features) {
+          var geomArray = [];
+          features.forEach(function(feature) {
+            geomArray.push(feature.geometry);
+          });
+          var union = GeometryEngine.union(geomArray);
+          return union;
+        }
+        return null;
       },
 
+      _errorSelectFeatures: function (error) {
+        // TODO We should create a message under the selection icons rather than use the general failure message
+        this._showErrorMessage(error);
+
+        // clear out the AOI
+        this.bAOISelected = false;
+        this.aoi = null;
+      },
 
       _onDrawEnd: function (graphic, geotype, commontype) {
         this.inherited(arguments);
         console.log('_onDrawEnd');
+
+        // clear out any previously selected AOIs
+        this.selectBox.clear();
+        this.aoi = null;
 
         if (this.bAOIGeotagged || this.bAOISelected) {
           var r = confirm(this.nls.aoiOverwritePrompt);
@@ -539,7 +670,7 @@ define([
           var selectTab = {title: this.nls.selectFeatures};
           selectTab.content = this.selectFeaturesNode;
           this.selectFeaturesNode.style.display = '';
-          this.sSelectableFeatureLayerURL = this.config.selectableLayer; // make configurable
+          this.sSelectableFeatureLayerURL = this.config.selectableLayer;
           tabs.push(selectTab)
         }
 
@@ -910,6 +1041,7 @@ define([
         this.bAOIDrawn = false;
         this.bAOISelected = false;
         this.drawBox.clear();
+        this.selectBox.clear();
         this.fileToUpload.value = '';
         this.fullImageFilename = null;
 
