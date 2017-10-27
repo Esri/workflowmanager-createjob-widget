@@ -27,6 +27,7 @@
     defaultJobBeingCreatedLabel: "The job is being created, this could take a moment.",
 
     jobCreatedSuccessfully: "Job {0} created successfully.",
+    jobCreatedWithErrors: "Job {0} created, but not all job properties were updated: ",
 
     errorUnableToConnectToServer: "Unable to connect to server {0}",
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
@@ -34,6 +35,7 @@
     errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job.",
     errorCreatingJob: "Unable to create job: {0}",
     errorOverlappingAOI: "Unable to create job. Specified AOI overlaps with an existing job AOI.",
+    errorUpdatingExtProps: "Unable to update job extended properties: {0}",
 
     errorNoSelectedFeatures: "No features were returned from selection",
     errorRetrievingSelectedFeatures: "Error retrieving selectable features: {0}",

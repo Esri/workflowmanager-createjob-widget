@@ -85,6 +85,7 @@ define([
       bAttachmentReqComplete: false,
       bExtPropsReqComplete: false,
       extPropResults: [],
+      createJobErrors: [],
 
       pointSymbol: null,
       polygonSymbol: null,
@@ -734,15 +735,15 @@ define([
             //     MULTI_LEVEL_TABLE_LIST: 10
             // }
             switch (formEl.displayType) {
-              case "1":
-                //INTEGER
-                inputEl = domConstruct.create('input', {
-                  class: 'common-input jimu-input input-item',
-                  type: 'number',
-                  name: formEl.fieldName
-                }, formRow, 'last');
-
-                break;
+              // No numeric fields in display type
+              // case "1":
+              //   //INTEGER
+              //   inputEl = domConstruct.create('input', {
+              //     class: 'common-input jimu-input input-item',
+              //     type: 'number',
+              //     name: formEl.fieldName
+              //   }, formRow, 'last');
+              //   break;
               case "2":
                 // DATE
                 inputEl = domConstruct.create('input', {
@@ -750,10 +751,9 @@ define([
                   type: 'date',
                   name: formEl.fieldName
                 }, formRow, 'last');
-
                 break;
               default:
-                //text
+                // TEXT
                 inputEl = domConstruct.create('input', {
                   class: 'common-input jimu-input input-item',
                   type: 'text',
@@ -931,10 +931,12 @@ define([
             }),
             lang.hitch(this, function (error) {
               console.log("Error updating job ext prop record", record, error);
+              var errMsg = (error.details && error.details.length > 0) ? error.details[0] : error.message;
               this._handleExtPropsResult({
                 tableName: record.tableName,
                 recordId: record.recordId,
-                success: false
+                success: false,
+                errorMsg: errMsg
               });
             })
           );
@@ -944,15 +946,20 @@ define([
       _handleExtPropsResult: function(result) {
         this.extPropResults.push(result);
         if (this.extPropResults.length == this.numExtPropRecords) {
-          var success = true;
-          this.extPropResults.some(function(result) {
+          var errorMsgs = [];
+          this.extPropResults.forEach(function(result) {
             if (result.success === false) {
-              success = false;
-              return true; // break out of loop
+              errorMsgs.push(result.errorMsg);
             }
           });
-          var msg = success ? null : "Unable to update all job extended properties";
-          this._handleRequestResponse(this.ResponseType.EXTPROPS, msg);
+          var errorMsg = null;
+          if (errorMsgs.length > 0) {
+            console.log("Unable to update job extended properties: ", errorMsgs);
+            errorMsg = this.nls.errorUpdatingExtProps.replace("{0}", errorMsgs.join("\n"));
+          } else {
+            console.log("Successfully updated job extended properties");
+          }
+          this._handleRequestResponse(this.ResponseType.EXTPROPS, errorMsg);
         }
       },
 
@@ -962,7 +969,7 @@ define([
         this.bExtPropsReqComplete = false;
       },
 
-      _handleRequestResponse: function (requestType, errMsg) {
+      _handleRequestResponse: function (requestType, errorMsg) {
         if (this.ResponseType.NOTES === requestType) {
           this.bNotesReqComplete = true;
         } else if (this.ResponseType.ATTACHMENT === requestType) {
@@ -970,16 +977,23 @@ define([
         } else if (this.ResponseType.EXTPROPS === requestType) {
           this.bExtPropsReqComplete = true;
         }
-        if (errMsg) {
-          console.log("Error updating job " + requestType, errMsg);
-          // TODO Provide feedback in UI
+        if (errorMsg) {
+          this.createJobErrors.push(errorMsg);
         }
 
         if (this.bNotesReqComplete && this.bAttachmentReqComplete && this.bExtPropsReqComplete) {
           // reset the widget only when all requests have completed
           var jobId = this.jobId; // save a copy of the jobId before we reset the widget
+          var msg = null;
+          if (this.createJobErrors.length > 0) {
+            msg = this.nls.jobCreatedWithErrors.replace("{0}", jobId);
+            msg += this.createJobErrors.join("\n");
+          } else {
+            msg = this.nls.jobCreatedSuccessfully.replace("{0}", jobId);
+          }
+
           this._resetWidget();
-          this._showStatusMessage(this.nls.jobCreatedSuccessfully.replace("{0}", jobId));
+          this._showStatusMessage(msg);
         }
       },
 
@@ -1044,6 +1058,12 @@ define([
         this.selectBox.clear();
         this.fileToUpload.value = '';
         this.fullImageFilename = null;
+
+        this.bNotesReqComplete = false;
+        this.bAttachmentReqComplete = false;
+        this.bExtPropsReqComplete = false;
+        this.extPropResults = [];
+        this.createJobErrors = [];
 
         this.jobTypeSelectors.style.display = 'block';
         this.wmxCreateJobContent.style.display = 'none';
