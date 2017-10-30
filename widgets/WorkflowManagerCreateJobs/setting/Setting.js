@@ -239,6 +239,9 @@ define([
         var self = lang.hitch(this);
         this.wmConfigTask.getServiceInfo(
           function (response) {
+            //Clear out old jobs if the service is valid
+            this._resetJobTypes();
+
             // Filter on active job types
             if (response.jobTypes && response.jobTypes.length > 0) {
               var jobTypeSelect = registry.byId("jobTypeSelect");
@@ -310,10 +313,11 @@ define([
               self._loadExtendedPropertiesForJobTypes();
             }
           },
-          function (error) {
+          lang.hitch(this, function (error) {
             console.error('Unable to load job types from service: ' + self.wmServiceUrl, error);
             // TODO Provide error message in UI to let user know
-          });
+            this._showErrorMessage('Unable to load job types from service: ' + self.wmServiceUrl.get('value'))
+          }));
       },
 
       _checkMapService: function() {
@@ -581,6 +585,12 @@ define([
         this.selectChangeEvent.pause();
         registry.byId('jobTypeSelect').set('value',  'null');
         this.selectChangeEvent.resume();
+      },
+
+      _resetJobTypes: function() {
+        arrayUtil.forEach(domQuery('.job-type-item'), lang.hitch(this, function(jobTypeRow) {
+          this._deleteJobTypeItem(jobTypeRow);
+        }));
       },
 
       _sortExtendedProps: function(a,b) {
