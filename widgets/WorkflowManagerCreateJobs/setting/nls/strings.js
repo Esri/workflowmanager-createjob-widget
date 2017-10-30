@@ -18,6 +18,8 @@ define({
     portalAuthenticatedUser: "Portal Authenticated",
     serverAuthenticatedUser: "Server Authenticated",
 
+    defaultUserPlaceholder: "Default username for submitting job requests",
+
     defineLOILabel: "Define Location Label",
     defaultDefineLOILabel: "Define Location",
     allowAttachmentsLabel: "Allow Attachments",
@@ -41,6 +43,7 @@ define({
     errorHeader: "An Error Occured",
     errorPlaceholder: "Something went wrong...",
     errorOk: "OK",
+    errorInvalidServiceUrl: "Invalid service url entered: {0}",
     errorUnableToConnectToServer: "Unable to connect to server {0}",
     errorNoActiveJobTypes: "No active job types found",
     errorInvalidUserCredentials: "Unable to retrieve user credentials",

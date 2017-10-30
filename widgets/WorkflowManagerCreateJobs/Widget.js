@@ -13,6 +13,10 @@ define([
     'dojo/promise/all',
     'dojox/form/Uploader',
 
+    'dijit/form/TextBox',
+    'dijit/form/DateTextBox',
+    'dijit/form/NumberTextBox',
+
     'jimu/utils',
     'jimu/BaseWidget',
     'jimu/dijit/TabContainer3',
@@ -44,6 +48,7 @@ define([
   ],
   function (
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader,
+    TextBox, DateTextBox, NumberTextBox,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
@@ -748,27 +753,24 @@ define([
               // No numeric fields in display type
               // case "1":
               //   //INTEGER
-              //   inputEl = domConstruct.create('input', {
-              //     class: 'common-input jimu-input input-item',
-              //     type: 'number',
+              //   inputEl = new NumberTextBox({
+              //     class: 'input-item',
               //     name: formEl.fieldName
-              //   }, formRow, 'last');
+              //   }).placeAt(formRow, 'last')
               //   break;
               case "2":
                 // DATE
-                inputEl = domConstruct.create('input', {
-                  class: 'common-input jimu-input input-item',
-                  type: 'date',
+                inputEl = new DateTextBox({
+                  class: 'input-item',
                   name: formEl.fieldName
-                }, formRow, 'last');
+                }).placeAt(formRow, 'last')
                 break;
               default:
                 // TEXT
-                inputEl = domConstruct.create('input', {
-                  class: 'common-input jimu-input input-item',
-                  type: 'text',
+                inputEl = new TextBox({
+                  class: 'input-item',
                   name: formEl.fieldName
-                }, formRow, 'last');
+                }).placeAt(formRow, 'last')
             }
           }));
         }

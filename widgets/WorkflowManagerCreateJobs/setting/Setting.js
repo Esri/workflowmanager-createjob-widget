@@ -101,31 +101,31 @@ define([
         if (config.selectableLayer) {
           this.selectableLayer.set('value', config.selectableLayer);
         } else {
-          this.selectableLayer.set('value', 'Select Layer URL');
+          this.selectableLayer.set('value', this.nls.selectLayerUrl);
         }
 
         if (config.defaultUser) {
           this.defaultUser.set('value', config.defaultUser);
         } else {
-          this.defaultUser.set('value', 'Default username for submitting job requests');
+          this.defaultUser.set('value', this.nls.defaultUserPlaceholder);
         }
 
         if (config.defineLOILabel) {
             this.defineLOILabel.set('value', config.defineLOILabel);
         } else {
-            this.defineLOILabel.set('value', 'Define Location');
+            this.defineLOILabel.set('value', this.nls.defaultDefineLOILabel);
         }
 
         if (config.extPropsLabel) {
           this.extPropsLabel.set('value', config.extPropsLabel);
         } else {
-          this.extPropsLabel.set('value', 'Extended Properties');
+          this.extPropsLabel.set('value', this.nls.defaultExtPropsLabel);
         }
 
         if (config.attachmentsLabel) {
           this.attachmentsLabel.set('value', config.attachmentsLabel);
         } else {
-          this.attachmentsLabel.set('value', 'Attachments');
+          this.attachmentsLabel.set('value', this.nls.defaultAttachmentsLabel);
         }
 
         var hasMapServiceConfigured = config.wmMapServiceUrl && config.wmMapServiceUrl.trim() !== '' ? true : false;
@@ -222,8 +222,8 @@ define([
         var serviceUrl = this.wmServiceUrl.get('value');
         serviceUrl = serviceUrl ? serviceUrl.trim() : serviceUrl;
         if (!serviceUrl) {
-          console.error('Invalid service url entered: ' + serviceUrl);
-          // TODO Provide error message in UI
+          console.error('Invalid service URL entered: ' + serviceUrl);
+          this._showErrorMessage(this.nls.errorInvalidServiceUrl.replace("{0}", serviceUrl));
           return;
         }
         this.serviceUrl = serviceUrl;
@@ -247,8 +247,8 @@ define([
             // validate user
             this._validateUser();
 
-            // // Filter on active job types
-            // this._initializeJobTypes(response.jobTypes);
+            //Clear out old jobs if the service is valid
+            this._resetJobTypes();
           }),
           lang.hitch(this, function (error) {
             console.log('Unable to connect to server ' + this.serviceUrl, error);
@@ -376,7 +376,7 @@ define([
         if (self.jobTypes.length == 0) {
           // TODO Provide UI feedback to user
           console.log('No active job types found.');
-          self. errorNoActiveJobTypes
+          self._showErrorMessage(self.nls.errorNoActiveJobTypes);
         } else {
           // Retrieve extended properties for the job types
           self._loadExtendedPropertiesForJobTypes();
@@ -645,6 +645,12 @@ define([
         this.selectChangeEvent.pause();
         registry.byId('jobTypeSelect').set('value',  'null');
         this.selectChangeEvent.resume();
+      },
+
+      _resetJobTypes: function() {
+        arrayUtil.forEach(domQuery('.job-type-item'), lang.hitch(this, function(jobTypeRow) {
+          this._deleteJobTypeItem(jobTypeRow);
+        }));
       },
 
       _sortExtendedProps: function(a,b) {
