@@ -96,31 +96,31 @@ define([
         if (config.selectableLayer) {
           this.selectableLayer.set('value', config.selectableLayer);
         } else {
-          this.selectableLayer.set('value', 'Select Layer URL');
+          this.selectableLayer.set('value', this.nls.selectLayerUrl);
         }
 
         if (config.defaultUser) {
           this.defaultUser.set('value', config.defaultUser);
         } else {
-          this.defaultUser.set('value', 'Default username for submitting job requests');
+          this.defaultUser.set('value', this.nls.defaultUserPlaceholder);
         }
 
         if (config.defineLOILabel) {
             this.defineLOILabel.set('value', config.defineLOILabel);
         } else {
-            this.defineLOILabel.set('value', 'Define Location');
+            this.defineLOILabel.set('value', this.nls.defaultDefineLOILabel);
         }
 
         if (config.extPropsLabel) {
           this.extPropsLabel.set('value', config.extPropsLabel);
         } else {
-          this.extPropsLabel.set('value', 'Extended Properties');
+          this.extPropsLabel.set('value', this.nls.defaultExtPropsLabel);
         }
 
         if (config.attachmentsLabel) {
           this.attachmentsLabel.set('value', config.attachmentsLabel);
         } else {
-          this.attachmentsLabel.set('value', 'Attachments');
+          this.attachmentsLabel.set('value', this.nls.defaultAttachmentsLabel);
         }
 
         var hasMapServiceConfigured = config.wmMapServiceUrl && config.wmMapServiceUrl.trim() !== '' ? true : false;
@@ -218,7 +218,7 @@ define([
         this.wmServiceUrl.set('value', serviceUrl);
 
         if (!serviceUrl) {
-          console.error('Invalid service url entered: ' + serviceUrl);
+          console.error(this.nls.invalidServiceUrlMsg + ': ' + serviceUrl);
           // TODO Provide error message in UI
           return;
         }
@@ -316,7 +316,7 @@ define([
           lang.hitch(this, function (error) {
             console.error('Unable to load job types from service: ' + self.wmServiceUrl, error);
             // TODO Provide error message in UI to let user know
-            this._showErrorMessage('Unable to load job types from service: ' + self.wmServiceUrl.get('value'))
+            this._showErrorMessage(this.nls.cantLoadJobTypesMsg + ': ' + self.wmServiceUrl.get('value'))
           }));
       },
 
