@@ -30,6 +30,8 @@ define([
 
     'dijit/_WidgetsInTemplateMixin',
 
+    'esri/IdentityManager',
+
     '../libs/workflowmanager/WMConfigurationTask',
     '../libs/workflowmanager/WMJobTask',
     '../libs/workflowmanager/Enum',
@@ -39,11 +41,14 @@ define([
     declare, lang, arrayUtil, domQuery, on, dom, domClass, domConstruct, registry,
     BaseWidgetSetting, utils,
     _WidgetsInTemplateMixin,
+    IdentityManager,
     WMConfigurationTask, WMJobTask, Enum, JobQueryParameters) {
     return declare([BaseWidgetSetting, _WidgetsInTemplateMixin], {
 
       baseClass: 'jimu-widget-wmxcreatejobs-setting',
 
+      serviceUrl: null,
+      serviceConfiguration: null,
       wmJobTask: null,
       wmConfigTask: null,
 
@@ -153,6 +158,7 @@ define([
         this.config.wmServiceUrl = this.wmServiceUrl.getValue();
         this.config.selectableLayer = this.selectableLayer.getValue();
         this.config.defaultUser = this.defaultUser.getValue();
+        this.config.authenticationMode = this.authenticationMode;
 
         this.config.defineLOILabel = this.defineLOILabel.getValue();
         this.config.attachmentsLabel = this.attachmentsLabel.getValue();
@@ -215,105 +221,166 @@ define([
         //  is valid?
         var serviceUrl = this.wmServiceUrl.get('value');
         serviceUrl = serviceUrl ? serviceUrl.trim() : serviceUrl;
-        this.wmServiceUrl.set('value', serviceUrl);
-
         if (!serviceUrl) {
           console.error('Invalid service url entered: ' + serviceUrl);
           // TODO Provide error message in UI
           return;
         }
+        this.serviceUrl = serviceUrl;
 
         // Retrieve workflow server configuration
-        this._loadConfiguration(serviceUrl);
+        this._loadConfiguration();
       },
 
-      _loadConfiguration: function(serviceUrl) {
+      _loadConfiguration: function() {
         this.jobTypes = [];
-        this.wmJobTask = new WMJobTask(serviceUrl);
-        this.wmConfigTask = new WMConfigurationTask(serviceUrl);
-        this._loadServiceInfo();
+        this.wmJobTask = new WMJobTask(this.serviceUrl);
+        this.wmConfigTask = new WMConfigurationTask(this.serviceUrl);
+        this._loadServerConfiguration();
         this._checkMapService();
       },
 
-      _loadServiceInfo: function(serviceUrl) {
-        var self = lang.hitch(this);
+      _loadServerConfiguration: function() {
         this.wmConfigTask.getServiceInfo(
-          function (response) {
+          lang.hitch(this, function (response) {
+            this.serviceConfiguration = response;
+            // validate user
+            this._validateUser();
+
+            // // Filter on active job types
+            // this._initializeJobTypes(response.jobTypes);
+          }),
+          lang.hitch(this, function (error) {
+            console.log('Unable to connect to server ' + this.serviceUrl, error);
+            this._showErrorMessage(this.nls.errorUnableToConnectToServer.replace("{0}", this.serviceUrl));
+          }));
+      },
+
+      _validateUser: function() {
+        var self = lang.hitch(this);
+        this.authenticationMode = this.authenticationSelection.get('value');
+        // e.options[e.selectedIndex].value;
+
+        if (this.authenticationMode === 'portal') {
+          // TODO No way to get user credentials from settings page. Need to ask WAB team about this.
+          // For now, just use the default user
+          IdentityManager.getCredential(this.serviceUrl)
+            .then(
+              function (response) {
+                self.userCredential = response;
+                self.user = response.userId;
+                self._validateUsername();
+              },
+              function (error) {
+                self._showErrorMessage(self.nls.errorInvalidUserCredentials);
+                return;
+              });
+        } else {
+          // use default user as the user
+          this.user = this.defaultUser.get('value') ? this.defaultUser.get('value').trim() : this.defaultUser.get('value');
+          this._validateUsername();
+        }
+      },
+
+      _validateUsername: function() {
+        this.wmConfigTask.getUser(this.user,
+          lang.hitch(this, function (response) {
+            // make sure user is an administrator
+            this.userInfo = response;
+
+            // TODO Do we need to check admin privileges for setting up the widget?
+            // var isAdministrator = this.userInfo.privileges.some(function(privilege) {
+            //   return 'AdministratorAccess' === privilege.name;
+            // });
+            // if (!isAdministrator) {
+            //   this._showErrorMessage(this.nls.errorUserNoAdministratorPrivilege.replace("{0}", this.user));
+            //   return;
+            // }
+
             // Filter on active job types
-            if (response.jobTypes && response.jobTypes.length > 0) {
-              var jobTypeSelect = registry.byId("jobTypeSelect");
-              jobTypeSelect.set("options", []);
+            this._initializeJobTypes(this.serviceConfiguration.jobTypes);
+          }),
+          lang.hitch(this, function (error) {
+            console.log('Unable to connect to server ' + this.serviceUrl, error);
+            this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", this.user));
+          }));
+      },
 
-              var jobTypeOptionsArr = [];
+      _initializeJobTypes: function(jobTypes) {
+        var self = lang.hitch(this);
+        if (!jobTypes || jobTypes.length == 0) {
+          console.error('No job types returned from service: ' + this.wmServiceUrl);
+          // TODO Provide warning message in UI
+        }
 
-              jobTypeOptionsArr.push({
-                value: null,
-                label: self.nls.selectJobTypePlaceholder,
-                selected: true
-              });
+        var jobTypeSelect = registry.byId("jobTypeSelect");
+        jobTypeSelect.set("options", []);
 
-              response.jobTypes.sort(function(a, b) {
-                if(a.name < b.name) {
-                  return -1;
-                }
-                if(a.name > b.name) {
-                  return 1;
-                }
-                return 0;
-              }).forEach(function(jobType) {
-                if (jobType.state == Enum.JobTypeState.ACTIVE) {
-                  self.jobTypes.push(jobType);
+        var jobTypeOptionsArr = [];
 
-                  jobTypeOptionsArr.push({
-                    value: jobType.id,
-                    label: jobType.name,
-                    disabled: (self.selectedJobTypes[jobType.id] ? true : false )
-                  });
-                }
-              });
+        jobTypeOptionsArr.push({
+          value: null,
+          label: this.nls.selectJobTypePlaceholder,
+          selected: true
+        });
 
-              jobTypeSelect.set("options", jobTypeOptionsArr);
+        jobTypes.sort(function(a, b) {
+          if(a.name < b.name) {
+            return -1;
+          }
+          if(a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        }).forEach(function(jobType) {
+          if (jobType.state == Enum.JobTypeState.ACTIVE) {
+            self.jobTypes.push(jobType);
 
-              self.selectChangeEvent = on.pausable(registry.byId('jobTypeSelect'), "change", function(e) {
-                if (e && e.toString() !== self.selectedJobItemRow.dataset.id) {
-                  var selectedValue = e;
-                  var selectedOption = self.jobTypes.filter(function(item) {
-                    return item.id === e;
-                  });
-                  var selectedText = selectedOption[0].name;
+            jobTypeOptionsArr.push({
+              value: jobType.id,
+              label: jobType.name,
+              disabled: (self.selectedJobTypes[jobType.id] ? true : false )
+            });
+          }
+        });
 
-                  //since we're changing an option, we need to delete the old value
-                  self._deleteJobTypeItem(self.selectedJobItemRow);
+        jobTypeSelect.set("options", jobTypeOptionsArr);
 
-                  //now create the new one if it doesn't exist
-                  if (!self.selectedJobTypes[selectedValue]) {
-                    self._onJobItemRowClicked(self._createJobItem());
-                  }
+        self.selectChangeEvent = on.pausable(registry.byId('jobTypeSelect'), "change", function(e) {
+          if (e && e.toString() !== self.selectedJobItemRow.dataset.id) {
+            var selectedValue = e;
+            var selectedOption = self.jobTypes.filter(function(item) {
+              return item.id === e;
+            });
+            var selectedText = selectedOption[0].name;
 
-                  //just update it if it does exist
-                  self._updateJobItemType(selectedValue, selectedText);
+            //since we're changing an option, we need to delete the old value
+            self._deleteJobTypeItem(self.selectedJobItemRow);
 
-                  //reselect the row so the ui updates properly
-                  self._onJobItemRowClicked(self.selectedJobItemRow);
-
-                  //update select options disabled prop
-                  self._updateSelectOptionsDisabled();
-                }
-              });
+            //now create the new one if it doesn't exist
+            if (!self.selectedJobTypes[selectedValue]) {
+              self._onJobItemRowClicked(self._createJobItem());
             }
 
-            if (self.jobTypes.length == 0) {
-              // TODO Provide UI feedback to user
-              console.log('No active job types found.');
-            } else {
-              // Retrieve extended properties for the job types
-              self._loadExtendedPropertiesForJobTypes();
-            }
-          },
-          function (error) {
-            console.error('Unable to load job types from service: ' + self.wmServiceUrl, error);
-            // TODO Provide error message in UI to let user know
-          });
+            //just update it if it does exist
+            self._updateJobItemType(selectedValue, selectedText);
+
+            //reselect the row so the ui updates properly
+            self._onJobItemRowClicked(self.selectedJobItemRow);
+
+            //update select options disabled prop
+            self._updateSelectOptionsDisabled();
+          }
+        });
+
+        if (self.jobTypes.length == 0) {
+          // TODO Provide UI feedback to user
+          console.log('No active job types found.');
+          self. errorNoActiveJobTypes
+        } else {
+          // Retrieve extended properties for the job types
+          self._loadExtendedPropertiesForJobTypes();
+        }
       },
 
       _checkMapService: function() {
@@ -332,9 +399,6 @@ define([
         parameters.where = this.QUERY_WHERE;
         parameters.orderBy = this.QUERY_ORDER_BY;
 
-        // TODO Do we check the user credentials here or rely on user input in the config setting
-        var user = this.defaultUser.get('value');
-        this.user = user ? user.trim() : user;
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
           lang.hitch(this, function(response) {
             var extProps = (response && response.rows) ? response.rows : [];
@@ -375,13 +439,13 @@ define([
                 this._updateJobItemType(this.selectedJobTypes[propKey].jobType, this.selectedJobTypes[propKey].jobTypeName);
               }))
             }
-
             console.log('jobTypeExtendedProperties = ', this.jobTypeExtendedProperties);
           }),
-          function(error) {
+          lang.hitch(this, function(error) {
             // TODO Provide error message to UI
             console.log('Unable to retrieve any extended properties for job types', error);
-          });
+            this._showErrorMessage(this.nls.errorRetrievingJobExtProperties);
+          }));
       },
 
       _onBtnAddItemClicked: function(){

@@ -40,6 +40,12 @@ define({
 
     errorHeader: "An Error Occured",
     errorPlaceholder: "Something went wrong...",
-    errorOk: "OK"
+    errorOk: "OK",
+    errorUnableToConnectToServer: "Unable to connect to server {0}",
+    errorNoActiveJobTypes: "No active job types found",
+    errorInvalidUserCredentials: "Unable to retrieve user credentials",
+    errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
+    errorUserNoAdministratorPrivilege: "User {0} is not an administrator in the Workflow Manager system",
+    errorRetrievingJobExtProperties: "Unable to retrieve any extended properties for job types"
   })
 });

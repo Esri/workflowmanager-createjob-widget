@@ -156,10 +156,10 @@ define([
         this._loadServerConfiguration();
       },
 
-      _loadServerConfiguration: function(serviceUrl) {
+      _loadServerConfiguration: function() {
         var self = lang.hitch(this);
         self.aoiOverlapAllowed = false;
-        console.log('Connecting to server ' + serviceUrl);
+        console.log('Connecting to server ' + this.config.wmServiceUrl);
         this.wmConfigTask.getServiceInfo(
           function (response) {
             console.log('Connected successfully');
@@ -167,34 +167,44 @@ define([
             if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
               self.aoiOverlapAllowed = true;
             }
-            // TODO Implement retrieving username from portal
-            self._validateUser(self.user);
+            self._validateUser();
           },
           function (error) {
-            console.log('Unable to connect to server ' + serviceUrl, error);
+            console.log('Unable to connect to server ' + self.config.wmServiceUrl, error);
             console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
-            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", serviceUrl));
+            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", self.config.wmServiceUrl));
           });
       },
 
-      _validateUser: function (username) {
-        console.log('Validating user: ' + username);
-        this.wmConfigTask.getUser(username,
+      _validateUser: function () {
+        console.log('Validating user ...');
+        if (this.config.authenticationMode === 'portal') {
+          // get the username from the portal credentials and ignore the default user
+          if (!this.userCredential) {
+            self._showErrorMessage(self.nls.errorInvalidUserCredentials);
+            return;
+          } else {
+            this.user = this.userCredential.userId;
+          }
+        }
+        console.log('Validating user: ', this.user);
+
+        this.wmConfigTask.getUser(this.user,
           lang.hitch(this, function(userInfo) {
             // check if the user can create jobs
             var canCreateJob = userInfo.privileges.some(function(privilege) {
               return 'CreateJob' === privilege.name;
             });
             if (!canCreateJob) {
-              this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", username));
+              this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", this.user));
             } else {
               this._initializeAOIOverlap();
               this._populateJobTypes();
             }
           }),
           lang.hitch(this, function(error) {
-            console.log("Error retrieving user, " + username, error);
-            this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", username));
+            console.log("Error retrieving user, " + this.user, error);
+            this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", this.user));
           })
         );
       },

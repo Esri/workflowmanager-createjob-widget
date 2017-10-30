@@ -28,10 +28,11 @@
         <tr>
           <td class="first">${nls.defaultUser}</td>
           <td class="second" colspan="2">
-            <select style="width: 160px; margin-right: 10px;" data-dojo-type="dijit/form/Select">
-              <option selected="selected" value="nonAuthenticatedUser">${nls.nonAuthenticatedUser}</option>
-              <option value="portalAuthenticatedUser">${nls.portalAuthenticatedUser}</option>
-              <option value="serverAuthenticatedUser">${nls.serverAuthenticatedUser}</option>
+            <select style="width: 160px; margin-right: 10px;" data-dojo-type="dijit/form/Select" data-dojo-attach-point="authenticationSelection" >
+              <option selected="selected" value="none">${nls.nonAuthenticatedUser}</option>
+              <option value="portal">${nls.portalAuthenticatedUser}</option>
+              <!-- Comment out for now -->
+              <!--option value="server">${nls.serverAuthenticatedUser}</option-->
             </select>
             <input style="width: calc(100% - 175px); float: right; margin: 5px 0;" type="text" data-dojo-type="dijit/form/ValidationTextBox" data-dojo-attach-point="defaultUser" data-dojo-attach-event="Blur:_onRequestUserBlur" placeHolder="demo" />
           </td>
