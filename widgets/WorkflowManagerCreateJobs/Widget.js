@@ -31,6 +31,7 @@ define([
 
     './AttachmentItem',
 
+    'esri/IdentityManager',
     "esri/geometry/geometryEngine",
     'esri/geometry/webMercatorUtils',
     'esri/tasks/query',
@@ -52,7 +53,7 @@ define([
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
-    GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils, SimpleFillSymbol, SimpleMarkerSymbol,
+    IdentityManager, GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils, SimpleFillSymbol, SimpleMarkerSymbol,
     EXIF) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
@@ -62,8 +63,10 @@ define([
       baseClass: 'jimu-widget-wmxcreatejobs',
       _disabledClass: 'jimu-state-disabled',
 
+      user: null,
       userCredential: null,
 
+      serviceUrl: null,
       wmJobTask: null,
       wmConfigTask: null,
 
@@ -72,7 +75,6 @@ define([
       attachmentList: [],
       exifInfosArray: [],
       jobId: null,
-      user: null,
       aoi: null,
       bAOIGeotagged: false,
       bAOIDrawn: false,
@@ -152,48 +154,52 @@ define([
       postCreate: function () {
         console.log('postCreate');
         this.inherited(arguments);
+        this.serviceUrl = this.config.wmServiceUrl;
         this._initTasks();
         this._initSelf();
         this._initDrawBox();
 
-        this.user = this.config.defaultUser;
-
-        this._loadServerConfiguration();
+        this._loadUserConfiguration();
       },
 
-      _loadServerConfiguration: function() {
-        var self = lang.hitch(this);
-        self.aoiOverlapAllowed = false;
-        console.log('Connecting to server ' + this.config.wmServiceUrl);
-        this.wmConfigTask.getServiceInfo(
-          function (response) {
-            console.log('Connected successfully');
-            // Check setting of AOIOVERLAP setting
-            if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
-              self.aoiOverlapAllowed = true;
-            }
-            self._validateUser();
-          },
-          function (error) {
-            console.log('Unable to connect to server ' + self.config.wmServiceUrl, error);
-            console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
-            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", self.config.wmServiceUrl));
-          });
-      },
-
-      _validateUser: function () {
-        console.log('Validating user ...');
+      _loadUserConfiguration: function() {
+        console.log("Loading user configuration... ");
+        console.log("Authorization mode: ", this.config.authenticationMode);
         if (this.config.authenticationMode === 'portal') {
-          // get the username from the portal credentials and ignore the default user
+          // User should already be logged in at this point, but if not then prompt
+          // for credentials.
           if (!this.userCredential) {
-            self._showErrorMessage(self.nls.errorInvalidUserCredentials);
-            return;
+            this._getUserCredentials();
           } else {
             this.user = this.userCredential.userId;
+            this._validateUsername();
           }
+        } else if (this.config.authenticationMode === 'server') {
+          this._getUserCredentials();
+        } else {
+          this.user = this.config.defaultUser;
+          this._validateUsername();
         }
-        console.log('Validating user: ', this.user);
+      },
 
+      _getUserCredentials: function() {
+        console.log("Retrieving user credentials from: ", this.serviceUrl);
+        IdentityManager.getCredential(this.serviceUrl)
+          .then(
+            lang.hitch(this, function (response) {
+              this.userCredential = response;
+              this.user = response.userId;
+              this._validateUsername();
+            }),
+            lang.hitch(this, function (error) {
+              console.log("Unable to retrieve user credentials from url: ", this.serviceUrl, error);
+              this._showErrorMessage(this.nls.errorInvalidUserCredentials);
+              return;
+            }));
+      },
+
+      _validateUsername: function () {
+        console.log('Validating user: ', this.user);
         this.wmConfigTask.getUser(this.user,
           lang.hitch(this, function(userInfo) {
             // check if the user can create jobs
@@ -203,8 +209,7 @@ define([
             if (!canCreateJob) {
               this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", this.user));
             } else {
-              this._initializeAOIOverlap();
-              this._populateJobTypes();
+              this._loadServerConfiguration();
             }
           }),
           lang.hitch(this, function(error) {
@@ -214,19 +219,24 @@ define([
         );
       },
 
-      _initializeAOIOverlap: function(serviceUrl) {
+      _loadServerConfiguration: function() {
         var self = lang.hitch(this);
         self.aoiOverlapAllowed = false;
+        console.log('Connecting to server ' + this.serviceUrl);
+
         this.wmConfigTask.getServiceInfo(
           function (response) {
+            console.log('Connected successfully');
             // Check setting of AOIOVERLAP setting
             if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
               self.aoiOverlapAllowed = true;
             }
+            self._populateJobTypes();
           },
           function (error) {
-            console.error('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow', error);
-            // TODO Does the end user need to know this?
+            console.log('Unable to connect to server ' + serviceUrl, error);
+            console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
+            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", serviceUrl));
           });
       },
 
@@ -699,8 +709,8 @@ define([
       },
 
       _initTasks: function () {
-        this.wmJobTask = new WMJobTask(this.config.wmServiceUrl);
-        this.wmConfigTask = new WMConfigurationTask(this.config.wmServiceUrl);
+        this.wmJobTask = new WMJobTask(this.serviceUrl);
+        this.wmConfigTask = new WMConfigurationTask(this.serviceUrl);
       },
 
       _createJobSettings: function (jobTypeObj) {

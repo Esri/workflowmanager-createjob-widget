@@ -259,9 +259,8 @@ define([
       _validateUser: function() {
         var self = lang.hitch(this);
         this.authenticationMode = this.authenticationSelection.get('value');
-        // e.options[e.selectedIndex].value;
 
-        if (this.authenticationMode === 'portal') {
+        if (this.authenticationMode === 'portal' || this.authenticationMode === 'server') {
           // TODO No way to get user credentials from settings page. Need to ask WAB team about this.
           // For now, just use the default user
           IdentityManager.getCredential(this.serviceUrl)
