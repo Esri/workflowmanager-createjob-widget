@@ -104,6 +104,13 @@ define([
           this.selectableLayer.set('value', this.nls.selectLayerUrl);
         }
 
+        if (config.authenticationMode && (config.authenticationMode === 'portal' || config.authenticationMode === 'server')) {
+          this.authenticationMode = config.authenticationMode;
+        } else {
+          this.authenticationMode = 'none';
+        }
+        this.authenticationSelection.set('value', this.authenticationMode);
+
         if (config.defaultUser) {
           this.defaultUser.set('value', config.defaultUser);
         } else {
@@ -120,6 +127,12 @@ define([
           this.extPropsLabel.set('value', config.extPropsLabel);
         } else {
           this.extPropsLabel.set('value', this.nls.defaultExtPropsLabel);
+        }
+
+        if (config.allowAttachments && config.allowAttachments === true) {
+          this.cbxAttachments.setValue(true);
+        } else {
+          this.cbxAttachments.setValue(false);
         }
 
         if (config.attachmentsLabel) {
