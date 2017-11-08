@@ -111,6 +111,7 @@ properties for each job type:
   * Only users with visible job types and the `CreateJob` privilege can use the widget.
 * Select a job type to create a job from.  This brings up the create job view.
 * Optionally define a job's location of interest (LOI)
+* Optionally populate the job's extended properties
 * Optionally add a job attachment
 * Optionally add a note to the job
 * Click on the `Create Job` to create the job

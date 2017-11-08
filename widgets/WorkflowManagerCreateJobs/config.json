@@ -14,7 +14,7 @@
   "extPropsLabel": "Contact Information",
 
   "allowAttachments": true,
-  "attachmentsLabel": "Add an Attachment to the job",
+  "attachmentsLabel": "Add a single Attachment to the job",
   "maxAttachmentSize": 2,
 
   "selectedJobTypes": {}

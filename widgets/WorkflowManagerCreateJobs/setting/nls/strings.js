@@ -24,11 +24,11 @@ define({
     defaultDefineLOILabel: "Define Location",
     allowAttachmentsLabel: "Allow Attachments",
     attachmentsLabel: "Attachments Label",
-    defaultAttachmentsLabel: "Add an Attachment to the job",
+    defaultAttachmentsLabel: "Add a single Attachment to the job",
     extPropsLabel: "Extended Properties Label",
     defaultExtPropsLabel: "Contact Information",
 
-    addJobTypeTip: "Add one or more job types to the widget and configure extended properties (max 10) for each job type.",
+    addJobTypeTip: "Add one or more job types to the widget and configure extended properties for each job type.",
     jobType: "Job Type",
     visible: "Visible",
     selectAnIcon: "Select an Icon:",

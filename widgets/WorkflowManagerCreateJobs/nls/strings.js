@@ -15,7 +15,7 @@
 
     defaultExtPropsLabel: "Contact Information",
 
-    defaultAttachmentsLabel: "Add an Attachment to the job",
+    defaultAttachmentsLabel: "Add a single Attachment to the job",
     addAttachmentToJob: "Add an attachment to this job",
     fileTooLargeLabel: "Attachment file size exceeds limit, try a smaller file to add an attachment",
     processingFilename: "Processing {0} ...",
