@@ -57,13 +57,20 @@ To edit the widget settings, hover over the widget and click the small edit icon
 
 * **Widget icon** - optionally, click the `change widget icon` button and replace it with your own image.
   A file explorer window opens, allowing you to select a local image file to use as the widget icon. 
+
 * **Workflow Manager Server URL** - Provide the Workflow Manager for Server URL. By default, the widget uses the 
 Workflow Manager sample service URL.
+
 * **Selectable map or feature service** - Optionally provide a selectable map or feature service for defining a 
 job's location of interest (LOI).
   Rather than sketching a job LOI on the map, users can select a job's LOI from this selectable map or feature service.
+  When selecting features from the service, the widget uses `intersect` to determine the features that intersect
+  the drawn feature.
   * e.g. https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3
   
+  Note: The selectable map or feature service should be included in the applications web map, otherwise users of the
+  application will not have a context of how the job LOI was created. 
+    
 * **Authentication** - Specify the type of authentication method to use for the widget.
   * Non-Authenticated: The Workflow Manager service is not authenticated.  The default user is required in this case since
   user credentials are not available.
