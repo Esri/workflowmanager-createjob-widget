@@ -773,14 +773,16 @@ define([
                 inputEl = new DateTextBox({
                   class: 'input-item',
                   name: formEl.fieldName
-                }).placeAt(formRow, 'last')
+                }).placeAt(formRow, 'last');
+                inputEl.domNode.dataset.tableName = formEl.tableName;
                 break;
               default:
                 // TEXT
                 inputEl = new TextBox({
                   class: 'input-item',
                   name: formEl.fieldName
-                }).placeAt(formRow, 'last')
+                }).placeAt(formRow, 'last');
+                inputEl.domNode.dataset.tableName = formEl.tableName;
             }
           }));
         }
@@ -898,6 +900,7 @@ define([
             lang.hitch(this, function (data) {
               // retrieve job extended properties, then update
               console.log('Job extended properties retrieved successfully', data);
+              this.jobTypeExtendedProperties = data;
               this._updateExtendedProperties(data);
             }),
             lang.hitch(this, function (error) {
@@ -913,9 +916,19 @@ define([
         // get the configured ext props for the job in the widget and group by table name
         var records = {};
         var configuredExtProps = this.config.selectedJobTypes[this.jobType].extendedProps;
-        var extPropsFormData = dom.byId('wmxExtendedProps').elements;
+        var extPropsFormData = dom.byId("wmxExtendedProps").querySelectorAll('div[data-table-name]');
+
         for (i = 0; i < extPropsFormData.length; i++) {
           var tableName = configuredExtProps[i].tableName;
+          // TODO Is there a better way of retrieving the values?  More round about way since date fields introduced
+          // multiple fields which we need to sort through.
+          var fieldValue = extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0].value;
+          if (fieldValue && configuredExtProps[i].displayType === '2') {
+            // date fields returned in ISO format YYYY-MM-DD format, convert value to an actual date
+            // parse the date and add the 12:00 noon timestamp to be consistent with other web clients
+            fieldValue = Date.parse(fieldValue) + 43200000;
+          }
+
           if (!records[tableName]) {
             records[tableName] = {
               recordId: null,
@@ -923,7 +936,7 @@ define([
               properties: {}
             }
           }
-          records[tableName].properties[configuredExtProps[i].fieldName] = extPropsFormData[i].value;
+          records[tableName].properties[configuredExtProps[i].fieldName] = fieldValue;
         }
 
         // get the associated recordId for each table
