@@ -10,6 +10,14 @@ developers who would like to customize the widget.
 Deployment, configuration and usage steps are provided in this document. Basic knowledge of ArcGIS Portal, ArcGIS Server, 
 ArcGIS Workflow Manager Server and ArcGIS Web AppBuilder is assumed.
 
+## Supported Browsers
+
+The Workflow Manager Create Jobs custom widget supports the following browsers:
+* Chrome
+* Firefox
+* Internet Explorer 11+
+* Edge
+
 ## Deployment
 
 The ArcGIS Workflow Manager Create Job Custom Widget can be used in 
