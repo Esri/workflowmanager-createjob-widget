@@ -2,7 +2,7 @@
 ## Overview
 
 The [ArcGIS Workflow Manager](https://server.arcgis.com/en/workflow-manager/) Create Job Custom Widget enables users to 
-integrate ArcGIS Workflow Manager functions with their own applications created in 
+integrate ArcGIS Workflow Manager functionality with their own applications created in 
 [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/). It is designed so users can configure 
 and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is also provided for 
 developers who would like to customize the widget. 
@@ -10,9 +10,9 @@ developers who would like to customize the widget.
 Deployment, configuration and usage steps are provided in this document. Basic knowledge of ArcGIS Portal, ArcGIS Server, 
 ArcGIS Workflow Manager Server and ArcGIS Web AppBuilder is assumed.
 
-## Supported Browsers
+### Supported Browsers
 
-The Workflow Manager Create Jobs custom widget supports the following browsers:
+The Workflow Manager Create Job custom widget supports the following browsers:
 * Chrome
 * Firefox
 * Internet Explorer 11+
@@ -20,13 +20,12 @@ The Workflow Manager Create Jobs custom widget supports the following browsers:
 
 ## Deployment
 
-The ArcGIS Workflow Manager Create Job Custom Widget can be used in 
+The Workflow Manager Create Job custom widget can be used in 
 the following [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/) environments:
 * [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
 * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 
 Note: There is currently no support for custom widgets in the [Web AppBuilder Online Edition](http://doc.arcgis.com/en/web-appbuilder/).
-
 
 ### Web AppBuilder Portal Edition
 Instructions for using the Create Job widget with Web AppBuilder Portal Edition 
@@ -55,6 +54,14 @@ AppBuilder's 2D widget directory
 
 Note: For widget development, run Web AppBuilder by appending `?id=stemapp` to the Web AppBuilder URL
   * Example: `http://hostname:3344/webappbuilder/?id=stemapp`
+
+### File types
+The Create Job widget makes use of several file type extensions.  Enable these file types in your web server
+when deploying the widget:
+* woff / woff2
+* 
+
+
 
 ## Configuration
 

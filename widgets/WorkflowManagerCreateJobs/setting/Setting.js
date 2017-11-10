@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// Copyright © 2014 Esri. All Rights Reserved.
+// Copyright © 2017 Esri. All Rights Reserved.
 //
 // Licensed under the Apache License Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -189,7 +189,7 @@ define([
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
 
         //clean up null job type
-        delete this.selectedJobTypes["nullJobItemRow"];
+        delete this.selectedJobTypes['nullJobItemRow'];
         this.config.selectedJobTypes = this.selectedJobTypes;
 
         return this.config;
@@ -210,7 +210,7 @@ define([
           { value:"road", label: "<i class='fa fa-road'></i>"}
         ]);
 
-        on(registry.byId('jobTypeIconSelect'), "change", lang.hitch(this, function(e) {
+        on(registry.byId('jobTypeIconSelect'), 'change', lang.hitch(this, function(e) {
           var currentId = this.selectedJobItemRow.dataset.id;
           if (currentId && this.selectedJobTypes[currentId]) {
             this._updateJobItemType(currentId, this.selectedJobTypes[currentId].jobTypeName, e)
@@ -236,7 +236,7 @@ define([
         serviceUrl = serviceUrl ? serviceUrl.trim() : serviceUrl;
         if (!serviceUrl) {
           console.error('Invalid service URL entered: ' + serviceUrl);
-          this._showErrorMessage(this.nls.errorInvalidServiceUrl.replace("{0}", serviceUrl));
+          this._showErrorMessage(this.nls.errorInvalidServiceUrl.replace('{0}', serviceUrl));
           return;
         }
         this.serviceUrl = serviceUrl;
@@ -265,7 +265,7 @@ define([
           }),
           lang.hitch(this, function (error) {
             console.log('Unable to connect to server ' + this.serviceUrl, error);
-            this._showErrorMessage(this.nls.errorUnableToConnectToServer.replace("{0}", this.serviceUrl));
+            this._showErrorMessage(this.nls.errorUnableToConnectToServer.replace('{0}', this.serviceUrl));
           }));
       },
 
@@ -305,7 +305,7 @@ define([
             //   return 'AdministratorAccess' === privilege.name;
             // });
             // if (!isAdministrator) {
-            //   this._showErrorMessage(this.nls.errorUserNoAdministratorPrivilege.replace("{0}", this.user));
+            //   this._showErrorMessage(this.nls.errorUserNoAdministratorPrivilege.replace('{0}', this.user));
             //   return;
             // }
 
@@ -314,7 +314,7 @@ define([
           }),
           lang.hitch(this, function (error) {
             console.log('Unable to connect to server ' + this.serviceUrl, error);
-            this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", this.user));
+            this._showErrorMessage(this.nls.errorUserInvalid.replace('{0}', this.user));
           }));
       },
 
@@ -325,8 +325,8 @@ define([
           // TODO Provide warning message in UI
         }
 
-        var jobTypeSelect = registry.byId("jobTypeSelect");
-        jobTypeSelect.set("options", []);
+        var jobTypeSelect = registry.byId('jobTypeSelect');
+        jobTypeSelect.set('options', []);
 
         var jobTypeOptionsArr = [];
 
@@ -356,9 +356,9 @@ define([
           }
         });
 
-        jobTypeSelect.set("options", jobTypeOptionsArr);
+        jobTypeSelect.set('options', jobTypeOptionsArr);
 
-        self.selectChangeEvent = on.pausable(registry.byId('jobTypeSelect'), "change", function(e) {
+        self.selectChangeEvent = on.pausable(registry.byId('jobTypeSelect'), 'change', function(e) {
           if (e && e.toString() !== self.selectedJobItemRow.dataset.id) {
             var selectedValue = e;
             var selectedOption = self.jobTypes.filter(function(item) {
@@ -480,17 +480,17 @@ define([
         //set the select to the correct option
         var jobTypeSelect = registry.byId('jobTypeSelect');
         this.selectChangeEvent.pause();
-        jobTypeSelect.set("value", jobTypeId || null);
+        jobTypeSelect.set('value', jobTypeId || null);
         this.selectChangeEvent.resume();
 
-        registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "");
+        registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || '');
 
         //generate the table rows with the optional fields
         this._createExtendedPropsTable(jobTypeId);
       },
 
       _createJobItem: function(jobTypeId) {
-        var jobItemId = jobTypeId || registry.byId('jobTypeSelect').get("value");
+        var jobItemId = jobTypeId || registry.byId('jobTypeSelect').get('value');
         var jobTypeItem = domConstruct.create('div', {
           class: 'job-type-item',
           id: jobItemId
@@ -518,7 +518,7 @@ define([
         }));
 
         //select null on icon dropdown
-        registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || "");
+        registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || '');
 
         //enable job type select if we have at least one row added
         if (domQuery('.job-type-item').length > 0) {
@@ -544,7 +544,7 @@ define([
         rowTitle.innerHTML = jobTypeName + ' - ' + jobTypeId;
         domClass.remove(rowTitle, '.item-name-unassigned');
 
-        registry.byId('jobTypeIconSelect').set("value", this.selectedJobTypes[jobTypeId].icon || "");
+        registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId].icon || '');
 
         // update the props table
         this._createExtendedPropsTable(jobTypeId);
@@ -554,7 +554,7 @@ define([
         var props = this.jobTypeExtendedProperties[jobTypeId] && this.jobTypeExtendedProperties[jobTypeId].slice();
         domConstruct.empty('jobTypePropsTable');
 
-        if (jobTypeId === "null" || jobTypeId === undefined) {
+        if (jobTypeId === 'null' || jobTypeId === undefined) {
           domClass.add('singleSettingContent', 'no-type-selected');
         } else {
           domClass.remove('singleSettingContent', 'no-type-selected');
@@ -624,7 +624,7 @@ define([
 
       _updateSelectOptionsDisabled: function() {
         //update the option to be disabled or not based on the selected job types
-        var jobTypeSelect = registry.byId("jobTypeSelect");
+        var jobTypeSelect = registry.byId('jobTypeSelect');
         var updatedOptions = [];
         arrayUtil.forEach(jobTypeSelect.get('options'), lang.hitch(this, function(selectOption) {
           selectOption.disabled = (this.selectedJobTypes[selectOption.value] ? true : false );

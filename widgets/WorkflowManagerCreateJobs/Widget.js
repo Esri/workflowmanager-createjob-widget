@@ -1,3 +1,19 @@
+///////////////////////////////////////////////////////////////////////////
+// Copyright © 2017 Esri. All Rights Reserved.
+//
+// Licensed under the Apache License Version 2.0 (the 'License');
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////////
+
 define([
     'dojo/_base/declare',
     'dojo/topic',
@@ -32,7 +48,7 @@ define([
     './AttachmentItem',
 
     'esri/IdentityManager',
-    "esri/geometry/geometryEngine",
+    'esri/geometry/geometryEngine',
     'esri/geometry/webMercatorUtils',
     'esri/tasks/query',
     'esri/tasks/QueryTask',
@@ -110,7 +126,7 @@ define([
         // summary:
         //    this function will be called when widget is opened everytime.
         // description:
-        //    state has been changed to "opened" when call this method.
+        //    state has been changed to 'opened' when call this method.
         //    this function will be called in two cases:
         //      1. after widget's startup
         //      2. if widget is closed, use re-open the widget
@@ -120,7 +136,7 @@ define([
         // summary:
         //    this function will be called when widget is closed.
         // description:
-        //    state has been changed to "closed" when call this method.
+        //    state has been changed to 'closed' when call this method.
         this.inherited(arguments);
         this._resetWidget();
       },
@@ -163,8 +179,8 @@ define([
       },
 
       _loadUserConfiguration: function() {
-        console.log("Loading user configuration... ");
-        console.log("Authorization mode: ", this.config.authenticationMode);
+        console.log('Loading user configuration... ');
+        console.log('Authorization mode: ', this.config.authenticationMode);
         if (this.config.authenticationMode === 'portal') {
           // User should already be logged in at this point, but if not then prompt
           // for credentials.
@@ -183,7 +199,7 @@ define([
       },
 
       _getUserCredentials: function() {
-        console.log("Retrieving user credentials from: ", this.serviceUrl);
+        console.log('Retrieving user credentials from: ', this.serviceUrl);
         IdentityManager.getCredential(this.serviceUrl)
           .then(
             lang.hitch(this, function (response) {
@@ -192,7 +208,7 @@ define([
               this._validateUsername();
             }),
             lang.hitch(this, function (error) {
-              console.log("Unable to retrieve user credentials from url: ", this.serviceUrl, error);
+              console.log('Unable to retrieve user credentials from url: ', this.serviceUrl, error);
               this._showErrorMessage(this.nls.errorInvalidUserCredentials);
               return;
             }));
@@ -207,14 +223,14 @@ define([
               return 'CreateJob' === privilege.name;
             });
             if (!canCreateJob) {
-              this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace("{0}", this.user));
+              this._showErrorMessage(this.nls.errorUserNoCreateJobPrivilege.replace('{0}', this.user));
             } else {
               this._loadServerConfiguration();
             }
           }),
           lang.hitch(this, function(error) {
-            console.log("Error retrieving user, " + this.user, error);
-            this._showErrorMessage(this.nls.errorUserInvalid.replace("{0}", this.user));
+            console.log('Error retrieving user, ' + this.user, error);
+            this._showErrorMessage(this.nls.errorUserInvalid.replace('{0}', this.user));
           })
         );
       },
@@ -236,7 +252,7 @@ define([
           function (error) {
             console.log('Unable to connect to server ' + serviceUrl, error);
             console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
-            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace("{0}", serviceUrl));
+            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace('{0}', serviceUrl));
           });
       },
 
@@ -275,7 +291,7 @@ define([
               }, jobItemContent, 'first');
               domConstruct.create('p', {
                 class: 'job-type-description',
-                innerHTML: jobItem.description ? jobItem.description : self.nls.createJobForJobType.replace("{0}", jobItem.jobTypeName)
+                innerHTML: jobItem.description ? jobItem.description : self.nls.createJobForJobType.replace('{0}', jobItem.jobTypeName)
               }, jobItemContent, 'last');
             });
 
@@ -287,8 +303,8 @@ define([
             })));
           },
           function (error) {
-            console.log("No visible job types returned for user " + self.user, error);
-            self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace("{0}", self.user));
+            console.log('No visible job types returned for user ' + self.user, error);
+            self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
           }
         );
       },
@@ -319,7 +335,7 @@ define([
         if ((fullImageFile.size <= (this.config.maxAttachmentSize * 1000000)) || (this.config.maxAttachmentSize === 0)) {
           //do the normal attachment stuff
           this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : this.nls.addAttachmentToJob;
-          this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
+          this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
           domClass.remove(domUploaderDiv, 'upload-error');
 
           window.EXIF.getData(fullImageFile, lang.hitch(this, function () {
@@ -367,7 +383,7 @@ define([
         } else {
           //file too large, throw error
           this.uploadText.innerHTML = this.nls.fileTooLargeLabel;
-          this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-error.svg';
+          this.uploadGraphic.src = this.folderUrl + 'images/upload-generic-error.svg';
           domClass.add(domUploaderDiv, 'upload-error');
         }
       },
@@ -382,7 +398,7 @@ define([
             console.log('Job attachment added successfully', attachmentId);
 
             this.uploadText.innerHTML = this.nls.successfulUploadAnother;
-            this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic-success.svg';
+            this.uploadGraphic.src = this.folderUrl + 'images/upload-generic-success.svg';
 
             // upload was successful, so add an AttachmentItem widget
             this._createAttachmentItem(this.attachmentToUpload.latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
@@ -587,29 +603,29 @@ define([
           lang.hitch(this, function (fset) {
             if (!fset || !fset.features || fset.features.length == 0) {
               // no returned features
-              console.log("No selectable features returned");
+              console.log('No selectable features returned');
               this._errorSelectFeatures(this.nls.errorNoSelectedFeatures);
               return;
             }
             // one or more features returned
             console.log('query success', fset);
             var geometryType = fset.geometryType;
-            if (geometryType === "esriGeometryPolygon" || geometryType === "esriGeometryPoint" || geometryType === "esriGeometryMultiPoint") {
+            if (geometryType === 'esriGeometryPolygon' || geometryType === 'esriGeometryPoint' || geometryType === 'esriGeometryMultiPoint') {
               // combine features into a single feature
               this.aoi = this._combineFeatures(fset.features);
               // TODO how to update the drawn graphic with the selected features
               var geomWM = WebMercatorUtils.webMercatorToGeographic(this.aoi);
-              var symbol = (geometryType === "esriGeometryPolygon") ? this.polygonSymbol : this.pointSymbol;
+              var symbol = (geometryType === 'esriGeometryPolygon') ? this.polygonSymbol : this.pointSymbol;
               var g = new Graphic(geomWM, symbol);
               this.selectBox.addGraphic(g);
             } else {
               // unexpected geometry type
-              this._errorSelectFeatures(this.nls.errorUnsupportedGeometryType.replace("{0}", geometryType));
+              this._errorSelectFeatures(this.nls.errorUnsupportedGeometryType.replace('{0}', geometryType));
             }
           }),
           lang.hitch(this, function (error) {
-            console.error("Error retrieving selectable features", error);
-            this._errorSelectFeatures(this.nls.errorRetrievingSelectedFeatures.replace("{0}", error.message));
+            console.error('Error retrieving selectable features', error);
+            this._errorSelectFeatures(this.nls.errorRetrievingSelectedFeatures.replace('{0}', error.message));
           })
         );
       },
@@ -665,6 +681,11 @@ define([
       },
 
       _initSelf: function () {
+        // Initialize icons
+        this.jobTypeFilterClearIcon.src = this.folderUrl + 'images/clear-icon.svg';
+        this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
+        this.createJobSpinnerIcon.src = this.folderUrl + 'images/loading_circle.gif';
+
         // Populate labels here
         this.defineLOITitle.innerHTML = this.config.defineLOILabel || this.nls.defaultDefineLOILabel;
         this.extendedPropsTitle.innerHTML = this.config.extPropsLabel || this.nls.defaultExtPropsLabel;
@@ -717,12 +738,12 @@ define([
         var self = lang.hitch(this);
         console.log('_createJobSettings function', jobTypeObj);
         if (!jobTypeObj) {
-          console("JobType selection is invalid");
+          console('JobType selection is invalid');
           return;
         }
 
         this.jobType = jobTypeObj.jobType;
-        this.createJobHeader.innerHTML = this.nls.createJobForJobType.replace("{0}", jobTypeObj.jobTypeName)
+        this.createJobHeader.innerHTML = this.nls.createJobForJobType.replace('{0}', jobTypeObj.jobTypeName)
 
         var formRow, formRowLabel, inputEl;
         var props = jobTypeObj.extendedProps;
@@ -740,7 +761,7 @@ define([
           //loop through the form elements
           arrayUtils.forEach(props, lang.hitch(this, function (formEl) {
             formRow = domConstruct.create('div', {
-              class: "create-job-form-row"
+              class: 'create-job-form-row'
             }, formGroup);
             formRowLabel = domConstruct.create('b', {
               innerHTML: formEl.fieldAlias,
@@ -761,14 +782,14 @@ define([
             // }
             switch (formEl.displayType) {
               // No numeric fields in display type
-              // case "1":
+              // case '1':
               //   //INTEGER
               //   inputEl = new NumberTextBox({
               //     class: 'input-item',
               //     name: formEl.fieldName
               //   }).placeAt(formRow, 'last')
               //   break;
-              case "2":
+              case '2':
                 // DATE
                 inputEl = new DateTextBox({
                   class: 'input-item',
@@ -811,17 +832,17 @@ define([
         var self = lang.hitch(this);
         var query = new Query();
         query.returnGeometry = false;
-        query.outFields = ["objectid"];
+        query.outFields = ['objectid'];
         query.geometry = this.aoi;
         query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
 
         var promises = [];
         if (parseInt(this.config.poiLayerId) != NaN) {
-          var queryTask = new QueryTask(this.config.wmMapServiceUrl + "/" + this.config.poiLayerId);
+          var queryTask = new QueryTask(this.config.wmMapServiceUrl + '/' + this.config.poiLayerId);
           promises.push(queryTask.execute(query));
         }
         if (parseInt(this.config.aoiLayerId) != NaN) {
-          var queryTask = new QueryTask(this.config.wmMapServiceUrl + "/" + this.config.aoiLayerId);
+          var queryTask = new QueryTask(this.config.wmMapServiceUrl + '/' + this.config.aoiLayerId);
           promises.push(queryTask.execute(query));
         }
 
@@ -833,7 +854,7 @@ define([
           });
 
           if (hasOverlappingFeatures) {
-            console.log("Unable to create job. Specified AOI overlaps with an existing job AOI.");
+            console.log('Unable to create job. Specified AOI overlaps with an existing job AOI.');
             self._showErrorMessage(self.nls.errorOverlappingAOI);
           } else {
             self._createJob();
@@ -857,7 +878,7 @@ define([
           }),
           lang.hitch(this, function (error) {
             console.log('Error creating job', error);
-            this._showErrorMessage(this.nls.errorCreatingJob.replace("{0}", error.message()));
+            this._showErrorMessage(this.nls.errorCreatingJob.replace('{0}', error.message()));
           })
         );
       },
@@ -874,11 +895,11 @@ define([
         if (this.notesTextBox.value) {
           this.wmJobTask.updateNotes(this.jobId, this.notesTextBox.value, this.user,
             lang.hitch(this, function (response) {
-              console.log((response.success ? "Successfully" : "Unsuccessfully") + " updated job notes");
+              console.log((response.success ? 'Successfully' : 'Unsuccessfully') + ' updated job notes');
               this._handleRequestResponse(this.ResponseType.NOTES);
             }),
             lang.hitch(this, function (error) {
-              console.log("Error updating job notes", error);
+              console.log('Error updating job notes', error);
               this._handleRequestResponse(this.ResponseType.NOTES, error);
             }));
         } else {
@@ -916,7 +937,7 @@ define([
         // get the configured ext props for the job in the widget and group by table name
         var records = {};
         var configuredExtProps = this.config.selectedJobTypes[this.jobType].extendedProps;
-        var extPropsFormData = dom.byId("wmxExtendedProps").querySelectorAll('div[data-table-name]');
+        var extPropsFormData = dom.byId('wmxExtendedProps').querySelectorAll('div[data-table-name]');
 
         for (i = 0; i < extPropsFormData.length; i++) {
           var tableName = configuredExtProps[i].tableName;
@@ -957,7 +978,7 @@ define([
           record.properties = JSON.stringify(record.properties);  // mkae properties into a JSON string
           this.wmJobTask.updateRecord(this.jobId, record, this.user,
             lang.hitch(this, function(response) {
-              console.log((response.success ? "Successfully" : "Unsuccessfully") + " updated job ext prop record", record);
+              console.log((response.success ? 'Successfully' : 'Unsuccessfully') + ' updated job ext prop record', record);
               this._handleExtPropsResult({
                 tableName: record.tableName,
                 recordId: record.recordId,
@@ -965,7 +986,7 @@ define([
               });
             }),
             lang.hitch(this, function (error) {
-              console.log("Error updating job ext prop record", record, error);
+              console.log('Error updating job ext prop record', record, error);
               var errMsg = (error.details && error.details.length > 0) ? error.details[0] : error.message;
               this._handleExtPropsResult({
                 tableName: record.tableName,
@@ -989,10 +1010,10 @@ define([
           });
           var errorMsg = null;
           if (errorMsgs.length > 0) {
-            console.log("Unable to update job extended properties: ", errorMsgs);
-            errorMsg = this.nls.errorUpdatingExtProps.replace("{0}", errorMsgs.join("\n"));
+            console.log('Unable to update job extended properties: ', errorMsgs);
+            errorMsg = this.nls.errorUpdatingExtProps.replace('{0}', errorMsgs.join('\n'));
           } else {
-            console.log("Successfully updated job extended properties");
+            console.log('Successfully updated job extended properties');
           }
           this._handleRequestResponse(this.ResponseType.EXTPROPS, errorMsg);
         }
@@ -1021,10 +1042,10 @@ define([
           var jobId = this.jobId; // save a copy of the jobId before we reset the widget
           var msg = null;
           if (this.createJobErrors.length > 0) {
-            msg = this.nls.jobCreatedWithErrors.replace("{0}", jobId);
-            msg += this.createJobErrors.join("\n");
+            msg = this.nls.jobCreatedWithErrors.replace('{0}', jobId);
+            msg += this.createJobErrors.join('\n');
           } else {
-            msg = this.nls.jobCreatedSuccessfully.replace("{0}", jobId);
+            msg = this.nls.jobCreatedSuccessfully.replace('{0}', jobId);
           }
 
           this._resetWidget();
@@ -1105,7 +1126,7 @@ define([
         this.extendedPropsContainer.style.display = 'block';
         this.attachmentTypeContainer.style.display = 'block';
 
-        this.uploadGraphic.src = './widgets/WorkflowManagerCreateJobs/images/upload-generic.svg';
+        this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
         this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
         this.uploadFilename.innerHTML = '';
         domClass.remove(domQuery('.wmx-file-uploader')[0], 'upload-error');
