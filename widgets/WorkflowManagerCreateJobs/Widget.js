@@ -681,10 +681,11 @@ define([
       },
 
       _initSelf: function () {
-        // Initialize icons
-        this.jobTypeFilterClearIcon.src = this.folderUrl + 'images/clear-icon.svg';
+        // initialize images
+        // some images need to be initialized in the js files to get the correct paths using folderUrl
         this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
-        this.createJobSpinnerIcon.src = this.folderUrl + 'images/loading_circle.gif';
+        this.jobTypeFilterClear.innerHTML = "<img src='" + this.folderUrl + 'images/clear-icon.svg' + "'>";
+        this.wmxCeateJobSpinner.innerHTML = "<img src='" + this.folderUrl + 'images/loading_circle.gif' + "'>" + this.wmxCeateJobSpinner.innerHTML;
 
         // Populate labels here
         this.defineLOITitle.innerHTML = this.config.defineLOILabel || this.nls.defaultDefineLOILabel;
