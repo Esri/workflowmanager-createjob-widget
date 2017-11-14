@@ -297,16 +297,19 @@ define([
 
             self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
 
-            self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, function (e) {
-              dom.byId('jobTypeFilterInput').value = '';
-              self._jobFilterUpdated();
-            })));
+            self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, self._jobFilterCleared)));
+
           },
           function (error) {
             console.log('No visible job types returned for user ' + self.user, error);
             self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
           }
         );
+      },
+
+      _jobFilterCleared: function(e) {
+        dom.byId('jobTypeFilterInput').value = '';
+        this._jobFilterUpdated();
       },
 
       _jobFilterUpdated: function (e) {
@@ -1131,6 +1134,9 @@ define([
         this.uploadText.innerHTML = this.config.attachmentsLabel || this.nls.defaultAttachmentsLabel;
         this.uploadFilename.innerHTML = '';
         domClass.remove(domQuery('.wmx-file-uploader')[0], 'upload-error');
+
+        // clear previously entered job filter
+        this._jobFilterCleared();
 
         //hide the successful job creation div
         domStyle.set(this.wmxSuccessPanel, 'display', (jobCreated === true ? 'block' : 'none'));

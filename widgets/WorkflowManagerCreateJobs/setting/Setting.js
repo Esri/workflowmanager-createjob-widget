@@ -23,6 +23,7 @@ define([
     'dojo/dom',
     'dojo/dom-class',
     'dojo/dom-construct',
+    'dojo/promise/all',
     'dijit/registry',
 
     'jimu/BaseWidgetSetting',
@@ -30,6 +31,7 @@ define([
 
     'dijit/_WidgetsInTemplateMixin',
 
+    'esri/request',
     'esri/IdentityManager',
 
     '../libs/workflowmanager/WMConfigurationTask',
@@ -38,10 +40,10 @@ define([
     '../libs/workflowmanager/supportclasses/JobQueryParameters'
   ],
   function(
-    declare, lang, arrayUtil, domQuery, on, dom, domClass, domConstruct, registry,
+    declare, lang, arrayUtil, domQuery, on, dom, domClass, domConstruct, all, registry,
     BaseWidgetSetting, utils,
     _WidgetsInTemplateMixin,
-    IdentityManager,
+    esriRequest, IdentityManager,
     WMConfigurationTask, WMJobTask, Enum, JobQueryParameters) {
     return declare([BaseWidgetSetting, _WidgetsInTemplateMixin], {
 
@@ -396,8 +398,62 @@ define([
       },
 
       _checkMapService: function() {
-        // TODO Implement this
-        // Verify that the Workflow Manager map service is valid
+        // verify that the Workflow Manager map service is valid
+        var self = lang.hitch(this);
+        var mapServiceConfigured = this.cbxWMMapServiceConfigured.getValue();
+        if (mapServiceConfigured && mapServiceConfigured === true) {
+          var mapServiceUrl = this.wmMapServiceUrl.getValue();
+          if (!mapServiceUrl || mapServiceUrl.trim() === '') {
+            self._showErrorMessage(self.nls.errorInvalidMapServiceUrlOrLayerId);
+            return;
+          }
+          var poiLayerId = this.poiLayerId.getValue();
+          var aoiLayerId = this.aoiLayerId.getValue();
+
+          var promises = [];
+          promises.push(esriRequest({
+            url: mapServiceUrl,
+            content: {f: "json"},
+            handleAs: "json",
+            callbackParamName: "callback"
+          }));
+          if (parseInt(poiLayerId) != NaN) {
+            promises.push(esriRequest({
+                url: this._concatenateUrl(mapServiceUrl, poiLayerId),
+                content: {f: "json"},
+                handleAs: "json",
+                callbackParamName: "callback"
+              }));
+          }
+          if (parseInt(aoiLayerId) != NaN) {
+            promises.push(esriRequest({
+              url: this._concatenateUrl(mapServiceUrl, aoiLayerId),
+              content: {f: "json"},
+              handleAs: "json",
+              callbackParamName: "callback"
+            }));
+          }
+
+          all(promises).then(
+            function(results) {
+              results.some(function(result) {
+                if (result.error) {
+                  // found an error with one of the URLs, display error
+                  self._showErrorMessage(self.nls.errorInvalidMapServiceUrlOrLayerId);
+                }
+              });
+            }, function(error) {
+              self._showErrorMessage(self.nls.errorInvalidMapServiceUrlOrLayerId);
+            });
+        }
+      },
+
+      _concatenateUrl: function(baseUrl, appendUrl) {
+        if (baseUrl && baseUrl.length > 0 && baseUrl.lastIndexOf("/") === baseUrl.length - 1) {
+            // slash already at the end of baseUrl
+            return baseUrl += appendUrl;
+        }
+        return baseUrl + "/" + appendUrl;
       },
 
       // Retrieve extended properties for each job type

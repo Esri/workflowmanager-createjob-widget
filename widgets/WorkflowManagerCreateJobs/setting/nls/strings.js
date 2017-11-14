@@ -44,6 +44,7 @@ define({
     errorPlaceholder: "Something went wrong...",
     errorOk: "OK",
     errorInvalidServiceUrl: "Invalid service url entered: {0}",
+    errorInvalidMapServiceUrlOrLayerId: "Invalid Workflow Manager map service url or layer id(s) entered.",
     errorUnableToConnectToServer: "Unable to connect to server {0}",
     errorNoActiveJobTypes: "No active job types found",
     errorInvalidUserCredentials: "Unable to retrieve user credentials",
