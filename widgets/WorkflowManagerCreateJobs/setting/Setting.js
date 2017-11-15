@@ -67,7 +67,7 @@ define([
       // Match on cardinality 1-1, excluding properties that cannot be updated or is not visible
       QUERY_WHERE: 'JTX_JOB_TYPES.JOB_TYPE_ID = JTX_AUX_PROPS.JOB_TYPE_ID AND JTX_AUX_PROPS.TABLE_NAME = JTX_PROP_RELATIONSHIPS.TABLE_NAME ' +
         'AND JTX_PROP_RELATIONSHIPS.CARDINALITY <> 2 AND JTX_AUX_PROPS.CAN_UPDATE <> 0 AND JTX_AUX_PROPS.IS_VISIBLE <> 0',
-      QUERY_ORDER_BY: 'JTX_JOB_TYPES.job_type_id, JTX_AUX_PROPS.TABLE_NAME',
+      QUERY_ORDER_BY: 'JTX_JOB_TYPES.job_type_id',
 
       startup: function() {
         this.inherited(arguments);
