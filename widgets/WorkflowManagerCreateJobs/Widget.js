@@ -1118,6 +1118,7 @@ define([
         this.selectBox.clear();
         this.fileToUpload.value = '';
         this.fullImageFilename = null;
+        this.notesTextBox.value = null;
 
         this.bNotesReqComplete = false;
         this.bAttachmentReqComplete = false;
