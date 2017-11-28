@@ -250,9 +250,9 @@ define([
             self._populateJobTypes();
           },
           function (error) {
-            console.log('Unable to connect to server ' + serviceUrl, error);
+            console.log('Unable to connect to Workflow Manager Server: ' + serviceUrl, error);
             console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
-            self._showErrorMessage(self.nls.errorUnableToConnectToServer.replace('{0}', serviceUrl));
+            self._showErrorMessage(self.nls.errorUnableToConnectToWMServer.replace('{0}', serviceUrl));
           });
       },
 

@@ -29,7 +29,7 @@
     jobCreatedSuccessfully: "Job {0} created successfully.",
     jobCreatedWithErrors: "Job {0} created, but not all job properties were updated: ",
 
-    errorUnableToConnectToServer: "Unable to connect to server {0}",
+    errorUnableToConnectToWMServer: "Unable to connect to Workflow Manager Server: {0}",
     errorInvalidUserCredentials: "Unable to retrieve user credentials",
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system.",
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'.",

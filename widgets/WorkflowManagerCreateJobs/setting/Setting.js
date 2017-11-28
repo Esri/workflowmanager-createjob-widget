@@ -232,16 +232,23 @@ define([
       },
 
       _onBtnSetSourceClicked: function() {
-        // TODO Should we clear out previously set job type configurations before checking the newly entered url
-        //  is valid?
         var serviceUrl = this.wmServiceUrl.get('value');
         serviceUrl = serviceUrl ? serviceUrl.trim() : serviceUrl;
-        if (!serviceUrl) {
-          console.error('Invalid service URL entered: ' + serviceUrl);
-          this._showErrorMessage(this.nls.errorInvalidServiceUrl.replace('{0}', serviceUrl));
+        this.wmServiceUrl.set('value', serviceUrl);
+        if (serviceUrl === this.serviceUrl) {
+          // Service url hasn't changed
           return;
         }
+
+        // Clear out previously set job type configurations and update serviceUrl
+        this._resetJobTypes();
         this.serviceUrl = serviceUrl;
+
+        if (!serviceUrl) {
+          console.error('Invalid service URL entered: ' + serviceUrl);
+          this._showErrorMessage(this.nls.errorInvalidServiceUrl);
+          return;
+        }
 
         // Retrieve workflow server configuration
         this._loadConfiguration();
@@ -261,13 +268,10 @@ define([
             this.serviceConfiguration = response;
             // validate user
             this._validateUser();
-
-            //Clear out old jobs if the service is valid
-            this._resetJobTypes();
           }),
           lang.hitch(this, function (error) {
-            console.log('Unable to connect to server ' + this.serviceUrl, error);
-            this._showErrorMessage(this.nls.errorUnableToConnectToServer.replace('{0}', this.serviceUrl));
+            console.log('Unable to connect to Workflow Manager Server: ' + this.serviceUrl, error);
+            this._showErrorMessage(this.nls.errorUnableToConnectToWMServer.replace('{0}', this.serviceUrl));
           }));
       },
 
@@ -315,7 +319,7 @@ define([
             this._initializeJobTypes(this.serviceConfiguration.jobTypes);
           }),
           lang.hitch(this, function (error) {
-            console.log('Unable to connect to server ' + this.serviceUrl, error);
+            console.log('Not a valid user in the Workflow Manager system: ' + this.user, error);
             this._showErrorMessage(this.nls.errorUserInvalid.replace('{0}', this.user));
           }));
       },
