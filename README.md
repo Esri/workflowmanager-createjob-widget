@@ -4,7 +4,7 @@
 The [ArcGIS Workflow Manager](https://server.arcgis.com/en/workflow-manager/) Create Job Custom Widget enables users to 
 integrate ArcGIS Workflow Manager functionality with their own applications created in 
 [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/). It is designed so users can configure 
-and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is also provided for 
+and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is provided for 
 developers who would like to customize the widget. 
  
 Deployment, configuration and usage steps are provided in this document. Basic knowledge of ArcGIS Portal, ArcGIS Server, 
@@ -30,14 +30,16 @@ Note: There is currently no support for custom widgets in the [Web AppBuilder On
 ### Web AppBuilder Portal Edition
 Instructions for using the Create Job widget with Web AppBuilder Portal Edition 
 
-Information about Web AppBuilder for Portal: http://server.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm
-
+* Refer to the [Web AppBuilder for Portal](http://server.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm) documentation
 * Run Web AppBuilder from your Portal installation
   * e.g. http://hostname.domain.com/portal/apps/webappbuilder
 * Register the Create Job widget as a custom widget.
   * http://server.arcgis.com/en/portal/latest/use/add-custom-widgets.htm
 * Create a new application and include the Create Job widget into your application.
 * Configure the Create Job widget
+  * **Note:** When using server authentication in a stand-alone server environment, it may be necessary to add the
+  stand-alone server to the list of trusted servers in portal.  
+  Refer to [Portal for ArcGIS - Configure security settings](http://server.arcgis.com/en/portal/latest/administer/windows/configure-security.htm).
 * Save and publish your application for use
 
 ### Web AppBuilder Developer Edition 
@@ -49,19 +51,43 @@ AppBuilder's 2D widget directory
   * Refer to the [Deploy custom widget and theme](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm) documentation
 * Run Web AppBuilder Developer Edition and include the Create Job widget into your application.
 * Configure the Create Job widget
+  * **Note:** When using server authentication in a stand-alone server environment, it may be necessary to configure a proxy
 * Deploy your application
   * https://developers.arcgis.com/web-appbuilder/guide/xt-deploy-app.htm
 
-Note: For widget development, run Web AppBuilder by appending `?id=stemapp` to the Web AppBuilder URL
-  * Example: `http://hostname:3344/webappbuilder/?id=stemapp`
+### Proxy
+It may be necessary to use a proxy when using Web AppBuilder Developer Edition and the widget is configured 
+to use stand-alone server authentication.
+Refer to the documentation below for usage and configuration:
+* https://developers.arcgis.com/javascript/latest/guide/proxies/
+* https://developers.arcgis.com/javascript/3/jshelp/ags_proxy.html
+
+If a proxy was configured, update the web application proxy settings:
+* Configure the [Web AppBuilder proxy settings](https://developers.arcgis.com/web-appbuilder/guide/use-proxy.htm)
+
+**Note:** If a `Bad Request` error is returned when accessing your services via the proxy (e.g. `http://host1.domain.com/proxy/proxy.ashx?https://host2.domain.com/arcgis/tokens/&wab_dv=2.6`),
+edit the deployed applications's `env.js` file:
+* Locate the `appendDeployVersion` function
+* Comment out all the code in the function except for the last line.  The method should look something like the following:
+```
+  function appendDeployVersion(url){
+    // if(/^http(s)?:\/\//.test(url) || /^\/proxy\.js/.test(url) || /^\/\//.test(url)){
+    //   return url;
+    // }
+    // if(url.indexOf('?') > -1){
+    //   url = url + '&wab_dv=' + deployVersion;
+    // }else{
+    //   url = url + '?wab_dv=' + deployVersion;
+    // }
+    return url;
+  }
+```
 
 ### File types
 The Create Job widget makes use of several file type extensions.  Enable these file types in your web server
 when deploying the widget:
-* woff / woff2
-* 
-
-
+* woff
+* woff2
 
 ## Configuration
 
@@ -83,16 +109,18 @@ job's location of interest (LOI).
   the drawn feature.
   * e.g. https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3
   
-  Note: The selectable map or feature service should be included in the applications web map, otherwise users of the
+  **Note:** The selectable map or feature service should be included in the applications web map, otherwise users of the
   application will not have a context of how the job LOI was created. 
     
 * **Authentication** - Specify the type of authentication method to use for the widget.
-  * Non-Authenticated: The Workflow Manager service is not authenticated.  The default user is required in this case since
+  * `Non-Authenticated`: The Workflow Manager service is not authenticated.  The default user is required in this case since
   user credentials are not available.
-  * Portal Authenticated: The Workflow Manager service is using ArcGIS Portal authentication in a federated portal environment.
+  * `Portal Authenticated`: The Workflow Manager service is using ArcGIS Portal authentication in a federated portal environment.
   The user's portal login credentials are used to access the service and the default user is ignored. 
-  * Server Authenticated: The Workflow Manager service is using ArcGIS Server authentication in a stand-alone server environment.
+  * `Server Authenticated`: The Workflow Manager service is using ArcGIS Server authentication in a stand-alone server environment.
   The user's server login credentials are used to access the service and the default user is ignored. 
+    * **Note:** When using server authentication, additional setup is required.  Refer to the Deployment section of
+    this document for more information.
 
 * **Configurable Labels** - Optionally you can update the following labels:
   * Define Location Label
