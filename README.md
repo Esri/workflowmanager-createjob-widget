@@ -1,18 +1,19 @@
-# Workflow Manager Create Job Widget
+# ArcGIS Workflow Manager Create Job Widget
 ## Overview
 
-The [ArcGIS Workflow Manager](https://server.arcgis.com/en/workflow-manager/) Create Job Custom Widget enables users to 
-integrate ArcGIS Workflow Manager functionality with their own applications created in 
-[Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/). It is designed so users can configure 
+The ArcGIS Workflow Manager Create Job widget enables users to integrate ArcGIS Workflow Manager functionality within 
+their own applications created in Web AppBuilder for ArcGIS. It is designed so users can configure 
 and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is provided for 
 developers who would like to customize the widget. 
  
-Deployment, configuration and usage steps are provided in this document. Basic knowledge of ArcGIS Portal, ArcGIS Server, 
-ArcGIS Workflow Manager Server and ArcGIS Web AppBuilder is assumed.
+Deployment, configuration and usage steps are provided in this document. Basic knowledge of 
+[ArcGIS Enterprise](http://server.arcgis.com), [Portal for ArcGIS](http://server.arcgis.com/en/portal/),
+[ArcGIS Workflow Manager Server](https://server.arcgis.com/en/workflow-manager/) and 
+Web AppBuilder for ArcGIS is assumed.
 
 ### Supported Browsers
 
-The Workflow Manager Create Job custom widget supports the following browsers:
+The Workflow Manager Create Job widget supports the following browsers:
 * Chrome
 * Firefox
 * Internet Explorer 11+
@@ -20,54 +21,52 @@ The Workflow Manager Create Job custom widget supports the following browsers:
 
 ## Deployment
 
-The Workflow Manager Create Job custom widget can be used in 
-the following [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/) environments:
+The Workflow Manager Create Job widget can be used in the following Web AppBuilder for ArcGIS environments:
 * [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
 * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 
 Note: There is currently no support for custom widgets in the [Web AppBuilder Online Edition](http://doc.arcgis.com/en/web-appbuilder/).
 
 ### Web AppBuilder Portal Edition
-Instructions for using the Create Job widget with Web AppBuilder Portal Edition 
-
-* Refer to the [Web AppBuilder for Portal](http://server.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm) documentation
-* Run Web AppBuilder from your Portal installation
-  * e.g. http://hostname.domain.com/portal/apps/webappbuilder
-* Register the Create Job widget as a custom widget.
-  * http://server.arcgis.com/en/portal/latest/use/add-custom-widgets.htm
-* Create a new application and include the Create Job widget into your application.
-* Configure the Create Job widget
+Integrate the Create Job widget with Web AppBuilder Portal Edition.
+Beginning with Portal for ArcGIS 10.5.1, you can add custom widgets to your portal.
+ 
+* Refer to the [Web AppBuilder for Portal](http://server.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm) documentation.
+* Add the Create Job widget as a [custom widget in your portal](http://server.arcgis.com/en/portal/latest/use/add-custom-widgets.htm)
+  and share it with groups or your organization. 
+* [Create a new Web AppBuilder application](http://server.arcgis.com/en/portal/latest/use/make-first-app.htm) and 
+include the Create Job widget into your application.
+  * The Create Job widget displays under the `Custom` tab on the `Choose Widget` dialog box in Web AppBuilder. 
+* Configure the Create Job widget. Refer to the **Configuration** section below for configuration options.
   * **Note:** When using server authentication in a stand-alone server environment, it may be necessary to add the
   stand-alone server to the list of trusted servers in portal.  
   Refer to [Portal for ArcGIS - Configure security settings](http://server.arcgis.com/en/portal/latest/administer/windows/configure-security.htm).
-* Save and publish your application for use
+* Save and publish your application for use.
 
 ### Web AppBuilder Developer Edition 
-Instructions for using the Create Job widget with Web AppBuilder Developer Edition
-* Follow [setup instructions for Web AppBuilder for ArcGIS (Developer Edition)](https://developers.arcgis.com/web-appbuilder/guide/getstarted.htm)
+Integrate the Create Job widget with Web AppBuilder Developer Edition.
+* Refer to the [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/) documentation.
+* Follow [setup instructions for Web AppBuilder for ArcGIS (Developer Edition)](https://developers.arcgis.com/web-appbuilder/guide/getstarted.htm).
 * Clone this Create Job repository to your local drive and copy the `WorkflowManagerCreateJobs` directory to the Web 
-AppBuilder's 2D widget directory
+AppBuilder's 2D widget directory.
   * e.g. `<WebAppBuilderInstallDir>\client\stemapp\widgets\WorkflowManagerCreateJobs` 
-  * Refer to the [Deploy custom widget and theme](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm) documentation
+  * Refer to the [Deploy custom widget and theme](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm) documentation.
 * Run Web AppBuilder Developer Edition and include the Create Job widget into your application.
-* Configure the Create Job widget
-  * **Note:** When using server authentication in a stand-alone server environment, it may be necessary to configure a proxy
-* Deploy your application
-  * https://developers.arcgis.com/web-appbuilder/guide/xt-deploy-app.htm
+* Configure the Create Job widget. Refer to the **Configuration** section below for configuration options.
+* [Deploy your application](https://developers.arcgis.com/web-appbuilder/guide/xt-deploy-app.htm).
+  * **Note:** It may be necessary to use and configure a proxy when using Web AppBuilder Developer Edition. 
+    Refer to the link above and/or the **Proxy** section below.
 
 ### Proxy
-It may be necessary to use a proxy when using Web AppBuilder Developer Edition and the widget is configured 
-to use stand-alone server authentication.
-Refer to the documentation below for usage and configuration:
-* https://developers.arcgis.com/javascript/latest/guide/proxies/
-* https://developers.arcgis.com/javascript/3/jshelp/ags_proxy.html
+Documentation for usage and configuration:
+* [Using the  proxy](https://developers.arcgis.com/javascript/3/jshelp/ags_proxy.html)
+* [Setting up a proxy with Web AppBuilder for ArcGIS (Developer Edition)](https://blogs.esri.com/esri/supportcenter/2015/10/28/setting-up-a-proxy-with-web-appbuilder-for-arcgis-developer-edition/)
+* Configure the [Web AppBuilder proxy settings](https://developers.arcgis.com/web-appbuilder/guide/use-proxy.htm).
 
-If a proxy was configured, update the web application proxy settings:
-* Configure the [Web AppBuilder proxy settings](https://developers.arcgis.com/web-appbuilder/guide/use-proxy.htm)
-
-**Note:** If a `Bad Request` error is returned when accessing your services via the proxy (e.g. `http://host1.domain.com/proxy/proxy.ashx?https://host2.domain.com/arcgis/tokens/&wab_dv=2.6`),
+#### Proxy errors
+If a `Bad Request` error is returned when accessing your services via the proxy (e.g. `http://host1.domain.com/proxy/proxy.ashx?https://host2.domain.com/arcgis/tokens/&wab_dv=2.6`),
 edit the deployed applications's `env.js` file:
-* Locate the `appendDeployVersion` function
+* Locate the `appendDeployVersion` function.
 * Comment out all the code in the function except for the last line.  The method should look something like the following:
 ```
   function appendDeployVersion(url){
@@ -86,15 +85,14 @@ edit the deployed applications's `env.js` file:
 ### File types
 The Create Job widget makes use of several file type extensions.  Enable these file types in your web server
 when deploying the widget:
-* woff
-* woff2
+* woff, woff2, eot
 
 ## Configuration
 
 The Create Job widget can be set to open automatically when an application starts. To do so, click the dot on the widget
 to turn it dark green.
 
-To edit the widget settings, hover over the widget and click the small edit icon. The configuration window for this widget opens.
+* To edit the widget settings, hover over the widget and click the small edit icon. The configuration window for this widget opens.
 
 * **Widget icon** - optionally, click the `change widget icon` button and replace it with your own image.
   A file explorer window opens, allowing you to select a local image file to use as the widget icon. 
@@ -164,7 +162,7 @@ properties for each job type:
 * Optionally populate the job's extended properties
 * Optionally add a job attachment
 * Optionally add a note to the job
-* Click on the `Create Job` to create the job
+* Click on the `Create Job` button to create the job
 
 
 ## Additional Resources
