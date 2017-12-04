@@ -3,8 +3,9 @@
     _widgetLabel: "Workflow Manager Create Job",
     title: "Create a Workflow Manager Job",
 
-    filterJobTypes: "Filter job types...",
-    createJobForJobType: "Create a new job for {0}",
+    search: "Search",
+    createNewSubmission: "Create a new submission",
+    submitRequestForJobType: "Submit a request for {0}",
 
     notesLabel: "Comments",
 
@@ -15,18 +16,18 @@
 
     defaultExtPropsLabel: "Contact Information",
 
-    defaultAttachmentsLabel: "Add a single Attachment to the job",
+    defaultAttachmentsLabel: "Add Attachment",
     addAttachmentToJob: "Add an attachment to this job",
     fileTooLargeLabel: "Attachment file size exceeds limit, try a smaller file to add an attachment",
     processingFilename: "Processing {0} ...",
     successfulUploadAnother: "Successfully uploaded file! Upload another.",
 
     backBtnLabel: "Back",
-    createJobBtnLabel: "Create Job",
+    submitBtnLabel: "Submit",
     creatingJob: "Creating Job: {0}",
-    defaultJobBeingCreatedLabel: "The job is being created, this could take a moment.",
+    submissionCreatedLabel: "Your submission is being created, this may take a moment.",
 
-    jobCreatedSuccessfully: "Job {0} created successfully.",
+    jobCreatedSuccessfully: "{0} created successfully.",
     jobCreatedWithErrors: "Job {0} created, but not all job properties were updated: ",
 
     errorUnableToConnectToWMServer: "Unable to connect to Workflow Manager Server: {0}",

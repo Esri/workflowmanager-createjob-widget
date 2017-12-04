@@ -10,11 +10,11 @@
   "authenticationMode": "none",
   "defaultUser": "demo",
 
-  "defineLOILabel": "Define Job Location",
-  "extPropsLabel": "Contact Information",
+  "defineLOILabel": "",
+  "extPropsLabel": "",
 
   "allowAttachments": true,
-  "attachmentsLabel": "Add a single Attachment to the job",
+  "attachmentsLabel": "",
   "maxAttachmentSize": 2,
 
   "selectedJobTypes": {}

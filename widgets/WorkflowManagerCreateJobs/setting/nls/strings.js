@@ -24,7 +24,7 @@ define({
     defaultDefineLOILabel: "Define Location",
     allowAttachmentsLabel: "Allow Attachments",
     attachmentsLabel: "Attachments Label",
-    defaultAttachmentsLabel: "Add a single Attachment to the job",
+    defaultAttachmentsLabel: "Add Attachment",
     extPropsLabel: "Extended Properties Label",
     defaultExtPropsLabel: "Contact Information",
 

@@ -291,7 +291,7 @@ define([
               }, jobItemContent, 'first');
               domConstruct.create('p', {
                 class: 'job-type-description',
-                innerHTML: jobItem.description ? jobItem.description : self.nls.createJobForJobType.replace('{0}', jobItem.jobTypeName)
+                innerHTML: jobItem.description ? jobItem.description : self.nls.submitRequestForJobType.replace('{0}', jobItem.jobTypeName)
               }, jobItemContent, 'last');
             });
 
@@ -747,7 +747,7 @@ define([
         }
 
         this.jobType = jobTypeObj.jobType;
-        this.createJobHeader.innerHTML = this.nls.createJobForJobType.replace('{0}', jobTypeObj.jobTypeName)
+        this.createJobHeader.innerHTML = this.nls.createNewSubmission;
 
         var formRow, formRowLabel, inputEl;
         var props = jobTypeObj.extendedProps;
