@@ -28,10 +28,12 @@ define([
     'dojo/dom-construct',
     'dojo/promise/all',
     'dojox/form/Uploader',
+    'dojo/store/Memory',
 
     'dijit/form/TextBox',
     'dijit/form/DateTextBox',
     'dijit/form/NumberTextBox',
+    'dijit/form/FilteringSelect',
 
     'jimu/utils',
     'jimu/BaseWidget',
@@ -64,8 +66,8 @@ define([
     // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
   ],
   function (
-    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader,
-    TextBox, DateTextBox, NumberTextBox,
+    declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader, Memory,
+    TextBox, DateTextBox, NumberTextBox, FilteringSelect,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
     AttachmentItem,
@@ -749,7 +751,7 @@ define([
         this.jobType = jobTypeObj.jobType;
         this.createJobHeader.innerHTML = this.nls.createJobForJobType.replace('{0}', jobTypeObj.jobTypeName)
 
-        var formRow, formRowLabel, inputEl;
+        var formRow, formRowLabel, inputEl, domainStore;
         var props = jobTypeObj.extendedProps;
 
         if (!props || props.length === 0) {
@@ -799,7 +801,31 @@ define([
                   class: 'input-item',
                   name: formEl.fieldName
                 }).placeAt(formRow, 'last');
-                inputEl.domNode.dataset.tableName = formEl.tableName;
+                break;
+              case 'domain':
+                domainStore = new Memory({
+                  data: [
+                    {name:'Alabama', id:'AL'},
+                    {name:'Alaska', id:'AK'},
+                    {name:'American Samoa', id:'AS'},
+                    {name:'Arizona', id:'AZ'},
+                    {name:'Arkansas', id:'AR'},
+                    {name:'Armed Forces Europe', id:'AE'},
+                    {name:'Armed Forces Pacific', id:'AP'},
+                    {name:'Armed Forces the Americas', id:'AA'},
+                    {name:'California', id:'CA'},
+                    {name:'Colorado', id:'CO'},
+                    {name:'Connecticut', id:'CT'},
+                    {name:'Delaware', id:'DE'}
+                  ]
+                });
+
+                inputEl = new FilteringSelect({
+                  name: 'state',
+                  value: 'CA',
+                  store: domainStore,
+                  searchAttr: 'name'
+                }).placeAt(formRow, 'last').startup();
                 break;
               default:
                 // TEXT
@@ -807,8 +833,9 @@ define([
                   class: 'input-item',
                   name: formEl.fieldName
                 }).placeAt(formRow, 'last');
-                inputEl.domNode.dataset.tableName = formEl.tableName;
             }
+
+            inputEl.domNode.dataset.tableName = formEl.tableName;
           }));
         }
 
