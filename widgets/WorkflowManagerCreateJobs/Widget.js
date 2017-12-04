@@ -801,6 +801,7 @@ define([
                   class: 'input-item',
                   name: formEl.fieldName
                 }).placeAt(formRow, 'last');
+                inputEl.domNode.dataset.tableName = formEl.tableName;
                 break;
               case 'domain':
                 domainStore = new Memory({
@@ -825,7 +826,8 @@ define([
                   value: 'CA',
                   store: domainStore,
                   searchAttr: 'name'
-                }).placeAt(formRow, 'last').startup();
+                }).placeAt(formRow, 'last');
+                inputEl.domNode.dataset.tableName = formEl.tableName;
                 break;
               default:
                 // TEXT
@@ -833,9 +835,9 @@ define([
                   class: 'input-item',
                   name: formEl.fieldName
                 }).placeAt(formRow, 'last');
+                inputEl.domNode.dataset.tableName = formEl.tableName;
             }
 
-            inputEl.domNode.dataset.tableName = formEl.tableName;
           }));
         }
 
