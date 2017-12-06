@@ -263,9 +263,24 @@ define([
         this.jobTypes = [];
         this.wmConfigTask.getVisibleJobTypes(this.user,
           function (data) {
+            if (!data.jobTypes || data.jobTypes.length === 0) {
+              console.log('No visible job types returned for user ' + self.user);
+              self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
+              return;
+            }
+
+            // extract visible job type ids
+            var visibleJobTypeIds = [];
+            data.jobTypes.forEach(function(jobType) {
+              visibleJobTypeIds.push(jobType.id.toString());
+            });
+
             //generate dom elements for configured job types and ext props
             var jobItem;
-            Object.keys(self.config.selectedJobTypes).map(function (propKey, index) {
+            var filteredJobTypes = Object.keys(self.config.selectedJobTypes).filter(function(jobTypeId) {
+              return visibleJobTypeIds.indexOf(jobTypeId) !== -1;
+            });
+            filteredJobTypes.map(function (propKey, index) {
               jobItem = self.config.selectedJobTypes[propKey];
 
               var jobItemDom = domConstruct.create('div', {
