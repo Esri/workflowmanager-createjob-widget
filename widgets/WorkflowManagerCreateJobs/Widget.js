@@ -45,6 +45,7 @@ define([
     './libs/workflowmanager/WMJobTask',
     './libs/workflowmanager/WMConfigurationTask',
     './libs/workflowmanager/supportclasses/JobCreationParameters',
+    './libs/workflowmanager/supportclasses/JobQueryParameters',
     './libs/workflowmanager/supportclasses/JobUpdateParameters',
 
     './AttachmentItem',
@@ -69,7 +70,7 @@ define([
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader, Memory,
     TextBox, DateTextBox, NumberTextBox, FilteringSelect,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
-    Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobUpdateParameters,
+    Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobQueryParameters, JobUpdateParameters,
     AttachmentItem,
     IdentityManager, GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils, SimpleFillSymbol, SimpleMarkerSymbol,
     EXIF) {
@@ -100,6 +101,12 @@ define([
       sSelectableFeatureLayerURL: '',
       drawBox: null,
       selectBox: null,
+
+      tableListMapping: {},
+      tableListData: {},
+      AUX_QUERY_TABLES: "JTX_AUX_PROPS",
+      AUX_QUERY_FIELDS: "TABLE_NAME, FIELD_NAME, TABLE_LIST_CLASS, TABLE_LIST_STORE_FIELD, TABLE_LIST_DISPLAY_FIELD",
+      AUX_QUERY_WHERE: "TABLE_LIST_CLASS <> ''",
 
       // Unlike promises, we cannot combine all callbacks into a single request.  We need to
       // keep track of all callbacks coming back to determine if the job was created successfully
@@ -173,6 +180,8 @@ define([
         console.log('postCreate');
         this.inherited(arguments);
         this.serviceUrl = this.config.wmServiceUrl;
+
+        this._showLoader();
         this._initTasks();
         this._initSelf();
         this._initDrawBox();
@@ -249,12 +258,60 @@ define([
             if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
               self.aoiOverlapAllowed = true;
             }
-            self._populateJobTypes();
+            self._loadJobSettings();
           },
           function (error) {
             console.log('Unable to connect to Workflow Manager Server: ' + serviceUrl, error);
             console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
             self._showErrorMessage(self.nls.errorUnableToConnectToWMServer.replace('{0}', serviceUrl));
+          });
+      },
+
+      _loadJobSettings: function() {
+        // Check if there are configured job types with extended properties using table lists
+        var hasTableList = Object.keys(this.config.selectedJobTypes).some(lang.hitch(this, function(key) {
+          var extProps = this.config.selectedJobTypes[key].extendedProps;
+          return extProps.some(function(extProp) {
+            return extProp.displayType === "9";
+          });
+        }));
+        if (hasTableList) {
+          // Load table list mapping
+          this._populateTableListMapping();
+        }
+        this._populateJobTypes();
+      },
+
+      _populateTableListMapping: function() {
+        var parameters = new JobQueryParameters();
+        parameters.fields = this.AUX_QUERY_FIELDS;
+        parameters.tables = this.AUX_QUERY_TABLES;
+        parameters.where = this.AUX_QUERY_WHERE;
+        this.wmJobTask.queryJobsAdHoc(parameters, this.user,
+          lang.hitch(this, function(data) {
+            if (data.rows) {
+              console.log("Table list mappings: ", data);
+              data.rows.forEach(lang.hitch(this, function(row) {
+                var tableName = row[0];
+                var fieldName = row[1];
+                var tableListMappingData = {
+                  tableName: row[2],
+                  displayField: row[3],
+                  valueField: row[4]
+                };
+                if (!this.tableListMapping[tableName]) {
+                  this.tableListMapping[tableName] = {};
+                }
+                this.tableListMapping[tableName][fieldName] = tableListMappingData;
+              }));
+            } else {
+              console.log("No table list mapping values returned");
+              this.tableListMapping = {};
+            }
+          }),
+          function(error) {
+            console.error("Unable to retrieve table list mapping values");
+            this.tableListMapping = {};
           });
       },
 
@@ -313,9 +370,8 @@ define([
             });
 
             self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
-
             self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, self._jobFilterCleared)));
-
+            self._hideLoader();
           },
           function (error) {
             console.log('No visible job types returned for user ' + self.user, error);
@@ -432,6 +488,34 @@ define([
         );
       },
 
+      _createAttachmentItem: function (latestExifInfo, wmJobTask, jobId, attachmentId) {
+        var attachmentItem = new AttachmentItem({
+          exifInfo: latestExifInfo,
+          wmJobTask: wmJobTask,
+          jobId: jobId,
+          attachmentId: attachmentId,
+          user: this.user,
+          removeAttachmentCallback: lang.hitch(this,
+            '_removeAttachmentItemCallback') // this is an alternative to topics, you can trigger a method out in Widget.js
+        })
+          .placeAt(this.attachmentItemsNode, 'last');
+        attachmentItem.startup();
+        this.attachmentList.push(attachmentItem);
+      },
+
+      _removeAttachmentItemCallback: function (removeAttachmentId) {
+        var removalIndex = false;
+        arrayUtils.forEach(this.attachmentList, function (attachmentItem, index) {
+          if (attachmentItem.attachmentId === removeAttachmentId) {
+            removalIndex = index;
+          }
+        });
+
+        if (removalIndex) {
+          this.attachmentList.splice(removalIndex, 1);
+        }
+      },
+
       _saveGeotagAOI: function () {
         if (this.bAOISelected || this.bAOIDrawn) {
           var r = confirm(this.nls.aoiOverwritePrompt);
@@ -545,35 +629,6 @@ define([
         }
         if(!this.polygonSymbol){
           this.polygonSymbol = jsonUtils.fromJson(polygonSys);
-        }
-      },
-
-      _createAttachmentItem: function (latestExifInfo, wmJobTask, jobId,
-                                       attachmentId) {
-        var attachmentItem = new AttachmentItem({
-          exifInfo: latestExifInfo,
-          wmJobTask: wmJobTask,
-          jobId: jobId,
-          attachmentId: attachmentId,
-          user: this.user,
-          removeAttachmentCallback: lang.hitch(this,
-            '_removeAttachmentItemCallback') // this is an alternative to topics, you can trigger a method out in Widget.js
-        })
-          .placeAt(this.attachmentItemsNode, 'last');
-        attachmentItem.startup();
-        this.attachmentList.push(attachmentItem);
-      },
-
-      _removeAttachmentItemCallback: function (removeAttachmentId) {
-        var removalIndex = false;
-        arrayUtils.forEach(this.attachmentList, function (attachmentItem, index) {
-          if (attachmentItem.attachmentId === removeAttachmentId) {
-            removalIndex = index;
-          }
-        });
-
-        if (removalIndex) {
-          this.attachmentList.splice(removalIndex, 1);
         }
       },
 
@@ -705,7 +760,7 @@ define([
         // some images need to be initialized in the js files to get the correct paths using folderUrl
         this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
         this.jobTypeFilterClear.innerHTML = "<img src='" + this.folderUrl + 'images/clear-icon.svg' + "'>";
-        this.wmxCeateJobSpinner.innerHTML = "<img src='" + this.folderUrl + 'images/loading_circle.gif' + "'>" + this.wmxCeateJobSpinner.innerHTML;
+        this.wmxCreateJobSpinner.innerHTML = "<img src='" + this.folderUrl + 'images/loading_circle.gif' + "'>" + this.wmxCreateJobSpinner.innerHTML;
 
         // Populate labels here
         this.defineLOITitle.innerHTML = this.config.defineLOILabel || this.nls.defaultDefineLOILabel;
@@ -766,7 +821,7 @@ define([
         this.jobType = jobTypeObj.jobType;
         this.createJobHeader.innerHTML = this.nls.createNewSubmission;
 
-        var formRow, formRowLabel, inputEl, domainStore;
+        var formRow, formRowLabel, inputEl, dataStore;
         var props = jobTypeObj.extendedProps;
 
         if (!props || props.length === 0) {
@@ -818,8 +873,28 @@ define([
                 }).placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
                 break;
+              case '9':
+                // TABLE_LIST
+                // create dataStore with empty data (for now)
+                dataStore = new Memory({
+                  idProperty: 'value',
+                  data: []
+                });
+
+                inputEl = new FilteringSelect({
+                  name: formEl.fieldName,
+                  store: dataStore,
+                  searchAttr: 'name'
+                }).placeAt(formRow, 'last');
+                inputEl.domNode.dataset.tableName = formEl.tableName;
+
+                // populate the drop down values (dataStore)
+                this._populateTableList(dataStore, formEl.tableName, formEl.fieldName);
+                break;
+
               case 'domain':
-                domainStore = new Memory({
+                // TODO placeholder
+                dataStore = new Memory({
                   data: [
                     {name:'Alabama', id:'AL'},
                     {name:'Alaska', id:'AK'},
@@ -835,11 +910,10 @@ define([
                     {name:'Delaware', id:'DE'}
                   ]
                 });
-
                 inputEl = new FilteringSelect({
                   name: 'state',
                   value: 'CA',
-                  store: domainStore,
+                  store: dataStore,
                   searchAttr: 'name'
                 }).placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
@@ -852,7 +926,6 @@ define([
                 }).placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
             }
-
           }));
         }
 
@@ -865,6 +938,50 @@ define([
 
         //scroll to the top of the panel
         domQuery('.jimu-widget-frame.jimu-container')[0].scrollTop = 0;
+      },
+
+      _populateTableList: function (dataStore, tableName, fieldName) {
+        if (this.tableListData && this.tableListData[tableName] && this.tableListData[tableName][fieldName]) {
+          // Table list data found, update data store
+          dataStore.data = this.tableListData[tableName][fieldName];
+        } else {
+          if (this.tableListMapping[tableName] && this.tableListMapping[tableName][fieldName]) {
+            // Table list data not yet populated, but table list mapping already available, get the values
+            this._populateTableListValues(dataStore, tableName, fieldName, this.tableListMapping[tableName][fieldName]);
+          }
+        }
+      },
+
+      _populateTableListValues: function (dataStore, tableName, fieldName, tableListInfo) {
+        // Call server to get the table list values
+        if (!this.tableListData[tableName]) {
+          this.tableListData[tableName] = {};
+        }
+        var parameters = new JobQueryParameters();
+        parameters.fields = tableListInfo.displayField + "," + tableListInfo.valueField;
+        parameters.tables = tableListInfo.tableName;
+        parameters.orderBy = tableListInfo.displayField;
+        this.wmJobTask.queryJobsAdHoc(parameters, this.user,
+          lang.hitch(this, function(data) {
+            if (data.rows) {
+              var formattedRows = [];
+              data.rows.forEach(function(item) {
+                formattedRows.push({
+                  name: item[0],
+                  value: item[1]
+                })
+              });
+              this.tableListData[tableName][fieldName] = formattedRows;
+            } else {
+              console.log("No table list values returned for ", tableName);
+              this.tableListData[tableName][fieldName] = [];
+            }
+            dataStore.data = this.tableListData[tableName][fieldName];
+          }),
+          lang.hitch(this, function(error) {
+            console.error("Unable to retrieve table list values for ", tableName);
+            this.tableListData[tableName][fieldName] = [];
+          }));
       },
 
       _createJobClick: function () {
@@ -915,7 +1032,7 @@ define([
         creationParams.jobTypeId = this.jobType;
         creationParams.loi = this.aoi;
 
-        this._showJobCreationLoader();
+        this._showLoader(this.nls.submissionCreatedLabel);
 
         this.wmJobTask.createJob(creationParams, this.user,
           lang.hitch(this, function (data) {
@@ -989,15 +1106,17 @@ define([
 
         for (i = 0; i < extPropsFormData.length; i++) {
           var tableName = configuredExtProps[i].tableName;
+          var fieldName = configuredExtProps[i].fieldName;
           // TODO Is there a better way of retrieving the values?  More round about way since date fields introduced
           // multiple fields which we need to sort through.
-          var fieldValue = extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0].value;
+          var fieldValue = extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0]
+            ? extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0].value
+            : null;
           if (fieldValue && configuredExtProps[i].displayType === '2') {
             // date fields returned in ISO format YYYY-MM-DD format, convert value to an actual date
             // parse the date and add the 12:00 noon timestamp to be consistent with other web clients
             fieldValue = Date.parse(fieldValue) + 43200000;
           }
-
           if (!records[tableName]) {
             records[tableName] = {
               recordId: null,
@@ -1008,12 +1127,25 @@ define([
           records[tableName].properties[configuredExtProps[i].fieldName] = fieldValue;
         }
 
-        // get the associated recordId for each table
-        // values are nested in containers/records
+        // get the associated recordId for each table, values are nested in containers/records
         for (tableName in records) {
           jobExtProps.some(function(container) {
             if (tableName === container.tableName) {
               records[tableName].recordId = container.records[0].id;
+
+              // Adjust records values based on datatype.  This is needed here because we only get the datatype after
+              // the job has been created and we've retrieved extended properties for the job.
+              var recordValues = container.records[0].recordValues;
+              recordValues.forEach(function(recordValue) {
+                var recordValueName = records[tableName].properties[recordValue.name]
+                if (recordValueName !== undefined && recordValueName !== null) {
+                  if (recordValue.dataType == Enum.FieldType.SINGLE || recordValue.dataType == Enum.FieldType.DOUBLE) {
+                    records[tableName].properties[recordValue.name] = parseFloat(records[tableName].properties[recordValue.name]);
+                  } else if (recordValue.dataType == Enum.FieldType.INTEGER || recordValue.dataType == Enum.FieldType.SMALL_INTEGER) {
+                    records[tableName].properties[recordValue.name] = parseInt(records[tableName].properties[recordValue.name]);
+                  }
+                }
+              });
               return true;  // break out of the loop
             }
           });
@@ -1126,6 +1258,7 @@ define([
       },
 
       _showErrorMessage: function (errMsg) {
+        this._hideLoader();
         this.wmxErrorPanel.innerHTML = errMsg;
         domStyle.set(this.wmxErrorPanel, 'display', 'block');
 
@@ -1137,9 +1270,16 @@ define([
         domStyle.set(this.wmxErrorPanel, 'display', 'none');
       },
 
-      _showJobCreationLoader: function () {
+      _showLoader: function (msg) {
         domStyle.set(this.wmxCreateJobContent, 'display', 'none');
+        if (dom.byId('wmxCreateJobLoaderText')) {
+          dom.byId('wmxCreateJobLoaderText').innerHTML = msg || this.nls.loading;
+        }
         domStyle.set(this.wmxCreateJobLoader, 'display', 'block');
+      },
+
+      _hideLoader: function () {
+        domStyle.set(this.wmxCreateJobLoader, 'display', 'none');
       },
 
       _resetWidget: function (jobCreated) {

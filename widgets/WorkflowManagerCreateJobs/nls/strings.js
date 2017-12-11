@@ -4,6 +4,7 @@
     title: "Create a Workflow Manager Job",
 
     search: "Search",
+    loading: "Loading ...",
     createNewSubmission: "Create a new submission",
     submitRequestForJobType: "Submit a request for {0}",
 
