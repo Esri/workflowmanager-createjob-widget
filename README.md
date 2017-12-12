@@ -5,6 +5,8 @@ their own applications created in Web AppBuilder for ArcGIS. It is designed so u
 and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is provided for 
 developers who would like to customize the widget.
 
+![App](create-job-widget.png)
+
 ## Features
 * Ready-to-deploy Workflow Manager widget for Web AppBuilder for ArcGIS.
 * Easily configurable to meet custom business needs and requirements - no programming skills required to deploy.
