@@ -17,7 +17,7 @@
   "attachmentsLabel": "",
   "maxAttachmentSize": 2,
 
-  "fullyQualifiedJobTypesTableName": "wmx.WMX.JTX_JOB_TYPES",
+  "fullyQualifiedJobTypesTableName": "JTX_JOB_TYPES",
 
   "selectedJobTypes": {}
 }

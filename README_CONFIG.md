@@ -75,6 +75,8 @@ when deploying the widget:
 
 ## Configuration
 
+Configure the Create Job widget in Web AppBuilder for Portal or Developer Edition.
+
 The Create Job widget can be set to open automatically when an application starts. To do so, click the dot on the widget
 to turn it dark green.
 
@@ -138,6 +140,14 @@ properties for each job type:
 
 * **Click OK** to save and close the Create Job widget configuration window.
 
+### Fully Qualified Table Names
+If the Create Job widget is unable to query your Workflow Manager Server for job type information, it may be 
+necessary to fully qualify your table names.
+* Locate and edit the widget's [`config.json`](./widgets/WorkflowManagerCreateJobs/config.json) file in a text editor
+* Update the `fullyQualifiedJobTypesTableName` property with your fully qualified table table name
+  * Example: `"fullyQualifiedJobTypesTableName": "wmx.WMX.JTX_JOB_TYPES"`
+* Save the file and reconfigure your widget in Web AppBuilder.
+  
 ## Usage
 
 * The widget opens with a list of jobs types that jobs can be created from, and a search bar for filtering
