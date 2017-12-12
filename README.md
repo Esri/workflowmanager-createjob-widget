@@ -191,8 +191,8 @@ Run `npm install` from the local drive where this repo was cloned to.
   * stemappDir - location of WebAppBuilder stemapp directory
   * appDir - location of WebAppBuilder application directory
     <pre>
-    var stemappDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/client/stemapp';
-    var appDir = '/Users/cody7018/Projects/WebAppBuilderForArcGIS/server/apps/4';
+    var stemappDir = '/c/WebAppBuilderForArcGIS/client/stemapp';
+    var appDir = '/c/WebAppBuilderForArcGIS/server/apps/20';
     </pre>
     
 **Run Grunt**
