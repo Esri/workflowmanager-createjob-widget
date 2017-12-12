@@ -104,7 +104,7 @@ define([
 
       tableListMapping: {},
       tableListData: {},
-      AUX_QUERY_TABLES: "JTX_AUX_PROPS",
+      AUX_QUERY_TABLE: "JTX_AUX_PROPS",
       AUX_QUERY_FIELDS: "TABLE_NAME, FIELD_NAME, TABLE_LIST_CLASS, TABLE_LIST_STORE_FIELD, TABLE_LIST_DISPLAY_FIELD",
       AUX_QUERY_WHERE: "TABLE_LIST_CLASS <> ''",
 
@@ -285,7 +285,7 @@ define([
       _populateTableListMapping: function() {
         var parameters = new JobQueryParameters();
         parameters.fields = this.AUX_QUERY_FIELDS;
-        parameters.tables = this.AUX_QUERY_TABLES;
+        parameters.tables = this._getTableQualifier() + this.AUX_QUERY_TABLE;
         parameters.where = this.AUX_QUERY_WHERE;
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
           lang.hitch(this, function(data) {
@@ -313,6 +313,11 @@ define([
             console.error("Unable to retrieve table list mapping values");
             this.tableListMapping = {};
           });
+      },
+
+      _getTableQualifier: function(){
+        var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
+        return index !== -1 ? this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1) : null;
       },
 
       _populateJobTypes: function () {
@@ -688,7 +693,6 @@ define([
             if (geometryType === 'esriGeometryPolygon' || geometryType === 'esriGeometryPoint' || geometryType === 'esriGeometryMultiPoint') {
               // combine features into a single feature
               this.aoi = this._combineFeatures(fset.features);
-              // TODO how to update the drawn graphic with the selected features
               var geomWM = WebMercatorUtils.webMercatorToGeographic(this.aoi);
               var symbol = (geometryType === 'esriGeometryPolygon') ? this.polygonSymbol : this.pointSymbol;
               var g = new Graphic(geomWM, symbol);
@@ -880,7 +884,6 @@ define([
                   idProperty: 'value',
                   data: []
                 });
-
                 inputEl = new FilteringSelect({
                   name: formEl.fieldName,
                   store: dataStore,
@@ -894,29 +897,29 @@ define([
 
               case 'domain':
                 // TODO placeholder
-                dataStore = new Memory({
-                  data: [
-                    {name:'Alabama', id:'AL'},
-                    {name:'Alaska', id:'AK'},
-                    {name:'American Samoa', id:'AS'},
-                    {name:'Arizona', id:'AZ'},
-                    {name:'Arkansas', id:'AR'},
-                    {name:'Armed Forces Europe', id:'AE'},
-                    {name:'Armed Forces Pacific', id:'AP'},
-                    {name:'Armed Forces the Americas', id:'AA'},
-                    {name:'California', id:'CA'},
-                    {name:'Colorado', id:'CO'},
-                    {name:'Connecticut', id:'CT'},
-                    {name:'Delaware', id:'DE'}
-                  ]
-                });
-                inputEl = new FilteringSelect({
-                  name: 'state',
-                  value: 'CA',
-                  store: dataStore,
-                  searchAttr: 'name'
-                }).placeAt(formRow, 'last');
-                inputEl.domNode.dataset.tableName = formEl.tableName;
+                // dataStore = new Memory({
+                //   data: [
+                //     {name:'Alabama', id:'AL'},
+                //     {name:'Alaska', id:'AK'},
+                //     {name:'American Samoa', id:'AS'},
+                //     {name:'Arizona', id:'AZ'},
+                //     {name:'Arkansas', id:'AR'},
+                //     {name:'Armed Forces Europe', id:'AE'},
+                //     {name:'Armed Forces Pacific', id:'AP'},
+                //     {name:'Armed Forces the Americas', id:'AA'},
+                //     {name:'California', id:'CA'},
+                //     {name:'Colorado', id:'CO'},
+                //     {name:'Connecticut', id:'CT'},
+                //     {name:'Delaware', id:'DE'}
+                //   ]
+                // });
+                // inputEl = new FilteringSelect({
+                //   name: 'state',
+                //   value: 'CA',
+                //   store: dataStore,
+                //   searchAttr: 'name'
+                // }).placeAt(formRow, 'last');
+                // inputEl.domNode.dataset.tableName = formEl.tableName;
                 break;
               default:
                 // TEXT
@@ -979,7 +982,8 @@ define([
             dataStore.data = this.tableListData[tableName][fieldName];
           }),
           lang.hitch(this, function(error) {
-            console.error("Unable to retrieve table list values for ", tableName);
+            console.error("Unable to retrieve table list values for", tableName, fieldName);
+            this._showErrorMessage(this.nls.errorRetrievingTableListValues.replace("{0}", fieldName));
             this.tableListData[tableName][fieldName] = [];
           }));
       },
@@ -1107,8 +1111,6 @@ define([
         for (i = 0; i < extPropsFormData.length; i++) {
           var tableName = configuredExtProps[i].tableName;
           var fieldName = configuredExtProps[i].fieldName;
-          // TODO Is there a better way of retrieving the values?  More round about way since date fields introduced
-          // multiple fields which we need to sort through.
           var fieldValue = extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0]
             ? extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0].value
             : null;

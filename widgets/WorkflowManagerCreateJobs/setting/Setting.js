@@ -280,8 +280,7 @@ define([
         this.authenticationMode = this.authenticationSelection.get('value');
 
         if (this.authenticationMode === 'portal' || this.authenticationMode === 'server') {
-          // TODO No way to get user credentials from settings page. Need to ask WAB team about this.
-          // For now, just use the default user
+          // get user credentials from the service
           IdentityManager.getCredential(this.serviceUrl)
             .then(
               function (response) {
@@ -328,7 +327,7 @@ define([
         var self = lang.hitch(this);
         if (!jobTypes || jobTypes.length == 0) {
           console.error('No job types returned from service: ' + this.wmServiceUrl);
-          // TODO Provide warning message in UI
+          this._showErrorMessage(this.nls.errorNoJobTypesReturned.replace('{0}', this.wmServiceUrl));
         }
 
         var jobTypeSelect = registry.byId('jobTypeSelect');
@@ -466,17 +465,13 @@ define([
         var requests = [];
         // Create a request to retrieve the extended properties for the job types
         var parameters = new JobQueryParameters();
-        parameters.fields = this.QUERY_FIELDS;
-        parameters.tables = this.QUERY_TABLES;
-        parameters.where = this.QUERY_WHERE;
-        parameters.orderBy = this.QUERY_ORDER_BY;
+        this._populateQueryParameters(parameters);
 
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
           lang.hitch(this, function(response) {
             var extProps = (response && response.rows) ? response.rows : [];
             if (extProps.length == 0) {
-              // TODO Show error message in UI
-              console.log('Unable to retrieve any extended properties for job types');
+              console.log('No extended properties returned for job types');
               return;
             }
             // Group results by job type Id
@@ -514,10 +509,28 @@ define([
             console.log('jobTypeExtendedProperties = ', this.jobTypeExtendedProperties);
           }),
           lang.hitch(this, function(error) {
-            // TODO Provide error message to UI
             console.log('Unable to retrieve any extended properties for job types', error);
-            this._showErrorMessage(this.nls.errorRetrievingJobExtProperties);
+            var errMsg = error.message + (error.details ? " " + error.details[0] : null);
+            this._showErrorMessage(this.nls.errorRetrievingJobExtProperties.replace("{0}", errMsg));
           }));
+      },
+
+      _populateQueryParameters: function(parameters){
+        var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
+        if (index !== -1) {
+          // found a fully qualified table name, apply qualifier to all tables in the query
+          var qualifier = this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1);
+          parameters.fields = this.QUERY_FIELDS.replace(/JTX_/g, qualifier + 'JTX_');
+          parameters.tables = this.QUERY_TABLES.replace(/JTX_/g, qualifier + 'JTX_');
+          parameters.where = this.QUERY_WHERE.replace(/JTX_/g, qualifier + 'JTX_');
+          parameters.orderBy = this.QUERY_ORDER_BY.replace(/JTX_/g, qualifier + 'JTX_');
+        } else {
+          // no qualifier, use query parameters as-is
+          parameters.fields = this.QUERY_FIELDS;
+          parameters.tables = this.QUERY_TABLES;
+          parameters.where = this.QUERY_WHERE;
+          parameters.orderBy = this.QUERY_ORDER_BY;
+        }
       },
 
       _onBtnAddItemClicked: function(){
