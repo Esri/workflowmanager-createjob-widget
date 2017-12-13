@@ -79,7 +79,7 @@ define([
 
         on(dom.byId('allVisibleCheckbox'), 'click', lang.hitch(this, function(e) {
           var selectedId = this.selectedJobItemRow.dataset.id;
-          //update config
+          // Update config
           if (e.srcElement.checked) {
             this.selectedJobTypes[selectedId].extendedProps = this.jobTypeExtendedProperties[selectedId].slice();
           } else {
@@ -143,7 +143,7 @@ define([
           this.attachmentsLabel.set('value', this.nls.defaultAttachmentsLabel);
         }
 
-        var hasMapServiceConfigured = config.wmMapServiceUrl && config.wmMapServiceUrl.trim() !== '' ? true : false;
+        var hasMapServiceConfigured = !!(config.wmMapServiceUrl && config.wmMapServiceUrl.trim() !== '');
         this.cbxWMMapServiceConfigured.set('value', hasMapServiceConfigured);
         if (config.wmMapServiceUrl) {
           this.wmMapServiceUrl.set('value', config.wmMapServiceUrl);
@@ -190,7 +190,7 @@ define([
         this.config.jobTypes = this.jobTypes;
         this.config.jobTypeExtendedProperties = this.jobTypeExtendedProperties;
 
-        //clean up null job type
+        // Clean up null job type
         delete this.selectedJobTypes['nullJobItemRow'];
         this.config.selectedJobTypes = this.selectedJobTypes;
 
@@ -220,7 +220,7 @@ define([
         }));
       },
 
-      // @cody - Are these _onXXXBlur methods needed?  These 2 methods seem to be used in multiple locations, not
+      // TODO Are these _onXXXBlur methods needed?  These 2 methods seem to be used in multiple locations, not
       // tied to the correct dom elements
 
       _onSelectLayerBlur: function() {
@@ -266,7 +266,7 @@ define([
         this.wmConfigTask.getServiceInfo(
           lang.hitch(this, function (response) {
             this.serviceConfiguration = response;
-            // validate user
+            // Validate user
             this._validateUser();
           }),
           lang.hitch(this, function (error) {
@@ -280,7 +280,7 @@ define([
         this.authenticationMode = this.authenticationSelection.get('value');
 
         if (this.authenticationMode === 'portal' || this.authenticationMode === 'server') {
-          // get user credentials from the service
+          // Get user credentials from the service
           IdentityManager.getCredential(this.serviceUrl)
             .then(
               function (response) {
@@ -289,11 +289,11 @@ define([
                 self._validateUsername();
               },
               function (error) {
+                console.error("Unable to retrieve user credentials", error);
                 self._showErrorMessage(self.nls.errorInvalidUserCredentials);
-                return;
               });
         } else {
-          // use default user as the user
+          // Use default user as the user
           this.user = this.defaultUser.get('value') ? this.defaultUser.get('value').trim() : this.defaultUser.get('value');
           this._validateUsername();
         }
@@ -302,10 +302,10 @@ define([
       _validateUsername: function() {
         this.wmConfigTask.getUser(this.user,
           lang.hitch(this, function (response) {
-            // make sure user is an administrator
             this.userInfo = response;
 
             // TODO Do we need to check admin privileges for setting up the widget?
+            // Make sure user is an administrator
             // var isAdministrator = this.userInfo.privileges.some(function(privilege) {
             //   return 'AdministratorAccess' === privilege.name;
             // });
@@ -325,7 +325,7 @@ define([
 
       _initializeJobTypes: function(jobTypes) {
         var self = lang.hitch(this);
-        if (!jobTypes || jobTypes.length == 0) {
+        if (!jobTypes || jobTypes.length === 0) {
           console.error('No job types returned from service: ' + this.wmServiceUrl);
           this._showErrorMessage(this.nls.errorNoJobTypesReturned.replace('{0}', this.wmServiceUrl));
         }
@@ -334,7 +334,6 @@ define([
         jobTypeSelect.set('options', []);
 
         var jobTypeOptionsArr = [];
-
         jobTypeOptionsArr.push({
           value: null,
           label: this.nls.selectJobTypePlaceholder,
@@ -350,13 +349,13 @@ define([
           }
           return 0;
         }).forEach(function(jobType) {
-          if (jobType.state == Enum.JobTypeState.ACTIVE) {
+          if (jobType.state === Enum.JobTypeState.ACTIVE) {
             self.jobTypes.push(jobType);
 
             jobTypeOptionsArr.push({
               value: jobType.id,
               label: jobType.name,
-              disabled: (self.selectedJobTypes[jobType.id] ? true : false )
+              disabled: (!!self.selectedJobTypes[jobType.id] )
             });
           }
         });
@@ -371,26 +370,26 @@ define([
             });
             var selectedText = selectedOption[0].name;
 
-            //since we're changing an option, we need to delete the old value
+            // Since we're changing an option, we need to delete the old value
             self._deleteJobTypeItem(self.selectedJobItemRow);
 
-            //now create the new one if it doesn't exist
+            // Now create the new one if it doesn't exist
             if (!self.selectedJobTypes[selectedValue]) {
               self._onJobItemRowClicked(self._createJobItem());
             }
 
-            //just update it if it does exist
+            // Just update it if it does exist
             self._updateJobItemType(selectedValue, selectedText);
 
-            //reselect the row so the ui updates properly
+            // Reselect the row so the ui updates properly
             self._onJobItemRowClicked(self.selectedJobItemRow);
 
-            //update select options disabled prop
+            // Update select options disabled prop
             self._updateSelectOptionsDisabled();
           }
         });
 
-        if (self.jobTypes.length == 0) {
+        if (self.jobTypes.length === 0) {
           // TODO Provide UI feedback to user
           console.log('No active job types found.');
           self._showErrorMessage(self.nls.errorNoActiveJobTypes);
@@ -401,7 +400,7 @@ define([
       },
 
       _checkMapService: function() {
-        // verify that the Workflow Manager map service is valid
+        // Verify that the Workflow Manager map service is valid
         var self = lang.hitch(this);
         var mapServiceConfigured = this.cbxWMMapServiceConfigured.getValue();
         if (mapServiceConfigured && mapServiceConfigured === true) {
@@ -420,7 +419,7 @@ define([
             handleAs: "json",
             callbackParamName: "callback"
           }));
-          if (parseInt(poiLayerId) != NaN) {
+          if (parseInt(poiLayerId) !== NaN) {
             promises.push(esriRequest({
                 url: this._concatenateUrl(mapServiceUrl, poiLayerId),
                 content: {f: "json"},
@@ -428,7 +427,7 @@ define([
                 callbackParamName: "callback"
               }));
           }
-          if (parseInt(aoiLayerId) != NaN) {
+          if (parseInt(aoiLayerId) !== NaN) {
             promises.push(esriRequest({
               url: this._concatenateUrl(mapServiceUrl, aoiLayerId),
               content: {f: "json"},
@@ -441,7 +440,7 @@ define([
             function(results) {
               results.some(function(result) {
                 if (result.error) {
-                  // found an error with one of the URLs, display error
+                  // Found an error with one of the URLs, display error
                   self._showErrorMessage(self.nls.errorInvalidMapServiceUrlOrLayerId);
                 }
               });
@@ -462,7 +461,6 @@ define([
       // Retrieve extended properties for each job type
       _loadExtendedPropertiesForJobTypes: function() {
         this.jobTypeExtendedProperties = {};
-        var requests = [];
         // Create a request to retrieve the extended properties for the job types
         var parameters = new JobQueryParameters();
         this._populateQueryParameters(parameters);
@@ -470,7 +468,7 @@ define([
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
           lang.hitch(this, function(response) {
             var extProps = (response && response.rows) ? response.rows : [];
-            if (extProps.length == 0) {
+            if (extProps.length === 0) {
               console.log('No extended properties returned for job types');
               return;
             }
@@ -493,12 +491,12 @@ define([
               return acc;
             }, {});
 
-            //after we have the job types loaded, lets render our table with the selected items
+            // After we have the job types loaded, lets render our table with the selected items
             if (Object.keys(this.selectedJobTypes).length) {
-              //clear out the old elements
+              // Clear out the old elements
               domConstruct.empty('jobItemsCol');
 
-              //make the new ones
+              // Make the new ones
               var jobItem;
               Object.keys(this.selectedJobTypes).map(lang.hitch(this, function(propKey, index) {
                 jobItem = this._createJobItem(this.selectedJobTypes[propKey].jobType);
@@ -518,14 +516,14 @@ define([
       _populateQueryParameters: function(parameters){
         var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
         if (index !== -1) {
-          // found a fully qualified table name, apply qualifier to all tables in the query
+          // Found a fully qualified table name, apply qualifier to all tables in the query
           var qualifier = this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1);
           parameters.fields = this.QUERY_FIELDS.replace(/JTX_/g, qualifier + 'JTX_');
           parameters.tables = this.QUERY_TABLES.replace(/JTX_/g, qualifier + 'JTX_');
           parameters.where = this.QUERY_WHERE.replace(/JTX_/g, qualifier + 'JTX_');
           parameters.orderBy = this.QUERY_ORDER_BY.replace(/JTX_/g, qualifier + 'JTX_');
         } else {
-          // no qualifier, use query parameters as-is
+          // No qualifier, use query parameters as-is
           parameters.fields = this.QUERY_FIELDS;
           parameters.tables = this.QUERY_TABLES;
           parameters.where = this.QUERY_WHERE;
@@ -534,10 +532,10 @@ define([
       },
 
       _onBtnAddItemClicked: function(){
-        //create job type item
+        // Create job type item
         var jobTypeItem = this._createJobItem();
 
-        //select item
+        // Select item
         this._onJobItemRowClicked(jobTypeItem);
       },
 
@@ -550,7 +548,7 @@ define([
         }));
         domClass.add(this.selectedJobItemRow, 'selected');
 
-        //set the select to the correct option
+        // Set the select to the correct option
         var jobTypeSelect = registry.byId('jobTypeSelect');
         this.selectChangeEvent.pause();
         jobTypeSelect.set('value', jobTypeId || null);
@@ -558,7 +556,7 @@ define([
 
         registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || '');
 
-        //generate the table rows with the optional fields
+        // Generate the table rows with the optional fields
         this._createExtendedPropsTable(jobTypeId);
       },
 
@@ -590,10 +588,10 @@ define([
           this._deleteJobTypeItem(jobTypeItem);
         }));
 
-        //select null on icon dropdown
+        // Select null on icon dropdown
         registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || '');
 
-        //enable job type select if we have at least one row added
+        // Enable job type select if we have at least one row added
         if (domQuery('.job-type-item').length > 0) {
           registry.byId('jobTypeSelect').set('disabled', false);
         }
@@ -602,7 +600,7 @@ define([
       },
 
       _updateJobItemType: function(jobTypeId, jobTypeName, jobIcon) {
-        // update the job item row id
+        // Update the job item row id
         this.selectedJobItemRow.id = jobTypeId + 'JobItemRow';
         this.selectedJobItemRow.dataset.id = jobTypeId;
 
@@ -619,7 +617,7 @@ define([
 
         registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId].icon || '');
 
-        // update the props table
+        // Update the props table
         this._createExtendedPropsTable(jobTypeId);
       },
 
@@ -681,7 +679,7 @@ define([
       },
 
       _updateAllVisibleCheckbox: function(jobTypeId) {
-        //set the all checked checkbox in the table header
+        // Set the all checked checkbox in the table header
         var allSelected = this.selectedJobTypes[jobTypeId].extendedProps.length === this.jobTypeExtendedProperties[jobTypeId].length;
         dom.byId('allVisibleCheckbox').checked = allSelected;
       },
@@ -696,11 +694,11 @@ define([
       },
 
       _updateSelectOptionsDisabled: function() {
-        //update the option to be disabled or not based on the selected job types
+        // Update the option to be disabled or not based on the selected job types
         var jobTypeSelect = registry.byId('jobTypeSelect');
         var updatedOptions = [];
         arrayUtil.forEach(jobTypeSelect.get('options'), lang.hitch(this, function(selectOption) {
-          selectOption.disabled = (this.selectedJobTypes[selectOption.value] ? true : false );
+          selectOption.disabled = (!!this.selectedJobTypes[selectOption.value] );
           updatedOptions.push(selectOption)
         }));
         jobTypeSelect.set('options', updatedOptions);
@@ -717,7 +715,7 @@ define([
 
         this._resetTableSelect();
 
-        //enable job type select if we have at least one row added
+        // Enable job type select if we have at least one row added
         if (domQuery('.job-type-item').length < 1) {
           registry.byId('jobTypeSelect').set('disabled', true);
         }

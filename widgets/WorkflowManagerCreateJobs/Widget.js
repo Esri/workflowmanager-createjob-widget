@@ -57,14 +57,8 @@ define([
     'esri/tasks/QueryTask',
     'esri/graphic',
     'esri/symbols/jsonUtils',
-    'esri/symbols/SimpleFillSymbol',
-    'esri/symbols/SimpleMarkerSymbol',
 
     './libs/exifjs/exif'
-
-    // 'jimu/loaderplugins/order-loader!' + window.location.protocol + '//' +
-    // window.location.hostname + ':' + window.location.port + window.path +
-    // 'widgets/WorkflowManagerCreateJobs/libs/exifjs/exif.js'
   ],
   function (
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader, Memory,
@@ -72,7 +66,7 @@ define([
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
     Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobQueryParameters, JobUpdateParameters,
     AttachmentItem,
-    IdentityManager, GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils, SimpleFillSymbol, SimpleMarkerSymbol,
+    IdentityManager, GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils,
     EXIF) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
@@ -174,7 +168,7 @@ define([
 
       /*********************************************************/
 
-      //methods to communication with app container:
+      // Methods to communication with app container:
 
       postCreate: function () {
         console.log('postCreate');
@@ -221,7 +215,6 @@ define([
             lang.hitch(this, function (error) {
               console.log('Unable to retrieve user credentials from url: ', this.serviceUrl, error);
               this._showErrorMessage(this.nls.errorInvalidUserCredentials);
-              return;
             }));
       },
 
@@ -254,7 +247,7 @@ define([
         this.wmConfigTask.getServiceInfo(
           function (response) {
             console.log('Connected successfully');
-            // Check setting of AOIOVERLAP setting
+            // Check for AOIOVERLAP setting
             if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
               self.aoiOverlapAllowed = true;
             }
@@ -310,14 +303,14 @@ define([
             }
           }),
           function(error) {
-            console.error("Unable to retrieve table list mapping values");
+            console.error("Unable to retrieve table list mapping values", error);
             this.tableListMapping = {};
           });
       },
 
       _getTableQualifier: function(){
         var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
-        return index !== -1 ? this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1) : null;
+        return index !== -1 ? this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1) : '';
       },
 
       _populateJobTypes: function () {
@@ -331,13 +324,13 @@ define([
               return;
             }
 
-            // extract visible job type ids
+            // Extract visible job type ids
             var visibleJobTypeIds = [];
             data.jobTypes.forEach(function(jobType) {
               visibleJobTypeIds.push(jobType.id.toString());
             });
 
-            //generate dom elements for configured job types and ext props
+            // Generate dom elements for configured job types and ext props
             var jobItem;
             var filteredJobTypes = Object.keys(self.config.selectedJobTypes).filter(function(jobTypeId) {
               return visibleJobTypeIds.indexOf(jobTypeId) !== -1;
@@ -392,7 +385,7 @@ define([
 
       _jobFilterUpdated: function (e) {
         var inputVal = (e && e.target.value) || '';
-        if (inputVal == '') {
+        if (inputVal === '') {
           domStyle.set(dom.byId('jobTypeFilterClear'), 'display', 'none');
         } else {
           domStyle.set(dom.byId('jobTypeFilterClear'), 'display', 'initial');
@@ -410,11 +403,11 @@ define([
       _addAttachmentToUpload: function (e) {
         console.log('_addAttachmentToUpload');
         var fullImageFile = e.target.files[0];
-        var domUploaderDiv = domQuery('.wmx-file-uploader')[0]
+        var domUploaderDiv = domQuery('.wmx-file-uploader')[0];
         this.uploadFilename.innerHTML = fullImageFile.name;
 
         if ((fullImageFile.size <= (this.config.maxAttachmentSize * 1000000)) || (this.config.maxAttachmentSize === 0)) {
-          //do the normal attachment stuff
+          // Do the normal attachment stuff
           this.uploadText.innerHTML = this.config.attachmentsLabel ? this.config.attachmentsLabel : this.nls.addAttachmentToJob;
           this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
           domClass.remove(domUploaderDiv, 'upload-error');
@@ -449,7 +442,7 @@ define([
 
             this.exifInfosArray.push(latestExifInfo);
 
-            if (this.photoGeotagNode.style.display != 'none') {
+            if (this.photoGeotagNode.style.display !== 'none') {
               this._saveGeotagAOI();
             }
 
@@ -458,11 +451,11 @@ define([
               fullImageFilename: fullImageFile.name
             };
 
-            // // Add the attachment to the job
+            // Add the attachment to the job
             // this._addEmbeddedAttachment();
           }));
         } else {
-          //file too large, throw error
+          // File too large, throw error
           this.uploadText.innerHTML = this.nls.fileTooLargeLabel;
           this.uploadGraphic.src = this.folderUrl + 'images/upload-generic-error.svg';
           domClass.add(domUploaderDiv, 'upload-error');
@@ -471,7 +464,7 @@ define([
 
       _addEmbeddedAttachment: function () {
         var form = dom.byId('sendForm');
-        //processing message
+        // Processing message
         this.uploadText.innerHTML = this.nls.processingFilename.replace('{0}', this.fullImageFilename);
         this.uploadGraphic.src = '';
         this.wmJobTask.addEmbeddedAttachment(this.user, this.jobId, form,
@@ -481,7 +474,7 @@ define([
             this.uploadText.innerHTML = this.nls.successfulUploadAnother;
             this.uploadGraphic.src = this.folderUrl + 'images/upload-generic-success.svg';
 
-            // upload was successful, so add an AttachmentItem widget
+            // Upload was successful, so add an AttachmentItem widget
             this._createAttachmentItem(this.attachmentToUpload.latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
             this.attachmentToUpload = null;
             this._handleRequestResponse(this.ResponseType.ATTACHMENT);
@@ -501,7 +494,7 @@ define([
           attachmentId: attachmentId,
           user: this.user,
           removeAttachmentCallback: lang.hitch(this,
-            '_removeAttachmentItemCallback') // this is an alternative to topics, you can trigger a method out in Widget.js
+            '_removeAttachmentItemCallback') // This is an alternative to topics, you can trigger a method out in Widget.js
         })
           .placeAt(this.attachmentItemsNode, 'last');
         attachmentItem.startup();
@@ -524,7 +517,7 @@ define([
       _saveGeotagAOI: function () {
         if (this.bAOISelected || this.bAOIDrawn) {
           var r = confirm(this.nls.aoiOverwritePrompt);
-          if (r == true) {
+          if (r === true) {
             this.bAOISelected = false;
             this.bAOIDrawn = false;
             this.aoi = null;
@@ -534,7 +527,7 @@ define([
         }
         this.bAOIGeotagged = true;
 
-        if (this.exifInfosArray.length == 1) {
+        if (this.exifInfosArray.length === 1) {
           console.log(this.exifInfosArray[0].gpsLatitude);
           var pt = new esri.geometry.Point({
             longitude: this.exifInfosArray[0].gpsLongitude,
@@ -575,7 +568,7 @@ define([
       },
 
       _initDrawBox: function () {
-        //add 'polygon' type for more options
+        // Add 'polygon' type for more options
         this.drawBox = new DrawBox({
           types: ['point','polygon'],
           map: this.map,
@@ -588,7 +581,7 @@ define([
         // this.own(on(this.drawBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
         this.own(on(this.drawBox, 'DrawEnd', lang.hitch(this, this._onDrawEnd)));
 
-        // separate drawbox for selection
+        // Separate drawbox for selection
         this.selectBox = new DrawBox({
           types: ['point', 'polygon'],
           map: this.map,
@@ -601,12 +594,12 @@ define([
         //this.own(on(this.selectBox, 'icon-selected', lang.hitch(this, this._onIconSelected)));
         this.own(on(this.selectBox, 'DrawEnd', lang.hitch(this, this._onSelectEnd)));
 
-        // initialize default symbols used to update the graphic
+        // Initialize default symbols used to update the graphic
         this._initDefaultSymbols();
       },
 
       _initDefaultSymbols:function(){
-        // initialize internal graphic styles to be consistent with DrawBox
+        // Initialize internal graphic styles to be consistent with DrawBox
         var pointSys = {
           "style": "esriSMSCircle",
           "color": [0, 0, 128, 128],
@@ -659,16 +652,16 @@ define([
         //     return;
         //   }
         // }
-        // clear out any previously drawn AOIs
+        // Clear out any previously drawn AOIs
         this.drawBox.clear();
         this.aoi = null;
 
         this.bAOISelected = true;
 
-        if (commontype == 'point') {
+        if (commontype === 'point') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
           this.aoi.type = 'point';
-        } else if (commontype == 'polygon') {
+        } else if (commontype === 'polygon') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
           this.aoi.type = 'polygon';
         }
@@ -681,24 +674,24 @@ define([
         qTask.execute(
           qry,
           lang.hitch(this, function (fset) {
-            if (!fset || !fset.features || fset.features.length == 0) {
-              // no returned features
+            if (!fset || !fset.features || fset.features.length === 0) {
+              // No returned features
               console.log('No selectable features returned');
               this._errorSelectFeatures(this.nls.errorNoSelectedFeatures);
               return;
             }
-            // one or more features returned
+            // One or more features returned
             console.log('query success', fset);
             var geometryType = fset.geometryType;
             if (geometryType === 'esriGeometryPolygon' || geometryType === 'esriGeometryPoint' || geometryType === 'esriGeometryMultiPoint') {
-              // combine features into a single feature
+              // Combine features into a single feature
               this.aoi = this._combineFeatures(fset.features);
               var geomWM = WebMercatorUtils.webMercatorToGeographic(this.aoi);
               var symbol = (geometryType === 'esriGeometryPolygon') ? this.polygonSymbol : this.pointSymbol;
               var g = new Graphic(geomWM, symbol);
               this.selectBox.addGraphic(g);
             } else {
-              // unexpected geometry type
+              // Unexpected geometry type
               this._errorSelectFeatures(this.nls.errorUnsupportedGeometryType.replace('{0}', geometryType));
             }
           }),
@@ -715,8 +708,7 @@ define([
           features.forEach(function(feature) {
             geomArray.push(feature.geometry);
           });
-          var union = GeometryEngine.union(geomArray);
-          return union;
+          return GeometryEngine.union(geomArray);
         }
         return null;
       },
@@ -740,7 +732,7 @@ define([
 
         if (this.bAOIGeotagged || this.bAOISelected) {
           var r = confirm(this.nls.aoiOverwritePrompt);
-          if (r == true) {
+          if (r === true) {
             this.bAOIGeotagged = false;
             this.bAOISelected = false;
             this.aoi = null;
@@ -750,18 +742,18 @@ define([
         }
         this.bAOIDrawn = true;
 
-        if (commontype == 'point') {
+        if (commontype === 'point') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
           this.aoi.type = 'point';
-        } else if (commontype == 'polygon') {
+        } else if (commontype === 'polygon') {
           this.aoi = WebMercatorUtils.webMercatorToGeographic(graphic.geometry);
           this.aoi.type = 'polygon';
         }
       },
 
       _initSelf: function () {
-        // initialize images
-        // some images need to be initialized in the js files to get the correct paths using folderUrl
+        // Initialize images
+        // Some images need to be initialized in the js files to get the correct paths using folderUrl
         this.uploadGraphic.src = this.folderUrl + 'images/upload-generic.svg';
         this.jobTypeFilterClear.innerHTML = "<img src='" + this.folderUrl + 'images/clear-icon.svg' + "'>";
         this.wmxCreateJobSpinner.innerHTML = "<img src='" + this.folderUrl + 'images/loading_circle.gif' + "'>" + this.wmxCreateJobSpinner.innerHTML;
@@ -793,7 +785,7 @@ define([
         this.drawLocationNode.style.display = '';
         tabs.push(drawTab);
 
-        if (this.config.selectableLayer != '' && this.config.selectableLayer != 'Under Construction') {
+        if (this.config.selectableLayer !== '' && this.config.selectableLayer !== 'Under Construction') {
           var selectTab = {title: this.nls.selectFeatures};
           selectTab.content = this.selectFeaturesNode;
           this.selectFeaturesNode.style.display = '';
@@ -829,16 +821,16 @@ define([
         var props = jobTypeObj.extendedProps;
 
         if (!props || props.length === 0) {
-          // no job ext properties to show
+          // No job ext properties to show
           this._hideExtProperties();
         } else {
-          // loop through groups of extended props
+          // Loop through groups of extended props
           this._showExtProperties();
           var formGroup = domConstruct.create('div', {
             class: 'wmx-input-content jimu-item-form'
           }, 'wmxExtendedProps', 'last');
 
-          //loop through the form elements
+          // Loop through the form elements
           arrayUtils.forEach(props, lang.hitch(this, function (formEl) {
             formRow = domConstruct.create('div', {
               class: 'create-job-form-row'
@@ -847,7 +839,6 @@ define([
               innerHTML: formEl.fieldAlias,
               class: 'input-label'
             }, formRow, 'first');
-            inputEl;
             //  ExtendedPropertyDisplayType: {
             //     DEFAULT: 0,
             //     TEXT: 1,
@@ -871,28 +862,37 @@ define([
               //   break;
               case '2':
                 // DATE
-                inputEl = new DateTextBox({
+                var dateTextBox = new DateTextBox({
                   class: 'input-item',
                   name: formEl.fieldName
-                }).placeAt(formRow, 'last');
+                });
+                if (formEl.defaultValue) {
+                  dateTextBox.set('value', formEl.defaultValue);
+                }
+                inputEl = dateTextBox.placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
                 break;
               case '9':
                 // TABLE_LIST
-                // create dataStore with empty data (for now)
+                // Create dataStore with empty data (for now)
                 dataStore = new Memory({
                   idProperty: 'value',
                   data: []
                 });
-                inputEl = new FilteringSelect({
+                var filteringSelect = new FilteringSelect({
                   name: formEl.fieldName,
                   store: dataStore,
                   searchAttr: 'name'
-                }).placeAt(formRow, 'last');
+                });
+                inputEl = filteringSelect.placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
 
-                // populate the drop down values (dataStore)
-                this._populateTableList(dataStore, formEl.tableName, formEl.fieldName);
+                // Populate the drop down values (dataStore) and default value (if applicable)
+                if (formEl.defaultValue !== '') {
+                  this._populateTableList(dataStore, formEl.tableName, formEl.fieldName, filteringSelect, formEl.defaultValue);
+                } else {
+                  this._populateTableList(dataStore, formEl.tableName, formEl.fieldName);
+                }
                 break;
 
               case 'domain':
@@ -923,10 +923,12 @@ define([
                 break;
               default:
                 // TEXT
-                inputEl = new TextBox({
+                var textBox = new TextBox({
                   class: 'input-item',
                   name: formEl.fieldName
-                }).placeAt(formRow, 'last');
+                });
+                textBox.set('value', formEl.defaultValue);
+                inputEl = textBox.placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
             }
           }));
@@ -935,27 +937,29 @@ define([
         self.wmxCreateJobContent.style.display = '';
         self.jobTypeSelectors.style.display = 'none';
 
-        // clear out any previous messages
+        // Clear out any previous messages
         self._hideErrorMessage();
         self._hideStatusMessage();
 
-        //scroll to the top of the panel
+        // Scroll to the top of the panel
         domQuery('.jimu-widget-frame.jimu-container')[0].scrollTop = 0;
       },
 
-      _populateTableList: function (dataStore, tableName, fieldName) {
+      _populateTableList: function (dataStore, tableName, fieldName, widget, defaultValue) {
         if (this.tableListData && this.tableListData[tableName] && this.tableListData[tableName][fieldName]) {
           // Table list data found, update data store
           dataStore.data = this.tableListData[tableName][fieldName];
+          // Set default value for widget
+          this._setDefaultValue(widget, defaultValue);
         } else {
           if (this.tableListMapping[tableName] && this.tableListMapping[tableName][fieldName]) {
             // Table list data not yet populated, but table list mapping already available, get the values
-            this._populateTableListValues(dataStore, tableName, fieldName, this.tableListMapping[tableName][fieldName]);
+            this._populateTableListValues(dataStore, tableName, fieldName, this.tableListMapping[tableName][fieldName], widget, defaultValue);
           }
         }
       },
 
-      _populateTableListValues: function (dataStore, tableName, fieldName, tableListInfo) {
+      _populateTableListValues: function (dataStore, tableName, fieldName, tableListInfo, widget, defaultValue) {
         // Call server to get the table list values
         if (!this.tableListData[tableName]) {
           this.tableListData[tableName] = {};
@@ -979,13 +983,22 @@ define([
               console.log("No table list values returned for ", tableName);
               this.tableListData[tableName][fieldName] = [];
             }
+            // Update data store with values
             dataStore.data = this.tableListData[tableName][fieldName];
+            // Set the default value for the widget
+            this._setDefaultValue(widget, defaultValue);
           }),
           lang.hitch(this, function(error) {
-            console.error("Unable to retrieve table list values for", tableName, fieldName);
+            console.error("Unable to retrieve table list values for", tableName, fieldName, error);
             this._showErrorMessage(this.nls.errorRetrievingTableListValues.replace("{0}", fieldName));
             this.tableListData[tableName][fieldName] = [];
           }));
+      },
+
+      _setDefaultValue: function (widget, defaultValue) {
+        if (widget) {
+          widget.set('value', defaultValue);
+        }
       },
 
       _createJobClick: function () {
@@ -1006,11 +1019,11 @@ define([
         query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;  // Or use SPATIAL_REL_OVERLAPS?
 
         var promises = [];
-        if (parseInt(this.config.poiLayerId) != NaN) {
+        if (parseInt(this.config.poiLayerId) !== NaN) {
           var queryTask = new QueryTask(this.config.wmMapServiceUrl + '/' + this.config.poiLayerId);
           promises.push(queryTask.execute(query));
         }
-        if (parseInt(this.config.aoiLayerId) != NaN) {
+        if (parseInt(this.config.aoiLayerId) !== NaN) {
           var queryTask = new QueryTask(this.config.wmMapServiceUrl + '/' + this.config.aoiLayerId);
           promises.push(queryTask.execute(query));
         }
@@ -1040,7 +1053,7 @@ define([
 
         this.wmJobTask.createJob(creationParams, this.user,
           lang.hitch(this, function (data) {
-            // Job created successfully. Update remaining job properties
+            // Job created successfully, update remaining job properties
             console.log('Job created successfully, jobID = ' + data[0]);
             this.jobId = data[0];
             this._updateJobAfterCreate();
@@ -1060,7 +1073,7 @@ define([
         // - job attachment
         // - job extended properties
 
-        // job notes
+        // Job notes
         if (this.notesTextBox.value) {
           this.wmJobTask.updateNotes(this.jobId, this.notesTextBox.value, this.user,
             lang.hitch(this, function (response) {
@@ -1075,20 +1088,20 @@ define([
           this._handleRequestResponse(this.ResponseType.NOTES);
         }
 
-        // job attachment
+        // Job attachment
         if (this.attachmentToUpload) {
           this._addEmbeddedAttachment();
         } else {
           this._handleRequestResponse(this.ResponseType.ATTACHMENT);
         }
 
-        // job extended properties
-        // check if any extended properties were configured
+        // Job extended properties
+        // Check if any extended properties were configured
         var extProps = dom.byId('wmxExtendedProps').elements;
         if (extProps && extProps.length > 0) {
           this.wmJobTask.getExtendedProperties(this.jobId,
             lang.hitch(this, function (data) {
-              // retrieve job extended properties, then update
+              // Retrieve job extended properties, then update
               console.log('Job extended properties retrieved successfully', data);
               this.jobTypeExtendedProperties = data;
               this._updateExtendedProperties(data);
@@ -1103,20 +1116,19 @@ define([
       },
 
       _updateExtendedProperties: function (jobExtProps) {
-        // get the configured ext props for the job in the widget and group by table name
+        // Get the configured ext props for the job in the widget and group by table name
         var records = {};
         var configuredExtProps = this.config.selectedJobTypes[this.jobType].extendedProps;
         var extPropsFormData = dom.byId('wmxExtendedProps').querySelectorAll('div[data-table-name]');
 
         for (i = 0; i < extPropsFormData.length; i++) {
           var tableName = configuredExtProps[i].tableName;
-          var fieldName = configuredExtProps[i].fieldName;
           var fieldValue = extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0]
             ? extPropsFormData[i].querySelectorAll('input[name=' + configuredExtProps[i].fieldName + ']')[0].value
             : null;
           if (fieldValue && configuredExtProps[i].displayType === '2') {
-            // date fields returned in ISO format YYYY-MM-DD format, convert value to an actual date
-            // parse the date and add the 12:00 noon timestamp to be consistent with other web clients
+            // Date fields returned in ISO format YYYY-MM-DD format, convert value to an actual date.
+            // Parse the date and add the 12:00 noon timestamp to be consistent with other web clients.
             fieldValue = Date.parse(fieldValue) + 43200000;
           }
           if (!records[tableName]) {
@@ -1129,7 +1141,7 @@ define([
           records[tableName].properties[configuredExtProps[i].fieldName] = fieldValue;
         }
 
-        // get the associated recordId for each table, values are nested in containers/records
+        // Get the associated recordId for each table, values are nested in containers/records
         for (tableName in records) {
           jobExtProps.some(function(container) {
             if (tableName === container.tableName) {
@@ -1139,16 +1151,16 @@ define([
               // the job has been created and we've retrieved extended properties for the job.
               var recordValues = container.records[0].recordValues;
               recordValues.forEach(function(recordValue) {
-                var recordValueName = records[tableName].properties[recordValue.name]
+                var recordValueName = records[tableName].properties[recordValue.name];
                 if (recordValueName !== undefined && recordValueName !== null) {
-                  if (recordValue.dataType == Enum.FieldType.SINGLE || recordValue.dataType == Enum.FieldType.DOUBLE) {
+                  if (recordValue.dataType === Enum.FieldType.SINGLE || recordValue.dataType === Enum.FieldType.DOUBLE) {
                     records[tableName].properties[recordValue.name] = parseFloat(records[tableName].properties[recordValue.name]);
-                  } else if (recordValue.dataType == Enum.FieldType.INTEGER || recordValue.dataType == Enum.FieldType.SMALL_INTEGER) {
+                  } else if (recordValue.dataType === Enum.FieldType.INTEGER || recordValue.dataType === Enum.FieldType.SMALL_INTEGER) {
                     records[tableName].properties[recordValue.name] = parseInt(records[tableName].properties[recordValue.name]);
                   }
                 }
               });
-              return true;  // break out of the loop
+              return true;  // Break out of the loop
             }
           });
         }
@@ -1157,7 +1169,7 @@ define([
         this.extPropResults = [];
         for (tableName in records) {
           var record = records[tableName];
-          record.properties = JSON.stringify(record.properties);  // mkae properties into a JSON string
+          record.properties = JSON.stringify(record.properties);  // Make properties into a JSON string
           this.wmJobTask.updateRecord(this.jobId, record, this.user,
             lang.hitch(this, function(response) {
               console.log((response.success ? 'Successfully' : 'Unsuccessfully') + ' updated job ext prop record', record);
@@ -1183,7 +1195,7 @@ define([
 
       _handleExtPropsResult: function(result) {
         this.extPropResults.push(result);
-        if (this.extPropResults.length == this.numExtPropRecords) {
+        if (this.extPropResults.length === this.numExtPropRecords) {
           var errorMsgs = [];
           this.extPropResults.forEach(function(result) {
             if (result.success === false) {
@@ -1220,8 +1232,8 @@ define([
         }
 
         if (this.bNotesReqComplete && this.bAttachmentReqComplete && this.bExtPropsReqComplete) {
-          // reset the widget only when all requests have completed
-          var jobId = this.jobId; // save a copy of the jobId before we reset the widget
+          // Reset the widget only when all requests have completed
+          var jobId = this.jobId; // Save a copy of the jobId before we reset the widget
           var msg = null;
           if (this.createJobErrors.length > 0) {
             msg = this.nls.jobCreatedWithErrors.replace('{0}', jobId);
@@ -1251,7 +1263,7 @@ define([
         this.wmxSuccessPanel.innerHTML = msg;
         domStyle.set(this.wmxSuccessPanel, 'display', 'block');
 
-        // hide any previous errors
+        // Hide any previous errors
         this._hideErrorMessage();
       },
 
@@ -1264,7 +1276,7 @@ define([
         this.wmxErrorPanel.innerHTML = errMsg;
         domStyle.set(this.wmxErrorPanel, 'display', 'block');
 
-        // hide any previous messages
+        // Hide any previous messages
         this._hideStatusMessage();
       },
 
@@ -1285,7 +1297,7 @@ define([
       },
 
       _resetWidget: function (jobCreated) {
-        // destroy all the attachmentItem child widgets
+        // Destroy all the attachmentItem child widgets
         arrayUtils.forEach(this.attachmentList, function (attachmentItem) {
           attachmentItem.destroy();
         });
@@ -1322,16 +1334,16 @@ define([
         this.uploadFilename.innerHTML = '';
         domClass.remove(domQuery('.wmx-file-uploader')[0], 'upload-error');
 
-        // clear previously entered job filter
+        // Clear previously entered job filter
         this._jobFilterCleared();
 
-        //hide the successful job creation div
+        // Hide the successful job creation div
         domStyle.set(this.wmxSuccessPanel, 'display', (jobCreated === true ? 'block' : 'none'));
 
-        //hide the error message div
+        // Hide the error message div
         domStyle.set(this.wmxErrorPanel, 'display', 'none');
 
-        //hide loader
+        // Hide loader
         domStyle.set(this.wmxCreateJobLoader, 'display', 'none');
       }
     });
