@@ -35,6 +35,8 @@
     errorInvalidUserCredentials: "Unable to retrieve user credentials",
     errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system. Please contact your Workflow Manager administrator.",
     errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'. Please contact your Workflow Manager administrator.",
+    errorRetrievingTableListMapping: "Unable to retrieve table list mappings. Please contact your Workflow Manager administrator.",
+    errorRetrievingTableListMappingForField: "Unable to retrieve table list mappings for {0}. Please contact your Workflow Manager administrator.",
     errorRetrievingTableListValues: "Unable to retrieve table list values for {0}. Please contact your Workflow Manager administrator.",
     errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job. Please contact your Workflow Manager administrator.",
     errorCreatingJob: "Unable to create job: {0}",

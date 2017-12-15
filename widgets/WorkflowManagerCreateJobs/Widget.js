@@ -98,9 +98,9 @@ define([
 
       tableListMapping: {},
       tableListData: {},
-      AUX_QUERY_TABLE: "JTX_AUX_PROPS",
-      AUX_QUERY_FIELDS: "TABLE_NAME, FIELD_NAME, TABLE_LIST_CLASS, TABLE_LIST_STORE_FIELD, TABLE_LIST_DISPLAY_FIELD",
-      AUX_QUERY_WHERE: "TABLE_LIST_CLASS <> ''",
+      AUX_QUERY_FIELDS: "DISTINCT JTX_AUX_PROPS.JOB_TYPE_ID, TABLE_NAME, FIELD_NAME, TABLE_LIST_CLASS, TABLE_LIST_STORE_FIELD, TABLE_LIST_DISPLAY_FIELD",
+      AUX_QUERY_TABLES: "JTX_AUX_PROPS, JTX_JOBS", // JTX_JOBS needed here in case of job filters
+      AUX_QUERY_WHERE: "TABLE_LIST_CLASS <> '' AND JTX_AUX_PROPS.JOB_TYPE_ID in ({0})",
 
       // Unlike promises, we cannot combine all callbacks into a single request.  We need to
       // keep track of all callbacks coming back to determine if the job was created successfully
@@ -251,7 +251,7 @@ define([
             if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
               self.aoiOverlapAllowed = true;
             }
-            self._loadJobSettings();
+            self._populateJobTypes();
           },
           function (error) {
             console.log('Unable to connect to Workflow Manager Server: ' + serviceUrl, error);
@@ -260,64 +260,12 @@ define([
           });
       },
 
-      _loadJobSettings: function() {
-        // Check if there are configured job types with extended properties using table lists
-        var hasTableList = Object.keys(this.config.selectedJobTypes).some(lang.hitch(this, function(key) {
-          var extProps = this.config.selectedJobTypes[key].extendedProps;
-          return extProps.some(function(extProp) {
-            return extProp.displayType === "9";
-          });
-        }));
-        if (hasTableList) {
-          // Load table list mapping
-          this._populateTableListMapping();
-        }
-        this._populateJobTypes();
-      },
-
-      _populateTableListMapping: function() {
-        var parameters = new JobQueryParameters();
-        parameters.fields = this.AUX_QUERY_FIELDS;
-        parameters.tables = this._getTableQualifier() + this.AUX_QUERY_TABLE;
-        parameters.where = this.AUX_QUERY_WHERE;
-        this.wmJobTask.queryJobsAdHoc(parameters, this.user,
-          lang.hitch(this, function(data) {
-            if (data.rows) {
-              console.log("Table list mappings: ", data);
-              data.rows.forEach(lang.hitch(this, function(row) {
-                var tableName = row[0];
-                var fieldName = row[1];
-                var tableListMappingData = {
-                  tableName: row[2],
-                  displayField: row[3],
-                  valueField: row[4]
-                };
-                if (!this.tableListMapping[tableName]) {
-                  this.tableListMapping[tableName] = {};
-                }
-                this.tableListMapping[tableName][fieldName] = tableListMappingData;
-              }));
-            } else {
-              console.log("No table list mapping values returned");
-              this.tableListMapping = {};
-            }
-          }),
-          function(error) {
-            console.error("Unable to retrieve table list mapping values", error);
-            this.tableListMapping = {};
-          });
-      },
-
-      _getTableQualifier: function(){
-        var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
-        return index !== -1 ? this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1) : '';
-      },
-
       _populateJobTypes: function () {
         var self = lang.hitch(this);
         this.jobTypes = [];
         this.wmConfigTask.getVisibleJobTypes(this.user,
           function (data) {
+            this.visibleJobTypes = data.jobTypes;
             if (!data.jobTypes || data.jobTypes.length === 0) {
               console.log('No visible job types returned for user ' + self.user);
               self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
@@ -369,13 +317,62 @@ define([
 
             self.own(on(dom.byId('jobTypeFilterInput'), 'keyup', self._jobFilterUpdated));
             self.own(on(dom.byId('jobTypeFilterClear'), 'click', lang.hitch(self, self._jobFilterCleared)));
-            self._hideLoader();
+            self._populateTableListMapping(visibleJobTypeIds);
           },
           function (error) {
             console.log('No visible job types returned for user ' + self.user, error);
             self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
           }
         );
+      },
+
+      _populateTableListMapping: function(visibleJobTypeIds) {
+        var parameters = new JobQueryParameters();
+        var qualifier = this._getTableQualifier();
+        if (qualifier) {
+          // Found a fully qualified table name, apply qualifier to all tables in the query
+          parameters.fields = this.AUX_QUERY_FIELDS.replace(/JTX_/g, qualifier + 'JTX_');
+          parameters.tables = this.AUX_QUERY_TABLES.replace(/JTX_/g, qualifier + 'JTX_');
+          parameters.where = this.AUX_QUERY_WHERE.replace(/JTX_/g, qualifier + 'JTX_').replace("{0}", visibleJobTypeIds.join());
+        } else {
+          // No qualifier, use query parameters as-is
+          parameters.fields = this.AUX_QUERY_FIELDS;
+          parameters.tables = this.AUX_QUERY_TABLES;
+          parameters.where = this.AUX_QUERY_WHERE.replace("{0}", visibleJobTypeIds.join());
+        }
+        this.wmJobTask.queryJobsAdHoc(parameters, this.user,
+          lang.hitch(this, function(data) {
+            if (data.rows) {
+              console.log("Table list mappings: ", data);
+              data.rows.forEach(lang.hitch(this, function(row) {
+                var jobTypeId = row[0];
+                var tableName = row[1];
+                var fieldName = row[2];
+                var tableListMappingData = {
+                  tableName: row[3],
+                  displayField: row[4],
+                  valueField: row[5]
+                };
+                this.tableListMapping[jobTypeId] = this.tableListMapping[jobTypeId] || {};
+                this.tableListMapping[jobTypeId][tableName] = this.tableListMapping[jobTypeId][tableName] || {};
+                this.tableListMapping[jobTypeId][tableName][fieldName] = tableListMappingData;
+              }));
+            } else {
+              this.tableListMapping = {};
+              console.log("No table list mapping values returned");
+            }
+            this._hideLoader();
+          }),
+          lang.hitch(this, function(error) {
+            this.tableListMapping = {};
+            console.error("Unable to retrieve table list mapping values", error);
+            this._showErrorMessage(this.nls.errorRetrievingTableListMapping);
+          }));
+      },
+
+      _getTableQualifier: function(){
+        var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
+        return index !== -1 ? this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1) : '';
       },
 
       _jobFilterCleared: function(e) {
@@ -952,9 +949,11 @@ define([
           // Set default value for widget
           this._setDefaultValue(widget, defaultValue);
         } else {
-          if (this.tableListMapping[tableName] && this.tableListMapping[tableName][fieldName]) {
-            // Table list data not yet populated, but table list mapping already available, get the values
-            this._populateTableListValues(dataStore, tableName, fieldName, this.tableListMapping[tableName][fieldName], widget, defaultValue);
+          if (this.tableListMapping[this.jobType] && this.tableListMapping[this.jobType][tableName] && this.tableListMapping[this.jobType][tableName][fieldName]) {
+            // Table list data not yet populated, but table list mapping available, get the values
+            this._populateTableListValues(dataStore, tableName, fieldName, this.tableListMapping[this.jobType][tableName][fieldName], widget, defaultValue);
+          } else {
+            this._showErrorMessage(this.nls.errorRetrievingTableListMappingForField.replace("{0}",fieldName));
           }
         }
       },
