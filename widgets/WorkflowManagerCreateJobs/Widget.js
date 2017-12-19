@@ -83,7 +83,8 @@ define([
       wmJobTask: null,
       wmConfigTask: null,
 
-      jobTypes: [],
+      numberJobTypes: 0,
+      numberVisibleJobTypes: 0,
       attachmentToUpload: null,
       attachmentList: [],
       exifInfosArray: [],
@@ -100,6 +101,7 @@ define([
       tableListData: {},
       AUX_QUERY_FIELDS: "DISTINCT JTX_AUX_PROPS.JOB_TYPE_ID, TABLE_NAME, FIELD_NAME, TABLE_LIST_CLASS, TABLE_LIST_STORE_FIELD, TABLE_LIST_DISPLAY_FIELD",
       AUX_QUERY_TABLES: "JTX_AUX_PROPS, JTX_JOBS", // JTX_JOBS needed here in case of job filters
+      AUX_QUERY_TABLES_NO_JOB_FILTER: "JTX_AUX_PROPS", // Case of no job filters
       AUX_QUERY_WHERE: "TABLE_LIST_CLASS <> '' AND JTX_AUX_PROPS.JOB_TYPE_ID in ({0})",
 
       // Unlike promises, we cannot combine all callbacks into a single request.  We need to
@@ -247,6 +249,8 @@ define([
         this.wmConfigTask.getServiceInfo(
           function (response) {
             console.log('Connected successfully');
+            // Get the total number of job types
+            self.numberJobTypes = response.jobTypes ? response.jobTypes.length : 0;
             // Check for AOIOVERLAP setting
             if (response.configProperties && response.configProperties['AOIOVERLAP'] === 'allow') {
               self.aoiOverlapAllowed = true;
@@ -265,7 +269,7 @@ define([
         this.jobTypes = [];
         this.wmConfigTask.getVisibleJobTypes(this.user,
           function (data) {
-            this.visibleJobTypes = data.jobTypes;
+            self.numberVisibleJobTypes = data.jobTypes ? data.jobTypes.length : 0;
             if (!data.jobTypes || data.jobTypes.length === 0) {
               console.log('No visible job types returned for user ' + self.user);
               self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
@@ -283,6 +287,10 @@ define([
             var filteredJobTypes = Object.keys(self.config.selectedJobTypes).filter(function(jobTypeId) {
               return visibleJobTypeIds.indexOf(jobTypeId) !== -1;
             });
+            if (filteredJobTypes.length === 0) {
+              self._showErrorMessage(self.nls.errorUserNoVisibleJobTypes.replace('{0}', self.user));
+              return;
+            }
             filteredJobTypes.map(function (propKey, index) {
               jobItem = self.config.selectedJobTypes[propKey];
 
@@ -332,12 +340,14 @@ define([
         if (qualifier) {
           // Found a fully qualified table name, apply qualifier to all tables in the query
           parameters.fields = this.AUX_QUERY_FIELDS.replace(/JTX_/g, qualifier + 'JTX_');
-          parameters.tables = this.AUX_QUERY_TABLES.replace(/JTX_/g, qualifier + 'JTX_');
+          parameters.tables = this._usesJobFilters()
+            ? this.AUX_QUERY_TABLES.replace(/JTX_/g, qualifier + 'JTX_')
+            : this.AUX_QUERY_TABLES_NO_JOB_FILTER.replace(/JTX_/g, qualifier + 'JTX_');
           parameters.where = this.AUX_QUERY_WHERE.replace(/JTX_/g, qualifier + 'JTX_').replace("{0}", visibleJobTypeIds.join());
         } else {
           // No qualifier, use query parameters as-is
           parameters.fields = this.AUX_QUERY_FIELDS;
-          parameters.tables = this.AUX_QUERY_TABLES;
+          parameters.tables = this._usesJobFilters() ? this.AUX_QUERY_TABLES : this.AUX_QUERY_TABLES_NO_JOB_FILTER;
           parameters.where = this.AUX_QUERY_WHERE.replace("{0}", visibleJobTypeIds.join());
         }
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
@@ -370,9 +380,13 @@ define([
           }));
       },
 
-      _getTableQualifier: function(){
+      _getTableQualifier: function() {
         var index = this.config.fullyQualifiedJobTypesTableName ? this.config.fullyQualifiedJobTypesTableName.toUpperCase().indexOf('.JTX_JOB_TYPES') : -1;
         return index !== -1 ? this.config.fullyQualifiedJobTypesTableName.substring(0, index + 1) : '';
+      },
+
+      _usesJobFilters: function() {
+        return this.numberJobTypes > this.numberVisibleJobTypes;
       },
 
       _jobFilterCleared: function(e) {
@@ -964,8 +978,14 @@ define([
           this.tableListData[tableName] = {};
         }
         var parameters = new JobQueryParameters();
-        parameters.fields = tableListInfo.displayField + "," + tableListInfo.valueField;
-        parameters.tables = tableListInfo.tableName;
+        if (this._usesJobFilters()) {
+          parameters.fields = "DISTINCT " + tableListInfo.displayField + "," + tableListInfo.valueField;
+          parameters.tables = tableListInfo.tableName;
+          parameters.tables += "," + this._getTableQualifier() + "JTX_JOBS";
+        } else {
+          parameters.fields = tableListInfo.displayField + "," + tableListInfo.valueField;
+          parameters.tables = tableListInfo.tableName;
+        }
         parameters.orderBy = tableListInfo.displayField;
         this.wmJobTask.queryJobsAdHoc(parameters, this.user,
           lang.hitch(this, function(data) {
