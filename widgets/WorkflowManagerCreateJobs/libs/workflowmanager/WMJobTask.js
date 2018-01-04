@@ -431,7 +431,7 @@ define([
             var params = {};
             params.user = this.formatDomainUsername(user);
             params.properties = record.properties;
-            this.sendRequest(params, "/jobs/" + jobId + "/extendedProperties/" + record.tableName + "/" + record.recordId + "/update", function (response) {
+            this.sendRequest(params, "/jobs/job/" + jobId + "/extendedProperties/tableName/" + record.tableName + "/record/" + record.recordId + "/update", function (response) {
                 successCallBack(response);
             }, errorCallBack);
         },

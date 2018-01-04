@@ -893,7 +893,8 @@ define([
                 var filteringSelect = new FilteringSelect({
                   name: formEl.fieldName,
                   store: dataStore,
-                  searchAttr: 'name'
+                  searchAttr: 'name',
+                  value: 'value'
                 });
                 inputEl = filteringSelect.placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
@@ -1137,6 +1138,7 @@ define([
       _updateExtendedProperties: function (jobExtProps) {
         // Get the configured ext props for the job in the widget and group by table name
         var records = {};
+        var tableListRecords = {};
         var configuredExtProps = this.config.selectedJobTypes[this.jobType].extendedProps;
         var extPropsFormData = dom.byId('wmxExtendedProps').querySelectorAll('div[data-table-name]');
 
@@ -1150,46 +1152,111 @@ define([
             // Parse the date and add the 12:00 noon timestamp to be consistent with other web clients.
             fieldValue = Date.parse(fieldValue) + 43200000;
           }
-          if (!records[tableName]) {
-            records[tableName] = {
-              recordId: null,
-              tableName: tableName,
-              properties: {}
+
+          // Store table list properties separate from the other properties
+          if (fieldValue && (configuredExtProps[i].displayType === '9' || configuredExtProps[i].tableName)) { // Table list
+            if (!tableListRecords[tableName]) {
+              tableListRecords[tableName] = {
+                recordId: null,
+                tableName: tableName,
+                properties: {}
+              }
             }
+            tableListRecords[tableName].properties[configuredExtProps[i].fieldName] = fieldValue;
+          } else {
+            if (!records[tableName]) {
+              records[tableName] = {
+                recordId: null,
+                tableName: tableName,
+                properties: {}
+              }
+            }
+            records[tableName].properties[configuredExtProps[i].fieldName] = fieldValue;
           }
-          records[tableName].properties[configuredExtProps[i].fieldName] = fieldValue;
         }
 
         // Get the associated recordId for each table, values are nested in containers/records
-        for (tableName in records) {
-          jobExtProps.some(function(container) {
-            if (tableName === container.tableName) {
-              records[tableName].recordId = container.records[0].id;
+        for (var i = 0; i < jobExtProps.length; i++) {
+          var container = jobExtProps[i];
+          var tableName = container.tableName;
+          if (!records[tableName] && !tableListRecords[tableName]) {
+            continue;
+          }
 
-              // Adjust records values based on datatype.  This is needed here because we only get the datatype after
-              // the job has been created and we've retrieved extended properties for the job.
-              var recordValues = container.records[0].recordValues;
-              recordValues.forEach(function(recordValue) {
-                var recordValueName = records[tableName].properties[recordValue.name];
-                if (recordValueName !== undefined && recordValueName !== null) {
-                  if (recordValue.dataType === Enum.FieldType.SINGLE || recordValue.dataType === Enum.FieldType.DOUBLE) {
-                    records[tableName].properties[recordValue.name] = parseFloat(records[tableName].properties[recordValue.name]);
-                  } else if (recordValue.dataType === Enum.FieldType.INTEGER || recordValue.dataType === Enum.FieldType.SMALL_INTEGER) {
-                    records[tableName].properties[recordValue.name] = parseInt(records[tableName].properties[recordValue.name]);
-                  }
-                }
-              });
-              return true;  // Break out of the loop
+          if (records[tableName]) {
+            records[tableName].recordId = container.records[0].id;
+          }
+          if (tableListRecords[tableName]) {
+            tableListRecords[tableName].recordId = container.records[0].id;
+          }
+
+          // Adjust records values based on datatype.  This is needed here because we only get the datatype after
+          // the job has been created and we've retrieved extended properties for the job.
+          var recordValues = container.records[0].recordValues;
+          recordValues.forEach(function(recordValue) {
+            if (records[tableName] && records[tableName].properties[recordValue.name] !== undefined && records[tableName].properties[recordValue.name] !== null) {
+              if (recordValue.dataType === Enum.FieldType.SINGLE || recordValue.dataType === Enum.FieldType.DOUBLE) {
+                records[tableName].properties[recordValue.name] = parseFloat(records[tableName].properties[recordValue.name]);
+              } else if (recordValue.dataType === Enum.FieldType.INTEGER || recordValue.dataType === Enum.FieldType.SMALL_INTEGER) {
+                records[tableName].properties[recordValue.name] = parseInt(records[tableName].properties[recordValue.name]);
+              }
+            } else if (tableListRecords[tableName] && tableListRecords[tableName].properties[recordValue.name] !== undefined && tableListRecords[tableName].properties[recordValue.name] !== null) {
+              if (recordValue.dataType === Enum.FieldType.SINGLE || recordValue.dataType === Enum.FieldType.DOUBLE) {
+                tableListRecords[tableName].properties[recordValue.name] = parseFloat(tableListRecords[tableName].properties[recordValue.name]);
+              } else if (recordValue.dataType === Enum.FieldType.INTEGER || recordValue.dataType === Enum.FieldType.SMALL_INTEGER) {
+                tableListRecords[tableName].properties[recordValue.name] = parseInt(tableListRecords[tableName].properties[recordValue.name]);
+              }
             }
           });
         }
 
-        this.numExtPropRecords = Object.keys(records).length;
+        this.numExtPropRecords = Object.keys(records).length + Object.keys(tableListRecords).length;
         this.extPropResults = [];
         for (tableName in records) {
-          var record = records[tableName];
-          record.properties = JSON.stringify(record.properties);  // Make properties into a JSON string
-          this.wmJobTask.updateRecord(this.jobId, record, this.user,
+          this._updateExtendedProperty(records[tableName]);
+        }
+
+        var recordArray = [];
+        Object.keys(tableListRecords).forEach(function(key) {
+          recordArray.push(tableListRecords[key]);
+        });
+        this._updateTableListRecords(recordArray);
+      },
+
+      _updateExtendedProperty: function(record, callbackHandler, errorHandler) {
+        record.properties = JSON.stringify(record.properties);  // Make properties into a JSON string
+
+        var defaultCallbackHandler = lang.hitch(this, function(response) {
+          console.log((response.success ? 'Successfully' : 'Unsuccessfully') + ' updated job ext prop record', record);
+          this._handleExtPropsResult({
+            tableName: record.tableName,
+            recordId: record.recordId,
+            success: response.success
+          });
+        });
+
+        var defaultErrorHandler = lang.hitch(this, function (error) {
+          console.log('Error updating job ext prop record', record, error);
+          var errMsg = (error.details && error.details.length > 0) ? error.details[0] : error.message;
+          this._handleExtPropsResult({
+            tableName: record.tableName,
+            recordId: record.recordId,
+            success: false,
+            errorMsg: errMsg
+          });
+        });
+
+        this.wmJobTask.updateRecord(this.jobId, record, this.user,
+          callbackHandler ? callbackHandler : defaultCallbackHandler,
+          errorHandler ? errorHandler : defaultErrorHandler
+        );
+      },
+
+      _updateTableListRecords: function(records) {
+        // Table list records should be updated sequentially to ensure fields are updated
+        if (records && records.length > 0) {
+          var record = records[0];
+          this._updateExtendedProperty(record,
             lang.hitch(this, function(response) {
               console.log((response.success ? 'Successfully' : 'Unsuccessfully') + ' updated job ext prop record', record);
               this._handleExtPropsResult({
@@ -1197,6 +1264,10 @@ define([
                 recordId: record.recordId,
                 success: response.success
               });
+              if (records.length > 1) {
+                records.shift();  // Remove first item from the array
+                this._updateTableListRecords(records);
+              }
             }),
             lang.hitch(this, function (error) {
               console.log('Error updating job ext prop record', record, error);
@@ -1207,6 +1278,10 @@ define([
                 success: false,
                 errorMsg: errMsg
               });
+              if (records.length > 1) {
+                records.shift();  // Remove first item from the array
+                this._updateTableListRecords(records);
+              }
             })
           );
         }
