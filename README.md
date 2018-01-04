@@ -1,6 +1,6 @@
 # ArcGIS Workflow Manager Create Job Widget
 
-The ArcGIS Workflow Manager Create Job widget enables users to integrate ArcGIS Workflow Manager functionality within 
+The ArcGIS Workflow Manager Create Job widget enables users to integrate [ArcGIS Workflow Manager Server](http://server.arcgis.com/en/workflow-manager) functionality within 
 their own applications created in Web AppBuilder for ArcGIS. It is designed so users can configure 
 and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is provided for 
 developers who would like to customize the widget.
@@ -9,6 +9,8 @@ developers who would like to customize the widget.
 
 ## Features
 * Ready-to-deploy Workflow Manager widget for Web AppBuilder for ArcGIS.
+  * [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
+  * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 * Easily configurable to meet custom business needs and requirements - no programming skills required to deploy.
  
 ### Supported Browsers
