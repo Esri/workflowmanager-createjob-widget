@@ -474,20 +474,37 @@ define([
             }
             // Group results by job type Id
             this.jobTypeExtendedProperties = extProps.reduce(function(acc, item) {
-              var key = item[0];  // job type id
-              acc[key] = acc[key] || [];
-              acc[key].push({
-                jobTypeName: item[1],
-                description: item[2],
-                tableName: item[3],
-                fieldName: item[4],
-                fieldAlias: item[5],
-                fieldDomain: item[6],
-                displayType: item[7],
-                defaultValue: item[8],
-                required: item[9],
-                value: null
-              });
+              // ExtendedPropertyDisplayType: {
+              //   DEFAULT: 0,
+              //     TEXT: 1,
+              //     DATE: 2,
+              //     DOMAIN: 4,
+              //     FILE: 5,
+              //     GEO_FILE: 6,
+              //     FOLDER: 7,
+              //     LIST: 8,
+              //     TABLE_LIST: 9,
+              //     MULTI_LEVEL_TABLE_LIST: 10
+              // },
+              var displayType = item[7];
+              // Disable unsupported types
+              //   DOMAIN: 4, GEO_FILE: 6, MULTI_LEVEL_TABLE_LIST: 10
+              if (displayType !== '4' && displayType !== '6' && displayType !== '10') {
+                var key = item[0];  // job type id
+                acc[key] = acc[key] || [];
+                acc[key].push({
+                  jobTypeName: item[1],
+                  description: item[2],
+                  tableName: item[3],
+                  fieldName: item[4],
+                  fieldAlias: item[5],
+                  fieldDomain: item[6],
+                  displayType: item[7],
+                  defaultValue: item[8],
+                  required: item[9],
+                  value: null
+                });
+              }
               return acc;
             }, {});
 

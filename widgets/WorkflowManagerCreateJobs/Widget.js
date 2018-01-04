@@ -896,33 +896,6 @@ define([
                 // Populate the drop down values (dataStore) and default value (if applicable)
                 this._populateTableList(filteringSelect, formEl.tableName, formEl.fieldName, formEl.defaultValue);
                 break;
-
-              case 'domain':
-                // TODO placeholder
-                // dataStore = new Memory({
-                //   data: [
-                //     {name:'Alabama', id:'AL'},
-                //     {name:'Alaska', id:'AK'},
-                //     {name:'American Samoa', id:'AS'},
-                //     {name:'Arizona', id:'AZ'},
-                //     {name:'Arkansas', id:'AR'},
-                //     {name:'Armed Forces Europe', id:'AE'},
-                //     {name:'Armed Forces Pacific', id:'AP'},
-                //     {name:'Armed Forces the Americas', id:'AA'},
-                //     {name:'California', id:'CA'},
-                //     {name:'Colorado', id:'CO'},
-                //     {name:'Connecticut', id:'CT'},
-                //     {name:'Delaware', id:'DE'}
-                //   ]
-                // });
-                // inputEl = new FilteringSelect({
-                //   name: 'state',
-                //   value: 'CA',
-                //   store: dataStore,
-                //   searchAttr: 'name'
-                // }).placeAt(formRow, 'last');
-                // inputEl.domNode.dataset.tableName = formEl.tableName;
-                break;
               default:
                 // TEXT
                 var textBox = new TextBox({
