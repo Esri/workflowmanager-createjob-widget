@@ -828,7 +828,7 @@ define([
         this.jobType = jobTypeObj.jobType;
         this.createJobHeader.innerHTML = this.nls.createNewSubmission;
 
-        var formRow, formRowLabel, inputEl, dataStore;
+        var formRow, formRowLabel, inputEl;
         var props = jobTypeObj.extendedProps;
 
         if (!props || props.length === 0) {
@@ -885,26 +885,16 @@ define([
                 break;
               case '9':
                 // TABLE_LIST
-                // Create dataStore with empty data (for now)
-                dataStore = new Memory({
-                  idProperty: 'value',
-                  data: []
-                });
                 var filteringSelect = new FilteringSelect({
                   name: formEl.fieldName,
-                  store: dataStore,
-                  searchAttr: 'name',
-                  value: 'value'
+                  searchAttr: 'name'
                 });
+                filteringSelect.startup();
                 inputEl = filteringSelect.placeAt(formRow, 'last');
                 inputEl.domNode.dataset.tableName = formEl.tableName;
 
                 // Populate the drop down values (dataStore) and default value (if applicable)
-                if (formEl.defaultValue !== '') {
-                  this._populateTableList(dataStore, formEl.tableName, formEl.fieldName, filteringSelect, formEl.defaultValue);
-                } else {
-                  this._populateTableList(dataStore, formEl.tableName, formEl.fieldName);
-                }
+                this._populateTableList(filteringSelect, formEl.tableName, formEl.fieldName, formEl.defaultValue);
                 break;
 
               case 'domain':
@@ -957,23 +947,21 @@ define([
         domQuery('.jimu-widget-frame.jimu-container')[0].scrollTop = 0;
       },
 
-      _populateTableList: function (dataStore, tableName, fieldName, widget, defaultValue) {
+      _populateTableList: function (widget, tableName, fieldName, defaultValue) {
         if (this.tableListData && this.tableListData[tableName] && this.tableListData[tableName][fieldName]) {
-          // Table list data found, update data store
-          dataStore.data = this.tableListData[tableName][fieldName];
-          // Set default value for widget
-          this._setDefaultValue(widget, defaultValue);
+          // Table list data found, update data store and default value for widget
+          this._setDataStore(widget, this.tableListData[tableName][fieldName], defaultValue);
         } else {
           if (this.tableListMapping[this.jobType] && this.tableListMapping[this.jobType][tableName] && this.tableListMapping[this.jobType][tableName][fieldName]) {
             // Table list data not yet populated, but table list mapping available, get the values
-            this._populateTableListValues(dataStore, tableName, fieldName, this.tableListMapping[this.jobType][tableName][fieldName], widget, defaultValue);
+            this._populateTableListValues(widget, tableName, fieldName, this.tableListMapping[this.jobType][tableName][fieldName], defaultValue);
           } else {
             this._showErrorMessage(this.nls.errorRetrievingTableListMappingForField.replace("{0}",fieldName));
           }
         }
       },
 
-      _populateTableListValues: function (dataStore, tableName, fieldName, tableListInfo, widget, defaultValue) {
+      _populateTableListValues: function (widget, tableName, fieldName, tableListInfo, defaultValue) {
         // Call server to get the table list values
         if (!this.tableListData[tableName]) {
           this.tableListData[tableName] = {};
@@ -1003,10 +991,8 @@ define([
               console.log("No table list values returned for ", tableName);
               this.tableListData[tableName][fieldName] = [];
             }
-            // Update data store with values
-            dataStore.data = this.tableListData[tableName][fieldName];
-            // Set the default value for the widget
-            this._setDefaultValue(widget, defaultValue);
+            // Update data store with values and set the default value for the widget
+            this._setDataStore(widget, this.tableListData[tableName][fieldName], defaultValue);
           }),
           lang.hitch(this, function(error) {
             console.error("Unable to retrieve table list values for", tableName, fieldName, error);
@@ -1015,9 +1001,12 @@ define([
           }));
       },
 
-      _setDefaultValue: function (widget, defaultValue) {
-        if (widget) {
-          widget.set('value', defaultValue);
+      _setDataStore: function (widget, dataStore, defaultValue) {
+        if (widget && dataStore) {
+          widget.set('store', new Memory({ idProperty: 'value', data: dataStore }));
+          if (defaultValue && defaultValue !== '') {
+            widget.set('value', defaultValue);
+          }
         }
       },
 
