@@ -13,6 +13,13 @@ developers who would like to customize the widget.
   * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 * Easily configurable to meet custom business needs and requirements - no programming skills required to deploy.
  
+## Things we do not support currently:
+
+* Extended Property types that are not supported include Geographic Dataset, Domain, and Multi-level Table List. These properties are hidden in the widget configuration page.
+* IE11 cannot display job type icons in the widget.
+* Cannot Define LOI with buffer.
+* Job type's default properties cannot be configured in the widget. New jobs are created with default properties if they have been configured, such as assignment and dates. 
+ 
 ### Supported Browsers
 
 The Workflow Manager Create Job widget supports the following browsers:
@@ -37,13 +44,6 @@ The Workflow Manager Create Job widget can be used in the following Web AppBuild
 
 * [ArcGIS Workflow Manager for Server](https://server.arcgis.com/en/workflow-manager)
 * [ArcGIS Workflow Manager Discussion on GeoNet](https://geonet.esri.com/community/gis/solutions/workflow-manager)
-
-## Things we do not support currently:
-
-* Extended Property types that are not supported include Geographic Dataset, Domain, and Multi-level Table List. These properties are hidden in the widget configuration page.
-* IE11 cannot display job type icons in the widget.
-* Cannot Define LOI with buffer.
-* Job type's default properties cannot be configured in the widget. New jobs are created with default properties if they have been configured, such as assignment and dates. 
 
 ## Issues
 
