@@ -80,7 +80,7 @@ Configure the Create Job widget in Web AppBuilder for Portal or Developer Editio
 The Create Job widget can be set to open automatically when an application starts. To do so, click the dot on the widget
 to turn it dark green.
 
-* To edit the widget settings, hover over the widget and click the small edit icon. The configuration window for this widget opens.
+To edit the widget settings, hover over the widget and click the small edit icon. The configuration window for this widget opens.
 
 * **Widget icon** - optionally, click the `change widget icon` button and replace it with your own image.
   A file explorer window opens, allowing you to select a local image file to use as the widget icon. 
@@ -150,15 +150,14 @@ necessary to fully qualify your table names.
   
 ## Usage
 
-* The widget opens with a list of jobs types that jobs can be created from, and a search bar for filtering
-  job types.
-  * Only users with visible job types and the `CreateJob` privilege can use the widget.
+The widget opens with a list of jobs types that jobs can be created from, and a search bar for filtering
+  job types. Only users with visible job types and the `CreateJob` privilege can use the widget.
 * Select a job type to create a job from.  This brings up the create job view.
 * Optionally define a job's location of interest (LOI)
 * Optionally populate the job's extended properties
 * Optionally add a job attachment
 * Optionally add a note to the job
-* Click on the `Create Job` button to create the job
+* Click on the `Submit` button to create the job
 
 ## Additional Resources
 

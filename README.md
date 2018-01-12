@@ -12,6 +12,16 @@ developers who would like to customize the widget.
   * [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
   * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 * Easily configurable to meet custom business needs and requirements - no programming skills required to deploy.
+
+### Supported Workflow Manager Versions
+The widget works with ArcGIS Workflow Manager Server 10.4+ versions.
+
+### Current Limitations:
+
+* Extended property types that are not supported include geographic dataset, domains, and multi-level table list. These properties are hidden in the widget configuration page.
+* Job extended properties can be updated in the widget, but not the default properties.  Jobs are created with default properties configured in the job type, such as assignment and dates.  
+* Cannot define job location of interest (LOI) with buffer.
+* IE11 cannot display job type icons in the widget.
  
 ### Supported Browsers
 
