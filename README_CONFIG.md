@@ -80,7 +80,11 @@ Configure the Create Job widget in Web AppBuilder for Portal or Developer Editio
 The Create Job widget can be set to open automatically when an application starts. To do so, click the dot on the widget
 to turn it dark green.
 
+![App](create-job-widget-edit.png)
+
 To edit the widget settings, hover over the widget and click the small edit icon. The configuration window for this widget opens.
+
+![App](create-job-widget-configuration.png)
 
 * **Widget icon** - optionally, click the `change widget icon` button and replace it with your own image.
   A file explorer window opens, allowing you to select a local image file to use as the widget icon. 
