@@ -88,6 +88,15 @@ define([
           this._createExtendedPropsTable(selectedId);
         }));
 
+        registry.byId("cbxAutoExecute").on("change", lang.hitch(this, function(isChecked){
+          if (this.selectedJobItemRow && this.selectedJobItemRow.dataset) {
+            var selectedId = this.selectedJobItemRow.dataset.id;
+            if (selectedId && selectedId !== 'null') {
+              this.selectedJobTypes[selectedId].autoexecute = isChecked;
+            }
+          }
+        }));
+
         on(dom.byId('WMXSettingsErrorBtn'), 'click', lang.hitch(this, this._hideErrorMessage));
 
         this._initIconSelect();
@@ -571,7 +580,9 @@ define([
         jobTypeSelect.set('value', jobTypeId || null);
         this.selectChangeEvent.resume();
 
+        // Reset icon and auto execute settings
         registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || '');
+        registry.byId('cbxAutoExecute').set('checked', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].autoexecute || false);
 
         // Generate the table rows with the optional fields
         this._createExtendedPropsTable(jobTypeId);
@@ -584,6 +595,7 @@ define([
           id: jobItemId
         }, 'jobItemsCol', 'last');
         jobTypeItem.dataset.id = jobTypeId || null;
+        jobTypeItem.dataset.autoexecute = false;
 
         var jobName = domConstruct.create('p', {
           class: 'item-name item-name-unassigned',
@@ -608,9 +620,13 @@ define([
         // Select null on icon dropdown
         registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon || '');
 
-        // Enable job type select if we have at least one row added
+        // Reset auto execute checkbox
+        registry.byId('cbxAutoExecute').set('checked', this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].checked || false);
+
+        // Enable job type select and auto execute checkbox if we have at least one row added
         if (domQuery('.job-type-item').length > 0) {
           registry.byId('jobTypeSelect').set('disabled', false);
+          registry.byId('cbxAutoExecute').set('disabled', false);
         }
 
         return jobTypeItem;
@@ -625,6 +641,7 @@ define([
           jobType: jobTypeId,
           jobTypeName: jobTypeName,
           icon: (jobIcon !== undefined ? jobIcon : this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].icon),
+          autoexecute: this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].autoexecute || false,
           extendedProps: (this.selectedJobTypes[jobTypeId] && this.selectedJobTypes[jobTypeId].extendedProps) || []
         };
 
@@ -633,6 +650,7 @@ define([
         domClass.remove(rowTitle, '.item-name-unassigned');
 
         registry.byId('jobTypeIconSelect').set('value', this.selectedJobTypes[jobTypeId].icon || '');
+        registry.byId('cbxAutoExecute').set('checked', this.selectedJobTypes[jobTypeId].autoexecute || false);
 
         // Update the props table
         this._createExtendedPropsTable(jobTypeId);
@@ -732,9 +750,10 @@ define([
 
         this._resetTableSelect();
 
-        // Enable job type select if we have at least one row added
+        // Disable job type and auto execute button select if there are no job types
         if (domQuery('.job-type-item').length < 1) {
           registry.byId('jobTypeSelect').set('disabled', true);
+          registry.byId('cbxAutoExecute').set('disabled', true);
         }
 
         this._updateSelectOptionsDisabled();

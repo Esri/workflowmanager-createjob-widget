@@ -32,6 +32,7 @@ define({
     jobType: "Job Type",
     visible: "Visible",
     selectAnIcon: "Select an Icon:",
+    autoExecuteAttachmentReceived: "Auto-Execute Once Attachment Received",
 
     tableName: "Table Name",
     fieldName: "Field Name",
