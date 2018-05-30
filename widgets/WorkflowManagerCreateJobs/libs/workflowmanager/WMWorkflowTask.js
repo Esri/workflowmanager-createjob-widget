@@ -104,14 +104,24 @@ define([
                 successCallBack(response.canRun);
             }, errorCallBack);
         },
-        executeSteps: function (jobId, stepIds, user, auto, successCallBack, errorCallBack) {
-            var params = {};        
+        executeSteps: function (jobId, stepIds, auto, user, successCallBack, errorCallBack) {
+            var params = {};
             params.user = this.formatDomainUsername(user);
             params.steps = (new Util()).convertIdsToString(stepIds);
             if(auto){
                 params.auto = true;
             }
             this.sendRequest(params, "/jobs/" + jobId + "/workflow/steps/execute", function (response) {
+                successCallBack(response.executeInfo);
+            }, errorCallBack);
+        },
+        executeCurrentStep: function (jobId, auto, user, successCallBack, errorCallBack) {
+            var params = {};
+            params.user = this.formatDomainUsername(user);
+            if(auto){
+                params.auto = true;
+            }
+            this.sendRequest(params, "/jobs/" + jobId + "/workflow/steps/current/execute", function (response) {
                 successCallBack(response.executeInfo);
             }, errorCallBack);
         },

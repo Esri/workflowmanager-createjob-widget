@@ -44,6 +44,7 @@ define([
     './libs/workflowmanager/Enum',
     './libs/workflowmanager/WMJobTask',
     './libs/workflowmanager/WMConfigurationTask',
+    './libs/workflowmanager/WMWorkflowTask',
     './libs/workflowmanager/supportclasses/JobCreationParameters',
     './libs/workflowmanager/supportclasses/JobQueryParameters',
     './libs/workflowmanager/supportclasses/JobUpdateParameters',
@@ -64,7 +65,7 @@ define([
     declare, topic, html, lang, arrayUtils, domQuery, on, dom, domStyle, domClass, domConstruct, all, Uploader, Memory,
     TextBox, DateTextBox, NumberTextBox, FilteringSelect,
     jimuUtils, BaseWidget, TabContainer3, Table, DrawBox,
-    Enum, WMJobTask, WMConfigurationTask, JobCreationParameters, JobQueryParameters, JobUpdateParameters,
+    Enum, WMJobTask, WMConfigurationTask, WMWorkflowTask, JobCreationParameters, JobQueryParameters, JobUpdateParameters,
     AttachmentItem,
     IdentityManager, GeometryEngine, WebMercatorUtils, Query, QueryTask, Graphic, jsonUtils,
     EXIF) {
@@ -82,6 +83,7 @@ define([
       serviceUrl: null,
       wmJobTask: null,
       wmConfigTask: null,
+      wmWorkflowTask: null,
 
       numberJobTypes: 0,
       numberVisibleJobTypes: 0,
@@ -473,7 +475,7 @@ define([
         }
       },
 
-      _addEmbeddedAttachment: function () {
+      _addEmbeddedAttachment: function (autoExecuteAfterAttachment) {
         var form = dom.byId('sendForm');
         // Processing message
         this.uploadText.innerHTML = this.nls.processingFilename.replace('{0}', this.fullImageFilename);
@@ -488,11 +490,40 @@ define([
             // Upload was successful, so add an AttachmentItem widget
             this._createAttachmentItem(this.attachmentToUpload.latestExifInfo, this.wmJobTask, this.jobId, attachmentId, this.user);
             this.attachmentToUpload = null;
+
+            // Execute the first step in the job if configured
+            if (autoExecuteAfterAttachment) {
+              this._executeCurrentStep();
+            }
+
             this._handleRequestResponse(this.ResponseType.ATTACHMENT);
           }),
           lang.hitch(this, function (error) {
             console.log('Error adding job attachment', error);
             this._handleRequestResponse(this.ResponseType.ATTACHMENT, error);
+          })
+        );
+      },
+
+      _executeCurrentStep: function() {
+        this.wmWorkflowTask.executeCurrentStep(this.jobId, true, this.user,
+          lang.hitch(this, function (executeInfo) {
+            var response = executeInfo[0].executionResult;
+            if (response === Enum.StepExecutionResult.EXECUTED) {
+              // execution successful
+              if (executeInfo[0].threwError) {
+                // show error if it occurs when executing current step
+                console.log('Error executing current step', executeInfo[0].errorDescription);
+              } else {
+                console.log('Successfully executed current step', executeInfo[0]);
+              }
+            } else {
+              // execution unsuccessful
+              console.log('Error executing current step', executeInfo[0]);
+            }
+          }),
+          lang.hitch(this, function (error) {
+            console.log('Error executing current step', error);
           })
         );
       },
@@ -815,6 +846,7 @@ define([
       _initTasks: function () {
         this.wmJobTask = new WMJobTask(this.serviceUrl);
         this.wmConfigTask = new WMConfigurationTask(this.serviceUrl);
+        this.wmWorkflowTask = new WMWorkflowTask(this.serviceUrl);
       },
 
       _createJobSettings: function (jobTypeObj) {
@@ -1071,8 +1103,9 @@ define([
         }
 
         // Job attachment
+        var autoExecuteAfterAttachment = this.config.selectedJobTypes[this.jobType].autoexecute;
         if (this.attachmentToUpload) {
-          this._addEmbeddedAttachment();
+          this._addEmbeddedAttachment(autoExecuteAfterAttachment);
         } else {
           this._handleRequestResponse(this.ResponseType.ATTACHMENT);
         }
