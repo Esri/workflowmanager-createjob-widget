@@ -139,6 +139,7 @@ properties for each job type:
   * Click on the `+ Job Type` button to add job type entry.
   * Click on `Select a job type` drop down to select a job type to configure.
   * Optionally select an icon for the job type.
+  * Optionally click on the `Auto-Execute Once Attachment Received`. This option will automatically execute the job after the attachment has been added to the job. Note: You must turn off the `Auto-execute workflow upon job creation` setting in the job type configuration.
   * Select which extended properties for the job type will be visible in the widget.
   * Repeat the previous steps for configuring multiple job types.
 
