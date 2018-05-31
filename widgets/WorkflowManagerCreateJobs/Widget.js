@@ -1084,8 +1084,8 @@ define([
 
         // Update job after creation.
         // - job notes
-        // - job attachment
         // - job extended properties
+        // - job attachment
 
         // Job notes
         if (this.notesTextBox.value) {
@@ -1100,14 +1100,6 @@ define([
             }));
         } else {
           this._handleRequestResponse(this.ResponseType.NOTES);
-        }
-
-        // Job attachment
-        var autoExecuteAfterAttachment = this.config.selectedJobTypes[this.jobType].autoexecute;
-        if (this.attachmentToUpload) {
-          this._addEmbeddedAttachment(autoExecuteAfterAttachment);
-        } else {
-          this._handleRequestResponse(this.ResponseType.ATTACHMENT);
         }
 
         // Job extended properties
@@ -1127,6 +1119,14 @@ define([
             }));
         } else {
           this._handleRequestResponse(this.ResponseType.EXTPROPS);
+        }
+
+        // Job attachment
+        var autoExecuteAfterAttachment = this.config.selectedJobTypes[this.jobType].autoexecute;
+        if (this.attachmentToUpload) {
+          this._addEmbeddedAttachment(autoExecuteAfterAttachment);
+        } else {
+          this._handleRequestResponse(this.ResponseType.ATTACHMENT);
         }
       },
 
