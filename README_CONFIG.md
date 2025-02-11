@@ -1,17 +1,14 @@
-# ⛔ ArcGIS Workflow Manager (Classic) has been deprecated
-[Learn more about the deprecation of ArcGIS Workflow Manager (Classic)](https://support.esri.com/en-us/knowledge-base/arcgis-workflow-manager-classic-deprecation-000031190)
-
-## ArcGIS Workflow Manager (Classic) Create Job Widget
+# ArcGIS Workflow Manager (Classic) Create Job Widget
 
 Deployment, configuration and usage steps are provided in this document. Basic knowledge of 
-[ArcGIS Enterprise](http://server.arcgis.com), [Portal for ArcGIS](http://server.arcgis.com/en/portal/),
-[ArcGIS Workflow Manager (Classic) Server](https://server.arcgis.com/en/workflow-manager/) and 
+[ArcGIS Enterprise](http://enterprise.arcgis.com), [Portal for ArcGIS](http://enterprise.arcgis.com/en/portal/),
+[ArcGIS Workflow Manager (Classic) Server](https://enterprise.arcgis.com/en/workflow-manager/) and 
 Web AppBuilder for ArcGIS is assumed.
 
 ## Deployment
 
 The Workflow Manager (Classic) Create Job widget can be used in the following Web AppBuilder for ArcGIS environments:
-* [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
+* [Web AppBuilder Portal Edition](http://enterprise.arcgis.com/en/portal/latest/use/welcome.htm)
 * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 
 Note: There is currently no support for custom widgets in the [Web AppBuilder Online Edition](http://doc.arcgis.com/en/web-appbuilder/).
@@ -20,16 +17,16 @@ Note: There is currently no support for custom widgets in the [Web AppBuilder On
 Integrate the Create Job widget with Web AppBuilder Portal Edition.
 Beginning with Portal for ArcGIS 10.5.1, you can add custom widgets to your portal.
  
-* Refer to the [Web AppBuilder for Portal](http://server.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm) documentation.
-* Add the Create Job widget as a [custom widget in your portal](http://server.arcgis.com/en/portal/latest/use/add-custom-widgets.htm)
+* Refer to the [Web AppBuilder for Portal](http://enterprise.arcgis.com/en/portal/latest/administer/windows/about-web-appbuilder-for-arcgis.htm) documentation.
+* Add the Create Job widget as a [custom widget in your portal](http://enterprise.arcgis.com/en/portal/latest/use/add-custom-widgets.htm)
   and share it with groups or your organization. 
-* [Create a new Web AppBuilder application](http://server.arcgis.com/en/portal/latest/use/make-first-app.htm) and 
+* [Create a new Web AppBuilder application](http://enterprise.arcgis.com/en/portal/latest/use/make-first-app.htm) and 
 include the Create Job widget into your application.
   * The Create Job widget displays under the `Custom` tab on the `Choose Widget` dialog box in Web AppBuilder. 
 * Configure the Create Job widget. Refer to the **Configuration** section below for configuration options.
   * **Note:** When using server authentication in a stand-alone server environment, it may be necessary to add the
   stand-alone server to the list of trusted servers in portal.  
-  Refer to [Portal for ArcGIS - Configure security settings](http://server.arcgis.com/en/portal/latest/administer/windows/configure-security.htm).
+  Refer to [Portal for ArcGIS - Configure security settings](http://enterprise.arcgis.com/en/portal/latest/administer/windows/configure-security.htm).
 * Save and publish your application for use.
 
 ### Web AppBuilder Developer Edition 
