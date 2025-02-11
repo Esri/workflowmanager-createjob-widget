@@ -1,13 +1,16 @@
-# ArcGIS Workflow Manager Create Job Widget
+# ⛔ ArcGIS Workflow Manager (Classic) has been deprecated
+[Learn more about the deprecation of ArcGIS Workflow Manager (Classic)](https://support.esri.com/en-us/knowledge-base/arcgis-workflow-manager-classic-deprecation-000031190)
+
+## ArcGIS Workflow Manager (Classic) Create Job Widget
 
 Deployment, configuration and usage steps are provided in this document. Basic knowledge of 
 [ArcGIS Enterprise](http://server.arcgis.com), [Portal for ArcGIS](http://server.arcgis.com/en/portal/),
-[ArcGIS Workflow Manager Server](https://server.arcgis.com/en/workflow-manager/) and 
+[ArcGIS Workflow Manager (Classic) Server](https://server.arcgis.com/en/workflow-manager/) and 
 Web AppBuilder for ArcGIS is assumed.
 
 ## Deployment
 
-The Workflow Manager Create Job widget can be used in the following Web AppBuilder for ArcGIS environments:
+The Workflow Manager (Classic) Create Job widget can be used in the following Web AppBuilder for ArcGIS environments:
 * [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
 * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 
@@ -89,8 +92,8 @@ To edit the widget settings, hover over the widget and click the small edit icon
 * **Widget icon** - optionally, click the `change widget icon` button and replace it with your own image.
   A file explorer window opens, allowing you to select a local image file to use as the widget icon. 
 
-* **Workflow Manager Server URL** - Provide the Workflow Manager for Server URL. By default, the widget uses the 
-Workflow Manager sample service URL.
+* **Workflow Manager (Classic) Server URL** - Provide the Workflow Manager (Classic) for Server URL. By default, the widget uses the 
+Workflow Manager (Classic) sample service URL.
 
 * **Selectable map or feature service** - Optionally provide a selectable map or feature service for defining a 
 job's location of interest (LOI).
@@ -103,11 +106,11 @@ job's location of interest (LOI).
   application will not have a context of how the job LOI was created. 
     
 * **Authentication** - Specify the type of authentication method to use for the widget.
-  * `Non-Authenticated`: The Workflow Manager service is not authenticated.  The default user is required in this case since
+  * `Non-Authenticated`: The Workflow Manager (Classic) service is not authenticated.  The default user is required in this case since
   user credentials are not available.
-  * `Portal Authenticated`: The Workflow Manager service is using ArcGIS Portal authentication in a federated portal environment.
+  * `Portal Authenticated`: The Workflow Manager (Classic) service is using ArcGIS Portal authentication in a federated portal environment.
   The user's portal login credentials are used to access the service and the default user is ignored. 
-  * `Server Authenticated`: The Workflow Manager service is using ArcGIS Server authentication in a stand-alone server environment.
+  * `Server Authenticated`: The Workflow Manager (Classic) service is using ArcGIS Server authentication in a stand-alone server environment.
   The user's server login credentials are used to access the service and the default user is ignored. 
     * **Note:** When using server authentication, additional setup is required.  Refer to the Deployment section of
     this document for more information.
@@ -122,17 +125,17 @@ job's location of interest (LOI).
   * Provide a maximum attachment filesize.  The configured maximum attachment size cannot be more than the allowed attachment
 size for your database.
 
-* **Workflow Manager Map Service URL** - Configuration of this section is only required when the Workflow Manager system 
+* **Workflow Manager (Classic) Map Service URL** - Configuration of this section is only required when the Workflow Manager (Classic) system 
 settings are configured to disallow overlapping job location of interests (LOIs).
-  * Click on the `Configure Workflow Manager Map Service` checkbox if job LOI overlap is not allowed in your Workflow Manager
+  * Click on the `Configure Workflow Manager (Classic) Map Service` checkbox if job LOI overlap is not allowed in your Workflow Manager (Classic)
   configuration.
-  * Provide the Workflow Manager Map Service URL to be used to check job LOI overlap. By default, the widget uses the 
-  Workflow Manager sample service URL.
+  * Provide the Workflow Manager (Classic) Map Service URL to be used to check job LOI overlap. By default, the widget uses the 
+  Workflow Manager (Classic) sample service URL.
   * Provide the point of interest (POI) layer Id (if applicable)
   * Provide the area of interest (AOI) layer Id (if applicable)
 
 * **Click the `Set` button** to update the widget's configuration and load the job types and extended properties for the 
-specified Workflow Manager Server URL. The job type section 
+specified Workflow Manager (Classic) Server URL. The job type section 
 
 * **Configure Job Types and Extended Properties** - Add one or more job types to the widget and configure extended 
 properties for each job type:
@@ -145,7 +148,7 @@ properties for each job type:
 * **Click OK** to save and close the Create Job widget configuration window.
 
 ### Fully Qualified Table Names
-If the Create Job widget is unable to query your Workflow Manager Server for job type information, it may be 
+If the Create Job widget is unable to query your Workflow Manager (Classic) Server for job type information, it may be 
 necessary to fully qualify your table names.
 * Locate and edit the widget's [`config.json`](./widgets/WorkflowManagerCreateJobs/config.json) file in a text editor
 * Update the `fullyQualifiedJobTypesTableName` property with your fully qualified table table name
@@ -167,7 +170,7 @@ The widget opens with a list of jobs types that jobs can be created from, and a 
 
 #### Continuous Integration for Widget Development
 This is to setup a continuous integration setup using [Grunt](https://gruntjs.com/) for making modifications to the 
-Workflow Manager Create Job widget in a development environment.
+Workflow Manager (Classic) Create Job widget in a development environment.
 From the local drive where you cloned this repository, you can run a watch task which will take care of 
 automatically updating files in Web AppBuilder as you're making updates to the files in this local
 directory.

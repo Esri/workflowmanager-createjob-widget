@@ -1,7 +1,7 @@
 {
   "name": "workflowmanager-createjob-widget",
   "version": "0.1.0",
-  "description": "Sample ArcGIS Workflow Manager Create Job widget for [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/)",
+  "description": "Sample ArcGIS Workflow Manager (Classic) Create Job widget for [Web AppBuilder for ArcGIS](http://doc.arcgis.com/en/web-appbuilder/)",
   "main": "gruntfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/ArcGIS/workflowmanager-createjob-widget.git"
   },
-  "author": "ArcGIS Workflow Manager",
+  "author": "ArcGIS Workflow Manager (Classic)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ArcGIS/workflowmanager-createjob-widget/issues"

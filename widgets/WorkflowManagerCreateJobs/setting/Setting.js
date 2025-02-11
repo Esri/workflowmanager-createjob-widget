@@ -270,7 +270,7 @@ define([
             this._validateUser();
           }),
           lang.hitch(this, function (error) {
-            console.log('Unable to connect to Workflow Manager Server: ' + this.serviceUrl, error);
+            console.log('Unable to connect to Workflow Manager (Classic) Server: ' + this.serviceUrl, error);
             this._showErrorMessage(this.nls.errorUnableToConnectToWMServer.replace('{0}', this.serviceUrl));
           }));
       },
@@ -318,7 +318,7 @@ define([
             this._initializeJobTypes(this.serviceConfiguration.jobTypes);
           }),
           lang.hitch(this, function (error) {
-            console.log('Not a valid user in the Workflow Manager system: ' + this.user, error);
+            console.log('Not a valid user in the Workflow Manager (Classic) system: ' + this.user, error);
             this._showErrorMessage(this.nls.errorUserInvalid.replace('{0}', this.user));
           }));
       },
@@ -400,7 +400,7 @@ define([
       },
 
       _checkMapService: function() {
-        // Verify that the Workflow Manager map service is valid
+        // Verify that the Workflow Manager (Classic) map service is valid
         var self = lang.hitch(this);
         var mapServiceConfigured = this.cbxWMMapServiceConfigured.getValue();
         if (mapServiceConfigured && mapServiceConfigured === true) {

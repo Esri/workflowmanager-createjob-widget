@@ -1,7 +1,7 @@
 ﻿define({
   root: ({
-    _widgetLabel: "Workflow Manager Create Job",
-    title: "Create a Workflow Manager Job",
+    _widgetLabel: "Workflow Manager (Classic) Create Job",
+    title: "Create a Workflow Manager (Classic) Job",
 
     search: "Search",
     loading: "Loading ...",
@@ -31,14 +31,14 @@
     jobCreatedSuccessfully: "{0} created successfully.",
     jobCreatedWithErrors: "Job {0} created, but not all job properties were updated: ",
 
-    errorUnableToConnectToWMServer: "Unable to connect to Workflow Manager Server: {0}. Please contact your Workflow Manager administrator.",
+    errorUnableToConnectToWMServer: "Unable to connect to Workflow Manager (Classic) Server: {0}. Please contact your Workflow Manager (Classic) administrator.",
     errorInvalidUserCredentials: "Unable to retrieve user credentials",
-    errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager system. Please contact your Workflow Manager administrator.",
-    errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'. Please contact your Workflow Manager administrator.",
-    errorRetrievingTableListMapping: "Unable to retrieve table list mappings. Please contact your Workflow Manager administrator.",
-    errorRetrievingTableListMappingForField: "Unable to retrieve table list mappings for {0}. Please contact your Workflow Manager administrator.",
-    errorRetrievingTableListValues: "Unable to retrieve table list values for {0}. Please contact your Workflow Manager administrator.",
-    errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job. Please contact your Workflow Manager administrator.",
+    errorUserInvalid: "User '{0}' is not a valid user in the Workflow Manager (Classic) system. Please contact your Workflow Manager (Classic) administrator.",
+    errorUserNoVisibleJobTypes: "No visible job types returned for user '{0}'. Please contact your Workflow Manager (Classic) administrator.",
+    errorRetrievingTableListMapping: "Unable to retrieve table list mappings. Please contact your Workflow Manager (Classic) administrator.",
+    errorRetrievingTableListMappingForField: "Unable to retrieve table list mappings for {0}. Please contact your Workflow Manager (Classic) administrator.",
+    errorRetrievingTableListValues: "Unable to retrieve table list values for {0}. Please contact your Workflow Manager (Classic) administrator.",
+    errorUserNoCreateJobPrivilege: "User '{0}' does not have any privileges to create a job. Please contact your Workflow Manager (Classic) administrator.",
     errorCreatingJob: "Unable to create job: {0}",
     errorOverlappingAOI: "Unable to create job. Specified AOI overlaps with an existing job AOI.",
     errorUpdatingExtProps: "Unable to update job extended properties: {0}",
