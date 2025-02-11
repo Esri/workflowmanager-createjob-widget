@@ -1,20 +1,23 @@
-# ArcGIS Workflow Manager Create Job Widget
+# ⛔ ArcGIS Workflow Manager (Classic) has been deprecated
+Learn more about the [deprecation of ArcGIS Workflow Manager (Classic)](https://support.esri.com/en-us/knowledge-base/arcgis-workflow-manager-classic-deprecation-000031190) and the new [service-based ArcGIS Workflow Manager](https://www.esri.com/en-us/arcgis/products/arcgis-workflow-manager/overview)
 
-The ArcGIS Workflow Manager Create Job widget enables users to integrate [ArcGIS Workflow Manager Server](http://server.arcgis.com/en/workflow-manager) functionality within 
+## ArcGIS Workflow Manager (Classic) Create Job Widget
+
+The ArcGIS Workflow Manager (Classic) Create Job widget enables users to integrate [ArcGIS Workflow Manager (Classic) Server](https://enterprise.arcgis.com/en/workflow-manager/) functionality within 
 their own applications created in Web AppBuilder for ArcGIS. It is designed so users can configure 
-and deploy the widget and create jobs in ArcGIS Workflow Manager easily and quickly. Source code is provided for 
+and deploy the widget and create jobs in ArcGIS Workflow Manager (Classic) easily and quickly. Source code is provided for 
 developers who would like to customize the widget.
 
 ![App](create-job-widget.png)
 
 ## Features
-* Ready-to-deploy Workflow Manager widget for Web AppBuilder for ArcGIS.
-  * [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
+* Ready-to-deploy Workflow Manager (Classic) widget for Web AppBuilder for ArcGIS.
+  * [Web AppBuilder Portal Edition](http://enterprise.arcgis.com/en/portal/latest/use/welcome.htm)
   * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 * Easily configurable to meet custom business needs and requirements - no programming skills required to deploy.
 
-### Supported Workflow Manager Versions
-The widget works with ArcGIS Workflow Manager Server 10.4+ versions.
+### Supported Workflow Manager (Classic) Versions
+The widget works with ArcGIS Workflow Manager (Classic) Server 10.4+ versions.
 
 ### Current Limitations:
 
@@ -25,7 +28,7 @@ The widget works with ArcGIS Workflow Manager Server 10.4+ versions.
  
 ### Supported Browsers
 
-The Workflow Manager Create Job widget supports the following browsers:
+The Workflow Manager (Classic) Create Job widget supports the following browsers:
 * Chrome
 * Firefox
 * Internet Explorer 11+
@@ -39,14 +42,14 @@ The Workflow Manager Create Job widget supports the following browsers:
 
 ## Requirements
 
-The Workflow Manager Create Job widget can be used in the following Web AppBuilder for ArcGIS environments:
-* [Web AppBuilder Portal Edition](http://server.arcgis.com/en/portal/latest/use/welcome.htm)
+The Workflow Manager (Classic) Create Job widget can be used in the following Web AppBuilder for ArcGIS environments:
+* [Web AppBuilder Portal Edition](http://enterprise.arcgis.com/en/portal/latest/use/welcome.htm)
 * [Web AppBuilder Developer Edition](https://developers.arcgis.com/web-appbuilder/)
 
 ## Resources
 
-* [ArcGIS Workflow Manager for Server](https://server.arcgis.com/en/workflow-manager)
-* [ArcGIS Workflow Manager Discussion on GeoNet](https://geonet.esri.com/community/gis/solutions/workflow-manager)
+* [ArcGIS Workflow Manager (Classic) for Server](https://enterprise.arcgis.com/en/workflow-manager)
+* [ArcGIS Workflow Manager (Classic) Discussion on GeoNet](https://geonet.esri.com/community/gis/solutions/workflow-manager)
 
 ## Issues
 

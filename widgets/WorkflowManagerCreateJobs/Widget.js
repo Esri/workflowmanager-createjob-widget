@@ -107,7 +107,7 @@ define([
       // Unlike promises, we cannot combine all callbacks into a single request.  We need to
       // keep track of all callbacks coming back to determine if the job was created successfully
       // or if we need to notify the user that an issue occurred. The other option is to update the
-      // Workflow Manager API to used deferred, rather than callbacks, but that would require updates
+      // Workflow Manager (Classic) API to used deferred, rather than callbacks, but that would require updates
       // to the 3.x API.
       bNotesReqComplete: false,
       bAttachmentReqComplete: false,
@@ -258,7 +258,7 @@ define([
             self._populateJobTypes();
           },
           function (error) {
-            console.log('Unable to connect to Workflow Manager Server: ' + serviceUrl, error);
+            console.log('Unable to connect to Workflow Manager (Classic) Server: ' + serviceUrl, error);
             console.log('Unable to determine AOIOVERLAP property value, setting AOIOVERLAP to disallow');
             self._showErrorMessage(self.nls.errorUnableToConnectToWMServer.replace('{0}', serviceUrl));
           });
